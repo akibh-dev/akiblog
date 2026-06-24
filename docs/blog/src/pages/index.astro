@@ -1,0 +1,242 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { siteConfig } from '../config';
+
+// Calculate reading time from content
+function calculateReadingTime(content: string): string {
+  const wordsPerMinute = 200;
+  const wordCount = content.split(/\s+/).length;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return `${minutes} min read`;
+}
+
+// 1. Content collection posts (markdown)
+const blogPosts = await getCollection('blog');
+const markdownPosts = await Promise.all(
+  blogPosts.map(async (post) => ({
+    slug: post.slug,
+    title: post.data.title,
+    excerpt: post.data.excerpt || '',
+    date: post.data.date,
+    readingTime: calculateReadingTime(post.body || ''),
+    tags: [] as string[],
+    source: 'markdown' as const,
+  }))
+);
+
+// 2. D1 database posts
+let d1Posts: typeof markdownPosts = [];
+try {
+  const runtime = (Astro.locals as any).runtime;
+  const db = runtime?.env?.DB;
+  if (db) {
+    const result = await db.prepare(
+      `SELECT bp.slug, bp.title, bp.excerpt, bp.content, bp.published_at, bp.created_at,
+              GROUP_CONCAT(t.name) as tag_names
+       FROM blog_posts bp
+       LEFT JOIN blog_post_tags bpt ON bp.id = bpt.blog_post_id
+       LEFT JOIN tags t ON bpt.tag_id = t.id
+       WHERE bp.status = 'published'
+       GROUP BY bp.id
+       ORDER BY bp.published_at DESC`
+    ).all();
+    
+    d1Posts = (result.results || []).map((row: any) => ({
+      slug: row.slug,
+      title: row.title,
+      excerpt: row.excerpt || '',
+      date: new Date(row.published_at || row.created_at),
+      readingTime: calculateReadingTime(row.content || ''),
+      tags: row.tag_names ? row.tag_names.split(',') : [],
+      source: 'database' as const,
+    }));
+  }
+} catch (e) {
+  // D1 not available (local dev without wrangler, etc.) - continue with markdown only
+}
+
+// 3. Merge and deduplicate (D1 wins on slug collision)
+const d1Slugs = new Set(d1Posts.map(p => p.slug));
+const allPosts = [
+  ...d1Posts,
+  ...markdownPosts.filter(p => !d1Slugs.has(p.slug)),
+];
+
+const sortedPosts = allPosts.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+// Get the latest post for featured section
+const featuredPost = sortedPosts[0];
+const otherPosts = sortedPosts.slice(1);
+---
+
+<Layout title={`Blog - ${siteConfig.name}`}>
+  <section class="py-14">
+    <div class="container">
+      <div class="card p-6 sm:p-8">
+        <p class="mono text-xs tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400 mb-3">Blog</p>
+        <h1 class="text-3xl sm:text-4xl mb-3">notes.from.akib35</h1>
+        <p class="text-slate-600 dark:text-slate-300 max-w-2xl">
+          A focused log of engineering decisions, architecture notes, debugging stories, and practical web development lessons.
+        </p>
+      </div>
+
+      <div class="mt-8 mb-4">
+        <label for="blog-search" class="mono text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Search Posts</label>
+        <input
+          type="text"
+          id="blog-search"
+          placeholder="Type keywords, title, or tags"
+          class="mt-2 w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/80 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-500"
+        />
+      </div>
+
+      <div class="mb-10 flex flex-wrap gap-2" id="tag-filters">
+        {Array.from(new Set(sortedPosts.flatMap(post => post.tags))).sort().map(tag => (
+          <button 
+            class="tag-filter-btn chip cursor-pointer transition-colors border border-transparent aria-pressed:border-slate-400 aria-pressed:bg-slate-200 dark:aria-pressed:border-slate-500 dark:aria-pressed:bg-slate-800"
+            data-tag={tag.toLowerCase()}
+            aria-pressed="false"
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
+
+      <div id="no-results" class="hidden text-center card py-12">
+        <p class="text-slate-600 dark:text-slate-300">No results. Try a broader keyword.</p>
+        <button id="clear-search" class="btn mt-4 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200">Clear Search</button>
+      </div>
+
+      {sortedPosts.length === 0 ? (
+        <div class="card text-center py-12">
+          <p class="text-slate-600 dark:text-slate-300">No posts published yet.</p>
+        </div>
+      ) : (
+        <div id="posts-container" class="space-y-4">
+          {featuredPost && (
+            <a href={`/${featuredPost.slug}`} class="blog-post block no-underline" data-title={featuredPost.title.toLowerCase()} data-excerpt={featuredPost.excerpt?.toLowerCase() || ''} data-tags={featuredPost.tags.join(',').toLowerCase()}>
+              <article class="card p-6 sm:p-7 hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
+                <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <span class="chip">Latest</span>
+                  <time>{featuredPost.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+                  <span>•</span>
+                  <span>{featuredPost.readingTime}</span>
+                </div>
+                <h2 class="text-2xl mb-2">{featuredPost.title}</h2>
+                <p class="text-slate-600 dark:text-slate-300 mb-4">{featuredPost.excerpt}</p>
+                {featuredPost.tags.length > 0 && (
+                  <div class="flex flex-wrap gap-2">
+                    {featuredPost.tags.map((tag) => <span class="chip">{tag}</span>)}
+                  </div>
+                )}
+              </article>
+            </a>
+          )}
+
+          {otherPosts.length > 0 && (
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {otherPosts.map((post) => (
+                <a href={`/${post.slug}`} class="blog-post block no-underline" data-title={post.title.toLowerCase()} data-excerpt={post.excerpt?.toLowerCase() || ''} data-tags={post.tags.join(',').toLowerCase()}>
+                  <article class="card h-full p-5 hover:border-slate-400 dark:hover:border-slate-500 transition-colors">
+                    <div class="mono text-xs text-slate-500 dark:text-slate-400 mb-3">
+                      {post.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} • {post.readingTime}
+                    </div>
+                    <h2 class="text-xl mb-2">{post.title}</h2>
+                    <p class="text-slate-600 dark:text-slate-300 line-clamp-2">{post.excerpt}</p>
+                  </article>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  function initBlogSearch() {
+    const searchInput = document.getElementById('blog-search');
+    const noResults = document.getElementById('no-results');
+    const postsContainer = document.getElementById('posts-container');
+    const clearSearch = document.getElementById('clear-search');
+    const tagButtons = document.querySelectorAll('.tag-filter-btn');
+
+    if (!searchInput || !noResults || !postsContainer) return;
+
+    const posts = postsContainer.querySelectorAll('.blog-post');
+    let activeTags = new Set();
+
+    function performSearch() {
+      const query = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      posts.forEach((post) => {
+        const title = post.getAttribute('data-title') || '';
+        const excerpt = post.getAttribute('data-excerpt') || '';
+        const tags = (post.getAttribute('data-tags') || '').split(',').filter(Boolean);
+        
+        const matchesQuery = query === '' || title.includes(query) || excerpt.includes(query) || tags.some(t => t.includes(query));
+        
+        const matchesTags = activeTags.size === 0 || Array.from(activeTags).every(t => tags.includes(t));
+
+        if (matchesQuery && matchesTags) {
+          post.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          post.classList.add('hidden');
+        }
+      });
+
+      if (visibleCount === 0 && (query !== '' || activeTags.size > 0)) {
+        noResults.classList.remove('hidden');
+        postsContainer.classList.add('hidden');
+      } else {
+        noResults.classList.add('hidden');
+        postsContainer.classList.remove('hidden');
+      }
+    }
+
+    searchInput.addEventListener('input', performSearch);
+
+    clearSearch.addEventListener('click', () => {
+      searchInput.value = '';
+      activeTags.clear();
+      tagButtons.forEach(btn => btn.setAttribute('aria-pressed', 'false'));
+      performSearch();
+      searchInput.focus();
+    });
+    
+    tagButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tag = btn.getAttribute('data-tag');
+        const isPressed = btn.getAttribute('aria-pressed') === 'true';
+        
+        if (isPressed) {
+          activeTags.delete(tag);
+          btn.setAttribute('aria-pressed', 'false');
+        } else {
+          activeTags.add(tag);
+          btn.setAttribute('aria-pressed', 'true');
+        }
+        
+        performSearch();
+      });
+    });
+  }
+
+  initBlogSearch();
+  document.addEventListener('astro:after-swap', initBlogSearch);
+</script>
