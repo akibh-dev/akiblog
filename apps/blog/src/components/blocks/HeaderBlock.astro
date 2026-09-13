@@ -1,0 +1,34 @@
+---
+// HeaderBlock.astro
+interface Props {
+  text: string;
+  level?: number;
+}
+
+const { text, level = 2 } = Astro.props;
+
+const cleanText = text.replace(/<[^>]*>?/gm, '');
+const headingId = cleanText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const Tag = `h${level}` as any;
+
+const sizeClasses: Record<number, string> = {
+  1: 'text-3xl sm:text-4xl font-black mt-10 mb-4',
+  2: 'text-2xl sm:text-3xl font-extrabold mt-8 mb-3.5',
+  3: 'text-xl sm:text-2xl font-bold mt-7 mb-3',
+  4: 'text-lg sm:text-xl font-bold mt-6 mb-2',
+};
+
+const headingClass = sizeClasses[level] || sizeClasses[2];
+---
+
+<Tag id={headingId} class={`text-slate-900 dark:text-slate-100 scroll-mt-24 group flex items-center gap-2 ${headingClass}`}>
+  <span set:html={text} />
+  <a
+    href={`#${headingId}`}
+    class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-500 transition-opacity text-base font-normal"
+    aria-label={`Link to ${cleanText}`}
+  >
+    #
+  </a>
+</Tag>

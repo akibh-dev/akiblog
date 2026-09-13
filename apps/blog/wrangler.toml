@@ -1,0 +1,24 @@
+name = "blog"
+compatibility_date = "2026-03-13"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "blog-db"
+database_id = "blog-db-local-id"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "blog-media"
+
+[vars]
+SITE_URL = "http://localhost:4321"
+DEV_MODE = "true"
+CLOUDFLARE_TEAM_DOMAIN = ""
+CLOUDFLARE_ACCESS_AUD = ""
+R2_PUBLIC_DOMAIN = "/api/media"

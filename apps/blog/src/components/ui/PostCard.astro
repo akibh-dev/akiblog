@@ -1,0 +1,71 @@
+---
+// PostCard.astro - Clean Post Card Presentation Component
+import type { PostWithMeta } from '../../lib/services/posts';
+import TagBadge from './TagBadge.astro';
+
+interface Props {
+  post: PostWithMeta;
+}
+
+const { post } = Astro.props;
+
+const dateFormatted = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  : new Date(post.createdAt).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+---
+
+<article class="group relative flex flex-col bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300">
+  {post.coverImage && (
+    <div class="aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+      <img
+        src={post.coverImage}
+        alt={post.title}
+        loading="lazy"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+    </div>
+  )}
+
+  <div class="flex-1 p-6 flex flex-col justify-between">
+    <div>
+      {post.tags && post.tags.length > 0 && (
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          {post.tags.slice(0, 3).map((tag) => (
+            <TagBadge tag={tag} size="sm" />
+          ))}
+        </div>
+      )}
+
+      <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+        <a href={`/posts/${post.slug}`} class="focus:outline-none">
+          <span class="absolute inset-0" aria-hidden="true" />
+          {post.title}
+        </a>
+      </h2>
+
+      {post.excerpt && (
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
+          {post.excerpt}
+        </p>
+      )}
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+      <time datetime={new Date(post.publishedAt || post.createdAt).toISOString()}>{dateFormatted}</time>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{post.readingTime}</span>
+      </div>
+    </div>
+  </div>
+</article>

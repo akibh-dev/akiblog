@@ -1,0 +1,115 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import FeaturedPostCard from '../components/ui/FeaturedPostCard.astro';
+import PostCard from '../components/ui/PostCard.astro';
+import TagFilter from '../components/ui/TagFilter.astro';
+import SearchBar from '../components/ui/SearchBar.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import Pagination from '../components/ui/Pagination.astro';
+
+import { getDb } from '../lib/db';
+import { getPublishedPosts } from '../lib/services/posts';
+import { getAllTags } from '../lib/services/tags';
+
+const url = new URL(Astro.request.url);
+const search = url.searchParams.get('q') || undefined;
+const tagSlug = url.searchParams.get('tag') || undefined;
+const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+const limit = 9;
+const offset = (page - 1) * limit;
+
+let posts: any[] = [];
+let total = 0;
+let allTags: any[] = [];
+
+try {
+  const db = getDb(Astro.locals);
+  const result = await getPublishedPosts(db, { search, tagSlug, limit, offset });
+  posts = result.posts;
+  total = result.total;
+  allTags = await getAllTags(db);
+} catch (error) {
+  console.error('Error fetching blog data:', error);
+}
+
+const totalPages = Math.ceil(total / limit);
+
+// If first page and no search/tag filter, pick first as featured
+const isDefaultView = !search && !tagSlug && page === 1;
+const featuredPost = isDefaultView && posts.length > 0 ? posts[0] : null;
+const feedPosts = featuredPost ? posts.slice(1) : posts;
+---
+
+<Layout
+  title="Blog — Engineering Notes & Technical Writing"
+  description="A focused log of software architecture, edge systems, web performance, and developer experience."
+>
+  <!-- Hero Section -->
+  <section class="py-6 sm:py-10">
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 mb-4">
+        <span>Software Engineering & Architecture</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+        notes.from.akib
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+        Deep dives into distributed edge architecture, serverless databases, clean systems design, and modern web application development.
+      </p>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="mt-8 space-y-4">
+      <SearchBar initialValue={search} />
+      <TagFilter tags={allTags} activeSlug={tagSlug} />
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <section class="py-6 space-y-12">
+    {/* Featured Post (Only on default first page) */}
+    {featuredPost && (
+      <div>
+        <FeaturedPostCard post={featuredPost} />
+      </div>
+    )}
+
+    {/* Post Grid */}
+    {feedPosts.length > 0 ? (
+      <div>
+        {featuredPost && (
+          <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
+            Recent Articles
+          </h2>
+        )}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {feedPosts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      </div>
+    ) : (
+      !featuredPost && (
+        <EmptyState
+          title="No articles found"
+          description={
+            search
+              ? `No articles matched your search for "${search}".`
+              : 'There are no published articles yet.'
+          }
+          actionHref="/"
+          actionText="Clear Search"
+        />
+      )
+    )}
+
+    {/* Pagination */}
+    <Pagination
+      currentPage={page}
+      totalPages={totalPages}
+      baseUrl={url.toString()}
+    />
+  </section>
+</Layout>

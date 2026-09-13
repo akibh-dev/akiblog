@@ -1,0 +1,26 @@
+---
+// ImageBlock.astro
+interface Props {
+  file: { url: string };
+  caption?: string;
+  withBorder?: boolean;
+  withBackground?: boolean;
+  stretched?: boolean;
+}
+
+const { file, caption, withBorder = false, withBackground = false, stretched = false } = Astro.props;
+---
+
+<figure class={`my-8 ${stretched ? '-mx-4 sm:-mx-8 lg:-mx-16' : ''}`}>
+  <div class={`overflow-hidden rounded-2xl ${withBorder ? 'border border-slate-200 dark:border-slate-800' : ''} ${withBackground ? 'bg-slate-100 dark:bg-slate-900 p-4' : ''}`}>
+    <img
+      src={file.url}
+      alt={caption || 'Article image'}
+      loading="lazy"
+      class="w-full h-auto object-cover rounded-xl max-h-[600px]"
+    />
+  </div>
+  {caption && (
+    <figcaption class="mt-2.5 text-center text-sm text-slate-500 dark:text-slate-400 italic" set:html={caption} />
+  )}
+</figure>

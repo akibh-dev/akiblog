@@ -1,0 +1,33 @@
+---
+// TableBlock.astro
+interface Props {
+  content: string[][];
+  withHeadings?: boolean;
+}
+
+const { content, withHeadings = true } = Astro.props;
+---
+
+<div class="my-8 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+  <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800 text-left text-sm">
+    <tbody class="divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+      {content.map((row, rowIndex) => {
+        const isHeader = withHeadings && rowIndex === 0;
+        return (
+          <tr class={isHeader ? 'bg-slate-50 dark:bg-slate-800/60 font-semibold text-slate-900 dark:text-slate-100' : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/30'}>
+            {row.map((cell) => {
+              if (isHeader) {
+                return (
+                  <th scope="col" class="px-5 py-3.5 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300" set:html={cell} />
+                );
+              }
+              return (
+                <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 whitespace-nowrap sm:whitespace-normal" set:html={cell} />
+              );
+            })}
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>

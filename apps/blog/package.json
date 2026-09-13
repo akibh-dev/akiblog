@@ -1,0 +1,48 @@
+{
+  "name": "blog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "build": "astro build",
+    "preview": "node scripts/dev.js",
+    "start": "node scripts/dev.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate:local": "wrangler d1 execute blog-db --local --file=../../packages/db/migrations/0000_initial.sql",
+    "db:seed:local": "wrangler d1 execute blog-db --local --file=../../packages/db/src/seed.sql",
+    "db:migrate:remote": "wrangler d1 execute blog-db --remote --file=../../packages/db/migrations/0000_initial.sql",
+    "db:seed:remote": "wrangler d1 execute blog-db --remote --file=../../packages/db/src/seed.sql"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.3.1",
+    "@astrojs/react": "^6.0.5",
+    "@editorjs/code": "^2.9.3",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.30.8",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.2",
+    "@editorjs/inline-code": "^1.5.2",
+    "@editorjs/list": "^2.0.4",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/table": "^2.4.3",
+    "@repo/db": "workspace:*",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.2",
+    "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.12",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260911.1",
+    "@repo/tsconfig": "workspace:*",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0",
+    "wrangler": "^4.131.1"
+  }
+}

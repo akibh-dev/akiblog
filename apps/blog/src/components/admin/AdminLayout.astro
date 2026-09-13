@@ -1,0 +1,44 @@
+---
+// AdminLayout.astro - Base layout for Admin Studio
+import AdminNav from './AdminNav.astro';
+import '../../styles/global.css';
+
+interface Props {
+  title?: string;
+  userEmail?: string;
+}
+
+const { title = 'Admin Studio', userEmail = 'admin@akib35.me' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — Studio</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('color-theme')) {
+          return localStorage.getItem('color-theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen">
+    <AdminNav userEmail={userEmail} />
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <slot />
+    </main>
+  </body>
+</html>
