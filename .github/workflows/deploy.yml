@@ -1,4 +1,4 @@
-name: Deploy Blog to Cloudflare
+name: Deploy Blog Worker to Cloudflare
 
 on:
   push:
@@ -7,20 +7,40 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Cloudflare (Pages & D1)
-    runs-on: alpine
-    container:
-      image: node:22-alpine
+    name: Deploy to Cloudflare Worker
+    runs-on: alpine-latest
+    defaults:
+      run:
+        shell: sh
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install pnpm & Wrangler
+      - name: Install Node 22 & Wrangler on Alpine
         run: |
-          corepack enable
-          corepack prepare pnpm@10.33.0 --activate
-          pnpm --filter blog add -D wrangler@4.131.1
+          apk add --no-cache bash nodejs-current npm tar
+          npm install -g pnpm wrangler@4.131.1
+
+      - name: Extract Build Artifacts
+        run: |
+          cd apps/blog
+          if [ -f "dist.tar.gz" ]; then
+            tar -xzf dist.tar.gz
+            echo "Successfully extracted dist.tar.gz"
+          fi
+
+      - name: Configure D1 Database ID
+        env:
+          CLOUDFLARE_DATABASE_ID: ${{ secrets.CLOUDFLARE_DATABASE_ID }}
+        run: |
+          cd apps/blog
+          if [ -n "$CLOUDFLARE_DATABASE_ID" ]; then
+            sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" wrangler.toml
+            if [ -f "dist/server/wrangler.json" ]; then
+              sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" dist/server/wrangler.json
+            fi
+          fi
 
       - name: Apply Remote D1 Database Migrations
         env:
@@ -28,12 +48,12 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           cd apps/blog
-          pnpm exec wrangler d1 execute blog-db --remote --file=../../packages/db/migrations/0000_initial.sql
+          wrangler d1 execute blog-db --remote --file=../../packages/db/migrations/0000_initial.sql
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy Worker to Cloudflare
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           cd apps/blog
-          pnpm exec wrangler pages deploy dist/server --project-name=blog --commit-dirty=true
+          wrangler deploy --config dist/server/wrangler.json

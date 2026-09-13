@@ -1,4 +1,4 @@
-CREATE TABLE `posts` (
+CREATE TABLE IF NOT EXISTS `posts` (
 	`id` text PRIMARY KEY NOT NULL,
 	`slug` text NOT NULL,
 	`title` text NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE `posts` (
 
 CREATE UNIQUE INDEX IF NOT EXISTS `posts_slug_unique` ON `posts` (`slug`);
 
-CREATE TABLE `tags` (
+CREATE TABLE IF NOT EXISTS `tags` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`slug` text NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE `tags` (
 CREATE UNIQUE INDEX IF NOT EXISTS `tags_name_unique` ON `tags` (`name`);
 CREATE UNIQUE INDEX IF NOT EXISTS `tags_slug_unique` ON `tags` (`slug`);
 
-CREATE TABLE `post_tags` (
+CREATE TABLE IF NOT EXISTS `post_tags` (
 	`post_id` text NOT NULL,
 	`tag_id` text NOT NULL,
 	PRIMARY KEY(`post_id`, `tag_id`),
@@ -34,7 +34,7 @@ CREATE TABLE `post_tags` (
 	FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
-CREATE TABLE `comments` (
+CREATE TABLE IF NOT EXISTS `comments` (
 	`id` text PRIMARY KEY NOT NULL,
 	`post_id` text NOT NULL,
 	`parent_id` text,

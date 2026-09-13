@@ -2,7 +2,7 @@ globalThis.process ??= {};
 globalThis.process.env ??= {};
 import { n as __exportAll } from "./rolldown-runtime_BDykq6kg.mjs";
 import { t as getDb } from "./db_CGVLS4Nl.mjs";
-import { t as verifyAccessJWT } from "./auth_Bp6qAf0c.mjs";
+import { t as verifyAccessJWT } from "./auth_Crr6vjTf.mjs";
 import { t as getRuntimeEnv } from "./env_DqgDjpTp.mjs";
 import { r as getAllPostsForAdmin, s as getPublishedPosts, t as createPost } from "./posts_CMTQj74H.mjs";
 //#region src/pages/api/posts/index.ts

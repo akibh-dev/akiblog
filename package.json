@@ -9,6 +9,7 @@
     "dev:blog": "pnpm --filter blog dev",
     "build": "turbo run build",
     "build:blog": "pnpm --filter blog build",
+    "pack:dist": "pnpm build && cd apps/blog && tar -czf dist.tar.gz dist/ && echo 'Compressed dist.tar.gz created successfully!'",
     "preview:blog": "pnpm --filter blog preview",
     "test": "pnpm --filter blog test",
     "db:generate": "pnpm --filter @repo/db db:generate",

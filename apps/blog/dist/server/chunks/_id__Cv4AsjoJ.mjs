@@ -2,7 +2,7 @@ globalThis.process ??= {};
 globalThis.process.env ??= {};
 import { n as __exportAll } from "./rolldown-runtime_BDykq6kg.mjs";
 import { t as getDb } from "./db_CGVLS4Nl.mjs";
-import { t as verifyAccessJWT } from "./auth_Bp6qAf0c.mjs";
+import { t as verifyAccessJWT } from "./auth_Crr6vjTf.mjs";
 import { t as getRuntimeEnv } from "./env_DqgDjpTp.mjs";
 import { a as setCommentApproval, n as deleteComment } from "./comments_CZPswOHc.mjs";
 //#region src/pages/api/comments/[id].ts

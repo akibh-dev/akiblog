@@ -2,7 +2,7 @@ globalThis.process ??= {};
 globalThis.process.env ??= {};
 import { n as __exportAll } from "./rolldown-runtime_BDykq6kg.mjs";
 import { t as getDb } from "./db_CGVLS4Nl.mjs";
-import { t as verifyAccessJWT } from "./auth_Bp6qAf0c.mjs";
+import { t as verifyAccessJWT } from "./auth_Crr6vjTf.mjs";
 import { t as getRuntimeEnv } from "./env_DqgDjpTp.mjs";
 import { n as deleteTag } from "./tags_HgVHpaP4.mjs";
 //#region src/pages/api/tags/[id].ts

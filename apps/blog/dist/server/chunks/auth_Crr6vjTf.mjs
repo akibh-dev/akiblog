@@ -723,7 +723,7 @@ async function verifyAccessJWT(request, env) {
 		"SITE": void 0,
 		"SSR": true
 	}, {
-		DEV_MODE: "true",
+		DEV_MODE: "false",
 		CLOUDFLARE_TEAM_DOMAIN: "",
 		CLOUDFLARE_ACCESS_AUD: ""
 	})?.DEV) && !isExplicitProd;
