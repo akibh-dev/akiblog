@@ -1,0 +1,10 @@
+---
+// ParagraphBlock.astro
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<p class="text-slate-700 dark:text-slate-300 text-lg leading-relaxed my-4" set:html={text} />

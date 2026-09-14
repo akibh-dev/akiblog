@@ -1,0 +1,30 @@
+name = "blog"
+compatibility_date = "2026-03-13"
+compatibility_flags = ["nodejs_compat"]
+
+# Custom Domain attached directly to akib35.dev in Cloudflare
+routes = [
+  { pattern = "blog.akib35.dev", custom_domain = true }
+]
+
+[assets]
+directory = "dist/client"
+binding = "ASSETS"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "blog-db"
+database_id = "blog-db-local-id"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "blog-media"
+
+[vars]
+SITE_URL = "https://blog.akib35.dev"
+DEV_MODE = "false"
+CLOUDFLARE_TEAM_DOMAIN = ""
+CLOUDFLARE_ACCESS_AUD = ""
+R2_PUBLIC_DOMAIN = "/api/media"

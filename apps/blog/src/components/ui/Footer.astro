@@ -1,0 +1,38 @@
+---
+// Footer.astro - Separated Site Footer Component
+interface Props {
+  authorName?: string;
+}
+
+const { authorName = 'Md Akib Hasan' } = Astro.props;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 py-10 transition-colors">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-sm text-slate-500 dark:text-slate-400">
+        © {currentYear} {authorName}. Edge-native blog powered by Astro & Cloudflare.
+      </div>
+
+      <div class="flex items-center gap-6 text-sm">
+        <a
+          href="/rss.xml"
+          class="text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+          aria-label="RSS Feed"
+        >
+          <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6.18 15.64a2.18 2.18 0 1 1-2.18 2.18 2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-3.32A12.24 12.24 0 0 0 4 7.76zm0 5.88a9.68 9.68 0 0 1 9.68 9.68h-3.32A6.36 6.36 0 0 0 4 13.64z"/>
+          </svg>
+          <span>RSS Feed</span>
+        </a>
+        <a
+          href="#top"
+          class="text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+        >
+          Back to top ↑
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

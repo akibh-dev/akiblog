@@ -1,0 +1,24 @@
+{
+  "name": "akiblog-monorepo",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Developer-focused blog monorepo powered by Astro v5, Cloudflare D1/R2, and Drizzle ORM",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:blog": "pnpm --filter blog dev",
+    "build": "turbo run build",
+    "build:blog": "pnpm --filter blog build",
+    "ship": "node scripts/ship.js",
+    "pack:dist": "node scripts/ship.js",
+    "preview:blog": "pnpm --filter blog preview",
+    "test": "pnpm --filter blog test",
+    "db:generate": "pnpm --filter @repo/db db:generate",
+    "db:migrate:local": "pnpm --filter blog db:migrate:local",
+    "db:seed:local": "pnpm --filter blog db:seed:local"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4"
+  }
+}

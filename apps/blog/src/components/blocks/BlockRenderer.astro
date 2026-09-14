@@ -1,0 +1,96 @@
+---
+// BlockRenderer.astro - Server-Side Editor.js JSON Block Orchestrator
+import ParagraphBlock from './ParagraphBlock.astro';
+import HeaderBlock from './HeaderBlock.astro';
+import ListBlock from './ListBlock.astro';
+import CodeBlock from './CodeBlock.astro';
+import QuoteBlock from './QuoteBlock.astro';
+import ImageBlock from './ImageBlock.astro';
+import TableBlock from './TableBlock.astro';
+import DelimiterBlock from './DelimiterBlock.astro';
+
+interface Block {
+  type: string;
+  data: any;
+}
+
+interface Props {
+  contentJson: string;
+}
+
+const { contentJson } = Astro.props;
+
+let blocks: Block[] = [];
+let isRawHtml = false;
+
+try {
+  if (contentJson && contentJson.trim().startsWith('{')) {
+    const parsed = JSON.parse(contentJson);
+    if (Array.isArray(parsed.blocks)) {
+      blocks = parsed.blocks;
+    } else {
+      isRawHtml = true;
+    }
+  } else {
+    isRawHtml = true;
+  }
+} catch {
+  isRawHtml = true;
+}
+---
+
+<div class="article-content max-w-none text-slate-800 dark:text-slate-200">
+  {isRawHtml ? (
+    <div class="prose dark:prose-invert max-w-none text-lg leading-relaxed space-y-4" set:html={contentJson} />
+  ) : (
+    blocks.map((block) => {
+      switch (block.type) {
+        case 'paragraph':
+          return <ParagraphBlock text={block.data.text} />;
+
+        case 'header':
+          return <HeaderBlock text={block.data.text} level={block.data.level} />;
+
+        case 'list':
+          return <ListBlock items={block.data.items} style={block.data.style} />;
+
+        case 'code':
+          return <CodeBlock code={block.data.code} language={block.data.language} />;
+
+        case 'quote':
+          return (
+            <QuoteBlock
+              text={block.data.text}
+              caption={block.data.caption}
+              alignment={block.data.alignment}
+            />
+          );
+
+        case 'image':
+          return (
+            <ImageBlock
+              file={block.data.file}
+              caption={block.data.caption}
+              withBorder={block.data.withBorder}
+              withBackground={block.data.withBackground}
+              stretched={block.data.stretched}
+            />
+          );
+
+        case 'table':
+          return (
+            <TableBlock
+              content={block.data.content}
+              withHeadings={block.data.withHeadings}
+            />
+          );
+
+        case 'delimiter':
+          return <DelimiterBlock />;
+
+        default:
+          return null;
+      }
+    })
+  )}
+</div>

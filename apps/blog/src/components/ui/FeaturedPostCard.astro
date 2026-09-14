@@ -1,0 +1,80 @@
+---
+// FeaturedPostCard.astro - Prominent Featured Post Presentation
+import type { PostWithMeta } from '../../lib/services/posts';
+import TagBadge from './TagBadge.astro';
+
+interface Props {
+  post: PostWithMeta;
+}
+
+const { post } = Astro.props;
+
+const dateFormatted = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  : new Date(post.createdAt).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+---
+
+<article class="group relative bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-slate-900 dark:to-slate-900/50 rounded-3xl border border-blue-100 dark:border-slate-800 p-6 sm:p-8 lg:p-10 hover:border-blue-300 dark:hover:border-slate-700 transition-all shadow-sm hover:shadow-xl">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <div class="lg:col-span-7 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-sm">
+            Featured Article
+          </span>
+          {post.tags && post.tags.length > 0 && (
+            <div class="flex flex-wrap gap-1.5">
+              {post.tags.slice(0, 2).map((tag) => (
+                <TagBadge tag={tag} size="sm" />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+          <a href={`/posts/${post.slug}`} class="focus:outline-none">
+            <span class="absolute inset-0" aria-hidden="true" />
+            {post.title}
+          </a>
+        </h2>
+
+        {post.excerpt && (
+          <p class="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
+            {post.excerpt}
+          </p>
+        )}
+      </div>
+
+      <div class="mt-8 flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+        <time datetime={new Date(post.publishedAt || post.createdAt).toISOString()}>{dateFormatted}</time>
+        <span>•</span>
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{post.readingTime}</span>
+        </div>
+      </div>
+    </div>
+
+    {post.coverImage && (
+      <div class="lg:col-span-5">
+        <div class="aspect-[16/10] overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 shadow-md">
+          <img
+            src={post.coverImage}
+            alt={post.title}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      </div>
+    )}
+  </div>
+</article>

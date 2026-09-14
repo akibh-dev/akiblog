@@ -1,0 +1,79 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import PostCard from '../../components/ui/PostCard.astro';
+import TagFilter from '../../components/ui/TagFilter.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+
+import { getDb } from '../../lib/db';
+import { getPublishedPosts } from '../../lib/services/posts';
+import { getAllTags, getTagBySlug } from '../../lib/services/tags';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/');
+}
+
+const db = getDb(Astro.locals);
+const tag = await getTagBySlug(db, slug);
+
+if (!tag) {
+  return Astro.redirect('/404');
+}
+
+const allTags = await getAllTags(db);
+const { posts } = await getPublishedPosts(db, { tagSlug: slug });
+---
+
+<Layout
+  title={`Articles on #${tag.name} — akib.blog`}
+  description={`Explore technical posts and deep dives categorized under ${tag.name}.`}
+>
+  <div class="py-6 sm:py-10">
+    <div class="flex items-center gap-2 mb-3">
+      <a href="/" class="text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors">
+        Articles
+      </a>
+      <span class="text-slate-400">/</span>
+      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Tag</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span
+        class="w-4 h-4 rounded-full"
+        style={`background-color: ${tag.color || '#3B82F6'};`}
+      />
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-100">
+        #{tag.name}
+      </h1>
+    </div>
+
+    <p class="mt-2 text-slate-600 dark:text-slate-400">
+      Found {posts.length} {posts.length === 1 ? 'article' : 'articles'} tagged with #{tag.name}.
+    </p>
+
+    <!-- Tag Filter Bar -->
+    <div class="mt-8">
+      <TagFilter tags={allTags} activeSlug={tag.slug} />
+    </div>
+  </div>
+
+  <section class="py-6">
+    {posts.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((post) => (
+          <PostCard post={post} />
+        ))}
+      </div>
+    ) : (
+      <EmptyState
+        title={`No articles found for #${tag.name}`}
+        description="Check back later for new articles published under this tag."
+        actionHref="/"
+        actionText="Back to all articles"
+      />
+    )}
+  </section>
+</Layout>
