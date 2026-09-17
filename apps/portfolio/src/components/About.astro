@@ -1,0 +1,129 @@
+---
+/**
+ * @file apps/portfolio/src/components/About.astro
+ * @description First body section presenting developer biography, education, and technical competencies.
+ *
+ * POC / Implementation Architecture:
+ * - Zed.dev aesthetic: Uses clean monospace section indicators, high-contrast headings, and crisp grid tiles.
+ * - Showcases B.Sc. credentials from CUET alongside verified competitive programming metrics (200+ problems).
+ * - Categorizes skill competencies into modular badge groups for clear developer evaluation.
+ * - Serves optimized avatar directly from public assets with zero Sharp native C++ runtime overhead.
+ */
+
+import { portfolioData } from '../data/portfolio';
+---
+
+<section id="about" class="py-16 sm:py-24 border-b border-neutral-800/80">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- Section Identifier Badge -->
+    <div class="flex items-center gap-2 font-mono text-xs text-neutral-400 mb-6">
+      <span class="text-neutral-500">//</span>
+      <span class="text-neutral-300 font-semibold uppercase tracking-wider">01. Identity & Background</span>
+    </div>
+
+    <!-- Main Hero Statement -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div class="lg:col-span-8 space-y-6">
+        <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
+          Hi, I'm <span class="text-neutral-100 underline decoration-neutral-700 decoration-2 underline-offset-8">{portfolioData.meta.name}</span>.
+        </h1>
+        <p class="text-xl sm:text-2xl text-neutral-400 font-normal leading-relaxed">
+          {portfolioData.meta.role}. Building resilient web systems, distributed edge tooling, and high-concurrency applications.
+        </p>
+
+        <!-- Biography Body -->
+        <div class="space-y-4 text-base text-neutral-400 leading-relaxed font-normal pt-2">
+          {portfolioData.bio.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </div>
+
+        <!-- Academic Credentials Badge -->
+        <div class="p-4 rounded-lg border border-neutral-800 bg-neutral-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs">
+          <div>
+            <span class="text-neutral-500 block sm:inline mr-2">[ACADEMICS]</span>
+            <span class="text-neutral-200 font-medium">{portfolioData.education.degree}</span>
+            <span class="text-neutral-500 mx-2 hidden sm:inline">•</span>
+            <span class="text-neutral-400">{portfolioData.education.institution}</span>
+          </div>
+          <span class="text-neutral-500 shrink-0">Class of {portfolioData.education.year}</span>
+        </div>
+      </div>
+
+      <!-- Right Column: Profile Card & Algorithmic Benchmarks -->
+      <div class="lg:col-span-4 space-y-6">
+        <!-- Visual Profile Avatar -->
+        <div class="relative p-3 rounded-xl border border-neutral-800 bg-neutral-900/50 flex items-center gap-4">
+          <div class="relative w-16 h-16 rounded-lg overflow-hidden border border-neutral-700/60 shrink-0">
+            <img
+              src="/my-pic.png"
+              alt={portfolioData.meta.name}
+              width="128"
+              height="128"
+              class="w-full h-full object-cover"
+              loading="eager"
+            />
+          </div>
+          <div class="space-y-1">
+            <div class="font-semibold text-sm text-neutral-200">{portfolioData.meta.name}</div>
+            <div class="text-xs text-neutral-400 font-mono">@{portfolioData.meta.handle}</div>
+            <div class="text-xs text-neutral-500 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>{portfolioData.meta.location}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competitive Programming Benchmarks Box -->
+        <div class="p-5 rounded-xl border border-neutral-800 bg-neutral-900/40 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs uppercase tracking-wider text-neutral-400 font-medium">Algorithmic Profiles</span>
+            <span class="font-mono text-[11px] text-emerald-400/90 border border-emerald-900/60 bg-emerald-950/40 px-2 py-0.5 rounded">200+ Solved</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 font-mono text-xs">
+            {portfolioData.competitiveMetrics.map((item) => (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="p-2.5 rounded-lg border border-neutral-850 bg-neutral-900/70 hover:border-neutral-700 hover:bg-neutral-800/50 transition-all block group no-underline"
+              >
+                <div class="text-neutral-400 group-hover:text-neutral-200 flex items-center justify-between">
+                  <span>{item.platform}</span>
+                  <span class="text-neutral-600 group-hover:text-neutral-400">↗</span>
+                </div>
+                <div class="text-neutral-200 font-semibold mt-1 text-[11px]">{item.stats}</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Matrix Grid (Zed-inspired Technical Pills) -->
+    <div class="mt-12 pt-8 border-t border-neutral-800/60">
+      <div class="text-xs font-mono text-neutral-400 mb-6 uppercase tracking-wider">// Technical Matrix</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {portfolioData.skills.map((group) => (
+          <div class="p-4 rounded-lg border border-neutral-800/70 bg-neutral-900/20 space-y-3">
+            <div class="text-xs font-mono font-semibold text-neutral-300 flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-neutral-500"></span>
+              <span>{group.category}</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              {group.skills.map((skill) => (
+                <span class="px-2 py-1 bg-neutral-900/90 border border-neutral-800 text-neutral-300 font-mono text-xs rounded hover:border-neutral-700 transition-colors">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

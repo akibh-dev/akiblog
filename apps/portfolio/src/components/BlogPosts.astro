@@ -1,0 +1,77 @@
+---
+/**
+ * @file apps/portfolio/src/components/BlogPosts.astro
+ * @description Third section presenting featured technical writings and architecture deep dives.
+ *
+ * POC / Implementation Architecture:
+ * - Minimalist tabular/list layout modeled after Zed.dev's changelog/blog index.
+ * - Monospace metadata headers (dates, read time, category tags) for clean scanability.
+ * - Outbound anchors linking directly to the standalone edge blog platform (`blog.akib35.dev`).
+ */
+
+import { portfolioData } from '../data/portfolio';
+---
+
+<section id="writings" class="py-16 sm:py-24 border-b border-neutral-800/80">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- Section Identifier Badge -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-2 font-mono text-xs text-neutral-400">
+        <span class="text-neutral-500">//</span>
+        <span class="text-neutral-300 font-semibold uppercase tracking-wider">03. Selected Writings & Engineering Logs</span>
+      </div>
+      <a
+        href={portfolioData.meta.blogUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-mono text-xs text-neutral-400 hover:text-white inline-flex items-center gap-1 transition-colors"
+      >
+        <span>all posts on blog.akib35.dev</span>
+        <span>↗</span>
+      </a>
+    </div>
+
+    <!-- Blog Posts List -->
+    <div class="divide-y divide-neutral-850/80 border-y border-neutral-800/80">
+      {portfolioData.blogPosts.map((post) => (
+        <a
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="py-6 sm:py-8 flex flex-col md:flex-row md:items-baseline justify-between gap-4 group transition-colors hover:bg-neutral-900/30 px-3 -mx-3 rounded-lg no-underline"
+        >
+          <!-- Left: Title, Excerpt, Tags -->
+          <div class="space-y-2 max-w-3xl">
+            <div class="flex items-center gap-3 font-mono text-xs text-neutral-500">
+              <span>{post.date}</span>
+              <span>•</span>
+              <span>{post.readingTime}</span>
+            </div>
+
+            <h3 class="text-lg sm:text-xl font-semibold text-white group-hover:text-cyan-300 transition-colors flex items-center gap-2">
+              <span>{post.title}</span>
+              <span class="text-neutral-600 group-hover:text-cyan-400 text-sm transform transition-transform group-hover:translate-x-1">→</span>
+            </h3>
+
+            <p class="text-sm text-neutral-400 font-normal leading-relaxed">
+              {post.excerpt}
+            </p>
+
+            <div class="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
+              {post.tags.map((tag) => (
+                <span class="text-neutral-500 group-hover:text-neutral-400">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <!-- Right: Outbound Action Indicator -->
+          <div class="hidden md:flex items-center font-mono text-xs text-neutral-500 group-hover:text-neutral-300 shrink-0">
+            <span>read article ↗</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
