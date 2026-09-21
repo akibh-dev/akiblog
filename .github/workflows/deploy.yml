@@ -71,20 +71,38 @@ jobs:
             echo "⏭️ Skipping Blog artifact extraction (Target: $TARGET)"
           fi
 
-      - name: Configure Blog D1 Database ID
+      - name: Configure Blog Environment Variables
         env:
           CLOUDFLARE_DATABASE_ID: ${{ secrets.CLOUDFLARE_DATABASE_ID }}
+          CLOUDFLARE_TEAM_DOMAIN: ${{ secrets.CLOUDFLARE_TEAM_DOMAIN }}
+          CLOUDFLARE_ACCESS_AUD: ${{ secrets.CLOUDFLARE_ACCESS_AUD }}
         run: |
           TARGET="${{ inputs.target }}"
           [ -z "$TARGET" ] && TARGET="all"
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
+            # Inject D1 Database ID
             if [ -n "$CLOUDFLARE_DATABASE_ID" ]; then
               sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" wrangler.toml
               if [ -f "dist/server/wrangler.json" ]; then
                 sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" dist/server/wrangler.json
               fi
-              echo "✅ Injected production CLOUDFLARE_DATABASE_ID"
+              echo "✅ Injected CLOUDFLARE_DATABASE_ID"
+            fi
+            # Inject Cloudflare Access Zero Trust config
+            if [ -n "$CLOUDFLARE_TEAM_DOMAIN" ]; then
+              sed -i "s/placeholder-team-domain/$CLOUDFLARE_TEAM_DOMAIN/g" wrangler.toml
+              if [ -f "dist/server/wrangler.json" ]; then
+                sed -i "s/placeholder-team-domain/$CLOUDFLARE_TEAM_DOMAIN/g" dist/server/wrangler.json
+              fi
+              echo "✅ Injected CLOUDFLARE_TEAM_DOMAIN"
+            fi
+            if [ -n "$CLOUDFLARE_ACCESS_AUD" ]; then
+              sed -i "s/placeholder-aud-tag/$CLOUDFLARE_ACCESS_AUD/g" wrangler.toml
+              if [ -f "dist/server/wrangler.json" ]; then
+                sed -i "s/placeholder-aud-tag/$CLOUDFLARE_ACCESS_AUD/g" dist/server/wrangler.json
+              fi
+              echo "✅ Injected CLOUDFLARE_ACCESS_AUD"
             fi
           fi
 
