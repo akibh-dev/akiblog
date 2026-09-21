@@ -1,0 +1,47 @@
+---
+/**
+ * @file apps/portfolio/src/pages/index.astro
+ * @description Standalone one-page portfolio index for Md Akib Hasan.
+ *
+ * POC / Implementation Architecture:
+ * - One-page minimalist design inspired directly by Zed.dev.
+ * - Composed of 4 cohesive sections:
+ *     1) Unconventional top status dock / command navigation
+ *     2) About me (identity, CUET degree, 200+ CP benchmarks, technical matrix)
+ *     3) Projects (systems, open source, Akiblog, Black Board Go engine)
+ *     4) Blogposts (featured edge & architectural writings with deep links to blog.akib35.dev)
+ *     5) Generous footer with integrated contact form, copy email, coordinates & network nodes.
+ * - Why this implementation is best: Fast static rendering compiles to HTML/CSS with zero runtime JS overhead,
+ *   delivering sub-50ms TTFB across Cloudflare's global edge network.
+ */
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import About from '../components/About.astro';
+import Projects from '../components/Projects.astro';
+import BlogPosts from '../components/BlogPosts.astro';
+import Footer from '../components/Footer.astro';
+import { portfolioData } from '../data/portfolio';
+---
+
+<Layout
+  title={`${portfolioData.meta.name} — Full-Stack Engineer & Systems Builder`}
+  description="Minimalist developer portfolio and engineering showcase by Md Akib Hasan. Full-stack engineering, Go, TypeScript, and edge systems."
+>
+  <!-- 1. Unconventional Header Command Bar -->
+  <Header />
+
+  <main class="flex-1">
+    <!-- 2. First Body Section: About Me -->
+    <About />
+
+    <!-- 3. Projects Showcase -->
+    <Projects />
+
+    <!-- 4. Selected Blogposts / Writings -->
+    <BlogPosts />
+  </main>
+
+  <!-- 5. Relatively Big Footer with Contact Inside -->
+  <Footer />
+</Layout>

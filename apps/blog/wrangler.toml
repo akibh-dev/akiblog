@@ -22,9 +22,13 @@ database_id = "blog-db-local-id"
 binding = "BUCKET"
 bucket_name = "blog-media"
 
+# Non-sensitive environment variables
 [vars]
 SITE_URL = "https://blog.akib35.dev"
 DEV_MODE = "false"
-CLOUDFLARE_TEAM_DOMAIN = ""
-CLOUDFLARE_ACCESS_AUD = ""
 R2_PUBLIC_DOMAIN = "/api/media"
+
+# Cloudflare Access configuration injected via CI secrets
+# These placeholder values are replaced during deployment
+CLOUDFLARE_TEAM_DOMAIN = "placeholder-team-domain"
+CLOUDFLARE_ACCESS_AUD = "placeholder-aud-tag"

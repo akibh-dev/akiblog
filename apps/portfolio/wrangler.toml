@@ -1,0 +1,19 @@
+# ==============================================================================
+# Portfolio Cloudflare Worker Configuration (wrangler.toml)
+#
+# POC / Implementation Architecture:
+# - Serves static assets directly from the `dist` directory via Cloudflare's high-speed edge network.
+# - Binds to custom domain `akib35.dev` with zero server computation cost.
+# - Can be deployed independently with `wrangler deploy` or via the root monorepo CI runner.
+# ==============================================================================
+
+name = "portfolio"
+compatibility_date = "2026-03-13"
+
+routes = [
+  { pattern = "akib35.dev", custom_domain = true }
+]
+
+[assets]
+directory = "dist"
+binding = "ASSETS"
