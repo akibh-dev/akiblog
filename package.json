@@ -8,8 +8,11 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:blog": "pnpm --filter blog dev",
+    "dev:portfolio": "pnpm --filter portfolio dev",
     "build": "turbo run build",
     "build:blog": "pnpm --filter blog build",
+    "build:portfolio": "pnpm --filter portfolio build",
+    "preview:portfolio": "pnpm --filter portfolio preview",
     "ship": "node scripts/ship.js",
     "pack:dist": "node scripts/ship.js",
     "preview:blog": "pnpm --filter blog preview",

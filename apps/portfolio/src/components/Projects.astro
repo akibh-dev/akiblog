@@ -1,0 +1,107 @@
+---
+/**
+ * @file apps/portfolio/src/components/Projects.astro
+ * @description Second section rendering selected open-source and software engineering projects.
+ *
+ * POC / Implementation Architecture:
+ * - Zed.dev aesthetic: High-contrast technical cards with hairline borders and monospace status badges.
+ * - Displays active/shipped indicators, precise tech stack pills, and direct code/live deployment links.
+ * - Prioritizes featured systems architectures (Akiblog Edge, Black Board Go engine, University DBMS).
+ */
+
+import { portfolioData } from '../data/portfolio';
+---
+
+<section id="projects" class="py-16 sm:py-24 border-b border-neutral-800/80">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <!-- Section Identifier Badge -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-2 font-mono text-xs text-neutral-400">
+        <span class="text-neutral-500">//</span>
+        <span class="text-neutral-300 font-semibold uppercase tracking-wider">02. Selected Work & Systems</span>
+      </div>
+      <a
+        href={portfolioData.socials.find(s => s.name === 'GitHub')?.url || 'https://github.com/akib35'}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="font-mono text-xs text-neutral-400 hover:text-white inline-flex items-center gap-1 transition-colors"
+      >
+        <span>all repositories</span>
+        <span>↗</span>
+      </a>
+    </div>
+
+    <!-- Projects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {portfolioData.projects.map((project) => (
+        <article class="flex flex-col justify-between p-5 rounded-xl border border-neutral-800 bg-[#0d0e14]/60 hover:border-neutral-700 hover:bg-[#11131a] transition-all group">
+          <div class="space-y-3">
+            <!-- Header: Status & Category -->
+            <div class="flex items-center justify-between text-xs font-mono">
+              <span class="text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                [{project.status}]
+              </span>
+              {project.featured && (
+                <span class="text-[11px] text-cyan-400/90 border border-cyan-900/50 bg-cyan-950/30 px-1.5 py-0.5 rounded">
+                  featured
+                </span>
+              )}
+            </div>
+
+            <!-- Project Title -->
+            <h3 class="text-lg font-semibold text-white group-hover:text-neutral-100 transition-colors">
+              {project.title}
+            </h3>
+
+            <!-- Description -->
+            <p class="text-xs text-neutral-400 leading-relaxed font-normal">
+              {project.description}
+            </p>
+          </div>
+
+          <!-- Bottom: Tech Stack & Links -->
+          <div class="mt-6 pt-4 border-t border-neutral-850/80 space-y-4">
+            <!-- Tech Stack Tags -->
+            <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+              {project.techStack.map((tech) => (
+                <span class="px-2 py-0.5 bg-neutral-900 border border-neutral-800 text-neutral-400 rounded">
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            <!-- Link Actions -->
+            <div class="flex items-center gap-4 text-xs font-mono pt-1">
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-neutral-400 hover:text-white inline-flex items-center gap-1 transition-colors"
+                >
+                  <span>code</span>
+                  <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              )}
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 transition-colors"
+                >
+                  <span>live</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

@@ -250,6 +250,7 @@ const selectedTagIds = new Set(post.tags.map((t) => t.id));
         const res = await fetch(`/api/posts/${postId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(payload),
         });
 

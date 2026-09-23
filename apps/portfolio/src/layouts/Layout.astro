@@ -1,0 +1,67 @@
+---
+/**
+ * @file apps/portfolio/src/layouts/Layout.astro
+ * @description Master HTML layout for the minimalist one-page portfolio.
+ *
+ * POC / Implementation Architecture:
+ * - Zed.dev aesthetic: Precision typography, high-contrast dark palette, subtle grid accents.
+ * - Zero third-party blocking scripts: Uses preconnect and modern system-font + JetBrains Mono
+ *   for instant First Contentful Paint (FCP).
+ * - Standard OpenGraph and Twitter card metadata for developer portfolio indexing.
+ */
+
+import '../styles/global.css';
+import { portfolioData } from '../data/portfolio';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${portfolioData.meta.name} — Full-Stack Engineer`,
+  description = "Minimalist developer portfolio and engineering showcase by Md Akib Hasan."
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={portfolioData.meta.siteUrl} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:creator" content={`@${portfolioData.socials.find(s => s.name.includes('Twitter'))?.handle || 'akib35'}`} />
+
+    <!-- Performance: Preconnect & Load Clean Monospace Accent Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#08090d] text-neutral-200 antialiased selection:bg-neutral-800 selection:text-white">
+    <!-- Subtle technical grid background line pattern -->
+    <div class="fixed inset-0 pointer-events-none opacity-[0.035] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] z-0"></div>
+
+    <div class="relative z-10 flex min-h-screen flex-col">
+      <slot />
+    </div>
+  </body>
+</html>
