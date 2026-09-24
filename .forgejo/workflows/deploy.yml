@@ -76,9 +76,12 @@ jobs:
           [ -z "$TARGET" ] && TARGET="all"
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
-            # Inject D1 Database ID into wrangler.jsonc
+            # Inject D1 Database ID into both config files
             if [ -n "$CLOUDFLARE_DATABASE_ID" ]; then
               sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" wrangler.jsonc
+              if [ -f "dist/server/wrangler.json" ]; then
+                sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" dist/server/wrangler.json
+              fi
               echo "✅ Injected CLOUDFLARE_DATABASE_ID"
             fi
           fi
@@ -117,7 +120,8 @@ jobs:
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
             echo "🚀 Deploying Blog SSR Worker..."
-            wrangler deploy --config wrangler.jsonc
+            # Use the generated wrangler.json from dist/server which has correct paths
+            wrangler deploy --config dist/server/wrangler.json
             echo "✅ Blog SSR Worker deployed"
           else
             echo "⏭️ Skipping Blog deploy (Target: $TARGET)"
