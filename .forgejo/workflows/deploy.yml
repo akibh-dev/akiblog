@@ -119,9 +119,22 @@ jobs:
           [ -z "$TARGET" ] && TARGET="all"
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
+            CONFIG="dist/server/wrangler.json"
+            # The Astro adapter generates this config from wrangler.jsonc at build time. It is the
+            # only config with correct relative paths (main=entry.mjs, assets=../client), the
+            # adapter-added SESSION KV binding, and no_bundle=true for the prebuilt chunks.
+            if [ ! -f "$CONFIG" ]; then
+              echo "❌ $CONFIG missing — rebuild with 'pnpm ship' and commit dist.tar.gz"; exit 1
+            fi
+            # Safety rails: never ship the local auth bypass or an un-injected D1 id.
+            if grep -q '"DEV_MODE":"true"' "$CONFIG"; then
+              echo "❌ DEV_MODE=true in $CONFIG — refusing to deploy an auth-bypassed Worker"; exit 1
+            fi
+            if grep -q 'blog-db-local-id' "$CONFIG"; then
+              echo "❌ D1 database_id placeholder still present — set the CLOUDFLARE_DATABASE_ID secret"; exit 1
+            fi
             echo "🚀 Deploying Blog SSR Worker..."
-            # Use the generated wrangler.json from dist/server which has correct paths
-            wrangler deploy --config dist/server/wrangler.json
+            wrangler deploy --config "$CONFIG"
             echo "✅ Blog SSR Worker deployed"
           else
             echo "⏭️ Skipping Blog deploy (Target: $TARGET)"

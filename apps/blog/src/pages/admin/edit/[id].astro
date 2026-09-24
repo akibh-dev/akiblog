@@ -3,6 +3,7 @@ export const prerender = false;
 
 import AdminLayout from '../../../components/admin/AdminLayout.astro';
 import Editor from '../../../components/editor/Editor';
+import CoverImageField from '../../../components/admin/CoverImageField.astro';
 
 import { getDb } from '../../../lib/db';
 import { verifyAccessJWT } from '../../../lib/auth';
@@ -128,19 +129,7 @@ const selectedTagIds = new Set(post.tags.map((t) => t.id));
         >{post.excerpt || ''}</textarea>
       </div>
 
-      <div>
-        <label for="coverImage" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-2">
-          Cover Image URL
-        </label>
-        <input
-          type="url"
-          id="coverImage"
-          name="coverImage"
-          value={post.coverImage || ''}
-          placeholder="https://..."
-          class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      <CoverImageField value={post.coverImage} />
 
       <!-- Tag selection -->
       {allTags.length > 0 && (
@@ -254,7 +243,11 @@ const selectedTagIds = new Set(post.tags.map((t) => t.id));
           body: JSON.stringify(payload),
         });
 
-        const data = await res.json();
+        // Error responses may not be JSON (e.g. an edge error page); never let parsing throw.
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 401 || res.status === 403) {
+          data.error = data.message || 'Your Cloudflare Access session is no longer valid. Reload the page to sign in again; your edits stay in this tab.';
+        }
 
         if (res.ok && data.success) {
           statusMsg.textContent = 'Post updated successfully!';

@@ -59,6 +59,12 @@ export function createTestD1(sqliteDb: DatabaseSync): any {
           const rows = stmt.all(...boundParams);
           return rows.map((r: any) => Object.values(r));
         },
+        // D1 contract: first row (or null); used by health checks.
+        async first(column?: string) {
+          const row: any = sqliteDb.prepare(sql).get(...boundParams);
+          if (!row) return null;
+          return column ? row[column] : row;
+        },
       };
       return statement;
     },
@@ -106,6 +112,8 @@ export function createTestDatabase(): TestDatabaseContext {
       let buffer: Buffer;
       if (typeof stream?.arrayBuffer === 'function') {
         buffer = Buffer.from(await stream.arrayBuffer());
+      } else if (stream instanceof ArrayBuffer) {
+        buffer = Buffer.from(new Uint8Array(stream));
       } else if (stream instanceof Uint8Array || Buffer.isBuffer(stream)) {
         buffer = Buffer.from(stream);
       } else {
@@ -120,14 +128,29 @@ export function createTestDatabase(): TestDatabaseContext {
       return {
         key,
         body: item.body,
+        size: item.body.byteLength,
         httpMetadata: item.metadata,
         httpEtag: '"test-etag"',
+        async text() {
+          return Buffer.from(item.body).toString('utf8');
+        },
         writeHttpMetadata(headers: Headers) {
           if (item.metadata?.contentType) {
             headers.set('content-type', item.metadata.contentType);
           }
         },
       };
+    },
+    async head(key: string) {
+      const obj = await mockBucket.get(key);
+      if (!obj) return null;
+      const { body: _omit, ...meta } = obj;
+      return meta;
+    },
+    async list(options?: { limit?: number; prefix?: string }) {
+      const keys = [...storageMap.keys()].filter((k) => !options?.prefix || k.startsWith(options.prefix));
+      const limited = keys.slice(0, options?.limit ?? 1000);
+      return { objects: limited.map((key) => ({ key })), truncated: limited.length < keys.length };
     },
     async delete(key: string) {
       storageMap.delete(key);

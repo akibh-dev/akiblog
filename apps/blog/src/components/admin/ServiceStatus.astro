@@ -1,0 +1,183 @@
+---
+/**
+ * @file ServiceStatus.astro
+ * @description Admin "System status" panel: live D1 / R2 / Cloudflare Access connectivity.
+ *
+ * - Server-rendered from `runHealthChecks()` results, so the first paint already shows real
+ *   probe results (no loading flash, works without JS).
+ * - "Run full check" POSTs /api/health (deep mode: R2 write/read/delete round-trip + Access
+ *   JWKS fetch) and patches each row in place via `data-*` hooks; no client framework needed.
+ * - State is never color-only: every row carries a text label (Operational / Degraded / Down).
+ *   Latency uses tabular numerals so the column does not jitter between runs.
+ */
+import type { HealthReport, ServiceState } from '../../lib/health';
+
+interface Props {
+  report: HealthReport;
+}
+
+const { report } = Astro.props;
+
+const STATE: Record<ServiceState, { label: string; dot: string; text: string }> = {
+  ok: { label: 'Operational', dot: 'bg-emerald-500', text: 'text-emerald-700 dark:text-emerald-400' },
+  degraded: { label: 'Degraded', dot: 'bg-amber-500', text: 'text-amber-700 dark:text-amber-400' },
+  down: { label: 'Down', dot: 'bg-rose-500', text: 'text-rose-700 dark:text-rose-400' },
+};
+
+const overall = STATE[report.status];
+const overallCopy =
+  report.status === 'ok' ? 'All systems operational' : report.status === 'degraded' ? 'Some services need attention' : 'A service is down';
+---
+
+<section
+  id="service-status"
+  aria-labelledby="service-status-heading"
+  class="mb-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm"
+>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-3">
+      <span data-overall-dot class={`w-2.5 h-2.5 rounded-full ${overall.dot}`} aria-hidden="true"></span>
+      <div>
+        <h2 id="service-status-heading" class="text-sm font-bold text-slate-900 dark:text-slate-100">System status</h2>
+        <p class="text-xs text-slate-600 dark:text-slate-400">
+          <span data-overall-copy>{overallCopy}</span>
+          <span aria-hidden="true"> · </span>
+          <span>checked <time data-checked-at datetime={report.checkedAt}>{new Date(report.checkedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</time></span>
+        </p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      data-run-check
+      class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-60 disabled:cursor-wait"
+    >
+      <svg data-run-icon class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+        <path d="M21 3v6h-6" />
+      </svg>
+      <span data-run-label>Run full check</span>
+    </button>
+  </div>
+
+  <ul role="list" class="divide-y divide-slate-100 dark:divide-slate-800">
+    {report.services.map((service) => {
+      const state = STATE[service.status];
+      return (
+        <li data-service={service.id} class="grid grid-cols-[auto_1fr] sm:grid-cols-[13rem_1fr_auto] items-start gap-x-4 gap-y-1 px-5 py-3.5">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span data-dot class={`w-2 h-2 rounded-full shrink-0 ${state.dot}`} aria-hidden="true"></span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{service.label}</span>
+          </div>
+          <div class="col-start-2 sm:col-start-auto min-w-0">
+            <p class="text-sm text-slate-700 dark:text-slate-300">
+              <span data-state class={`font-semibold ${state.text}`}>{state.label}</span>
+              <span aria-hidden="true" class="text-slate-400"> — </span>
+              <span data-summary>{service.summary}</span>
+            </p>
+            <p data-detail class={`text-xs text-slate-600 dark:text-slate-400 mt-0.5 break-words ${service.detail ? '' : 'hidden'}`}>{service.detail}</p>
+          </div>
+          <span data-latency class="col-start-2 sm:col-start-auto text-xs font-medium text-slate-500 dark:text-slate-400 tabular-nums sm:text-right">
+            {typeof service.latencyMs === 'number' ? `${service.latencyMs} ms` : ''}
+          </span>
+        </li>
+      );
+    })}
+  </ul>
+
+  <p data-status-error role="status" aria-live="polite" class="hidden px-5 py-3 text-xs font-medium text-rose-700 dark:text-rose-400 border-t border-slate-200 dark:border-slate-800"></p>
+</section>
+
+<script>
+  type ServiceState = 'ok' | 'degraded' | 'down';
+  interface ServiceCheck { id: string; status: ServiceState; summary: string; detail?: string; latencyMs?: number }
+  interface HealthReport { status: ServiceState; checkedAt: string; services: ServiceCheck[] }
+
+  const DOTS: Record<ServiceState, string> = { ok: 'bg-emerald-500', degraded: 'bg-amber-500', down: 'bg-rose-500' };
+  const TEXT: Record<ServiceState, string> = {
+    ok: 'text-emerald-700 dark:text-emerald-400',
+    degraded: 'text-amber-700 dark:text-amber-400',
+    down: 'text-rose-700 dark:text-rose-400',
+  };
+  const LABEL: Record<ServiceState, string> = { ok: 'Operational', degraded: 'Degraded', down: 'Down' };
+  const OVERALL: Record<ServiceState, string> = {
+    ok: 'All systems operational',
+    degraded: 'Some services need attention',
+    down: 'A service is down',
+  };
+
+  function swapColor(el: Element | null, map: Record<ServiceState, string>, next: ServiceState) {
+    if (!el) return;
+    Object.values(map).forEach((cls) => el.classList.remove(...cls.split(' ')));
+    el.classList.add(...map[next].split(' '));
+  }
+
+  function render(root: HTMLElement, report: HealthReport) {
+    swapColor(root.querySelector('[data-overall-dot]'), DOTS, report.status);
+    const copy = root.querySelector('[data-overall-copy]');
+    if (copy) copy.textContent = OVERALL[report.status];
+    const time = root.querySelector('[data-checked-at]');
+    if (time) {
+      time.setAttribute('datetime', report.checkedAt);
+      time.textContent = new Date(report.checkedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    for (const service of report.services) {
+      const row = root.querySelector(`[data-service="${service.id}"]`);
+      if (!row) continue;
+      swapColor(row.querySelector('[data-dot]'), DOTS, service.status);
+      const state = row.querySelector('[data-state]');
+      swapColor(state, TEXT, service.status);
+      if (state) state.textContent = LABEL[service.status];
+      const summary = row.querySelector('[data-summary]');
+      if (summary) summary.textContent = service.summary;
+      const detail = row.querySelector('[data-detail]');
+      if (detail) {
+        detail.textContent = service.detail || '';
+        detail.classList.toggle('hidden', !service.detail);
+      }
+      const latency = row.querySelector('[data-latency]');
+      if (latency) latency.textContent = typeof service.latencyMs === 'number' ? `${service.latencyMs} ms` : '';
+    }
+  }
+
+  function setupServiceStatus() {
+    const root = document.getElementById('service-status');
+    const button = root?.querySelector<HTMLButtonElement>('[data-run-check]');
+    if (!root || !button || button.dataset.bound) return;
+    button.dataset.bound = 'true';
+
+    const label = button.querySelector('[data-run-label]');
+    const icon = button.querySelector('[data-run-icon]');
+    const errorEl = root.querySelector('[data-status-error]');
+
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      if (label) label.textContent = 'Checking…';
+      icon?.classList.add('animate-spin');
+      errorEl?.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/health', { method: 'POST', credentials: 'include' });
+        const data = await res.json().catch(() => null);
+        if (data && Array.isArray(data.services)) {
+          render(root, data as HealthReport);
+        } else {
+          throw new Error(data?.message || `Health check failed (HTTP ${res.status})`);
+        }
+      } catch (err: any) {
+        if (errorEl) {
+          errorEl.textContent = `${err?.message || 'Health check failed'}. Reload the page and try again.`;
+          errorEl.classList.remove('hidden');
+        }
+      } finally {
+        button.disabled = false;
+        if (label) label.textContent = 'Run full check';
+        icon?.classList.remove('animate-spin');
+      }
+    });
+  }
+
+  setupServiceStatus();
+  document.addEventListener('astro:after-swap', setupServiceStatus);
+</script>

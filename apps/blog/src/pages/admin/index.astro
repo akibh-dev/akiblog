@@ -3,21 +3,34 @@ export const prerender = false;
 
 import AdminLayout from '../../components/admin/AdminLayout.astro';
 import StatusBadge from '../../components/admin/StatusBadge.astro';
+import ServiceStatus from '../../components/admin/ServiceStatus.astro';
 
 import { getDb } from '../../lib/db';
-import { verifyAccessJWT } from '../../lib/auth';
+import { authenticateRequest } from '../../lib/auth';
 import { getRuntimeEnv } from '../../lib/env';
+import { runHealthChecks } from '../../lib/health';
 import { getAllPostsForAdmin, getPostStats } from '../../lib/services/posts';
 
+// Middleware already authenticated this request; re-check defensively if it did not run.
 const env = getRuntimeEnv(Astro.locals);
-const user = await verifyAccessJWT(Astro.request, env);
+const auth = Astro.locals.auth ?? (await authenticateRequest(Astro.request, env));
+const user = auth.user;
 if (!user) {
   return new Response('Unauthorized Access. Please login via Cloudflare Access.', { status: 401 });
 }
 
-const db = getDb(Astro.locals);
-const posts = await getAllPostsForAdmin(db);
-const stats = await getPostStats(db);
+// Live probes first: the status panel must render even when D1 queries below would fail.
+const health = await runHealthChecks(env, auth);
+
+let posts: Awaited<ReturnType<typeof getAllPostsForAdmin>> = [];
+let stats = { totalPosts: 0, publishedCount: 0, draftCount: 0, archivedCount: 0, pendingComments: 0 };
+let dataError: string | null = null;
+try {
+  const db = getDb(Astro.locals);
+  [posts, stats] = await Promise.all([getAllPostsForAdmin(db), getPostStats(db)]);
+} catch (error: any) {
+  dataError = error?.message || 'Could not load posts from D1.';
+}
 ---
 
 <AdminLayout title="Post Management" userEmail={user.email}>
@@ -40,6 +53,14 @@ const stats = await getPostStats(db);
       <div class="mt-2 text-3xl font-extrabold text-blue-600 dark:text-blue-400">{stats.pendingComments}</div>
     </div>
   </div>
+
+  <ServiceStatus report={health} />
+
+  {dataError && (
+    <div role="alert" class="mb-6 p-4 rounded-xl text-sm font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400">
+      Posts could not be loaded: {dataError}
+    </div>
+  )}
 
   <!-- Actions Bar -->
   <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">

@@ -8,6 +8,11 @@
  * - Before starting, checks for and cleanly kills any lingering workerd or wrangler child processes on port 4321.
  * - Uses npx/pnpm exec to guarantee access to locally installed binaries (`astro`, `wrangler`).
  * - Handles SIGINT / SIGTERM / SIGHUP signals to ensure child workerd daemons are never orphaned when exiting.
+ * - Local Cloudflare resources: `--persist-to` keeps Miniflare-emulated D1 (blog data), R2 (media)
+ *   and KV (sessions) on disk under .wrangler/state/v3, so nothing touches production.
+ * - Dev overrides use wrangler's `--var KEY:VALUE` syntax. The previous `KEY=VALUE` form created a
+ *   bogus var literally named "DEV_MODE=true" and left DEV_MODE="false", silently disabling the
+ *   local auth bypass after the wrangler.jsonc migration.
  */
 
 import { spawn, execSync } from 'node:child_process';
@@ -55,17 +60,13 @@ const wranglerProcess = spawn(
     '--port',
     String(PORT),
     '--var',
-    'DEV_MODE=true',
+    'DEV_MODE:true',
     '--var',
-    'SITE_URL=http://localhost:4321',
+    'SITE_URL:http://localhost:4321',
   ],
   {
     stdio: 'inherit',
-    env: {
-      ...process.env,
-      DEV_MODE: 'true',
-      SITE_URL: 'http://localhost:4321',
-    },
+    env: process.env,
   }
 );
 
