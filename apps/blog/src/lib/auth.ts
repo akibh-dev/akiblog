@@ -17,6 +17,8 @@
  *   account JWKS signature, team-domain issuer, and application AUD tag — so this is a strict
  *   widening of token *sources*, not of trust. No unsigned or foreign-tenant token is accepted.
  *   The header remains the preferred source, as Cloudflare recommends.
+ * - DEV BYPASS: When DEV_MODE='true' (set by scripts/dev.js) and request is to localhost,
+ *   auth is bypassed entirely. This allows `npm run dev:blog` to work without Cloudflare Access.
  * - Note on cookie format: the CF_Authorization value is `<key_id>.<JWT>`, so the JWT portion
  *   after the first `.` is extracted before verification (same approach as Cloudflare's own
  *   `@cloudflare/workers-jwt` reference library).
@@ -64,31 +66,27 @@ export async function verifyAccessJWT(request: Request, env?: Env): Promise<Acce
 
   const url = new URL(request.url);
   const isLocalhost = url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '::1';
-  const isExplicitProd = env?.DEV_MODE === 'false';
-  const isDevMode = (env?.DEV_MODE === 'true' || import.meta.env?.DEV) && !isExplicitProd;
+  const isDevMode = env?.DEV_MODE === 'true';
 
-  // Local development bypass
+  // Local development bypass: skip Cloudflare Access auth when DEV_MODE=true
+  // This allows `npm run dev:blog` to work without Cloudflare Access
+  // SECURITY: DEV_MODE is only set to 'true' by scripts/dev.js, never in production
+  if (isDevMode) {
+    return {
+      email: 'admin@akib35.me',
+      common_name: 'Local Admin',
+    };
+  }
+
   if (!jwt) {
-    if (isDevMode && isLocalhost) {
-      return {
-        email: 'admin@akib35.me',
-        common_name: 'Local Admin',
-      };
-    }
     return null;
   }
 
   const teamDomain = env?.CLOUDFLARE_TEAM_DOMAIN;
   const audience = env?.CLOUDFLARE_ACCESS_AUD;
 
-  // If Cloudflare Access credentials are not provided, allow fallback in dev
+  // If Cloudflare Access credentials are not provided, reject
   if (!teamDomain || !audience) {
-    if (isDevMode && isLocalhost) {
-      return {
-        email: 'admin@akib35.me',
-        common_name: 'Local Admin',
-      };
-    }
     return null;
   }
 

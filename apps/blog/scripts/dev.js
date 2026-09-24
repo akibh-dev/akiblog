@@ -50,14 +50,22 @@ const wranglerProcess = spawn(
     'dev',
     'dist/server/entry.mjs',
     '--config',
-    'dist/server/wrangler.json',
+    'wrangler.jsonc',
     '--persist-to=.wrangler/state/v3',
     '--port',
     String(PORT),
+    '--var',
+    'DEV_MODE=true',
+    '--var',
+    'SITE_URL=http://localhost:4321',
   ],
   {
     stdio: 'inherit',
-    env: process.env,
+    env: {
+      ...process.env,
+      DEV_MODE: 'true',
+      SITE_URL: 'http://localhost:4321',
+    },
   }
 );
 

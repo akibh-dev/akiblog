@@ -1,0 +1,42 @@
+{
+  "name": "blog",
+  "compatibility_date": "2026-03-13",
+  "compatibility_flags": ["nodejs_compat"],
+  
+  // Custom Domain attached directly to akib35.dev in Cloudflare
+  "routes": [
+    { "pattern": "blog.akib35.dev", "custom_domain": true }
+  ],
+  
+  "assets": {
+    "directory": "dist/client",
+    "binding": "ASSETS"
+  },
+  
+  // D1 Database binding
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "blog-db",
+      "database_id": "blog-db-local-id"
+    }
+  ],
+  
+  // R2 Bucket binding
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "blog-media"
+    }
+  ],
+  
+  // Non-sensitive environment variables
+  "vars": {
+    "SITE_URL": "https://blog.akib35.dev",
+    "DEV_MODE": "false",
+    "R2_PUBLIC_DOMAIN": "/api/media",
+    // Cloudflare Access configuration
+    "CLOUDFLARE_TEAM_DOMAIN": "akib35.cloudflareaccess.com",
+    "CLOUDFLARE_ACCESS_AUD": "81f9a6cb1dbada5c4421faebd1042974f90f064c97b084b8e8b23b1c127bdc88"
+  }
+}
