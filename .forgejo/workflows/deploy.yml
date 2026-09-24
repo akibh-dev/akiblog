@@ -71,35 +71,15 @@ jobs:
       - name: Configure Blog Environment Variables
         env:
           CLOUDFLARE_DATABASE_ID: ${{ secrets.CLOUDFLARE_DATABASE_ID }}
-          CLOUDFLARE_TEAM_DOMAIN: ${{ secrets.CLOUDFLARE_TEAM_DOMAIN }}
-          CLOUDFLARE_ACCESS_AUD: ${{ secrets.CLOUDFLARE_ACCESS_AUD }}
         run: |
           TARGET="${{ inputs.target }}"
           [ -z "$TARGET" ] && TARGET="all"
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
-            # Inject D1 Database ID
+            # Inject D1 Database ID into wrangler.jsonc
             if [ -n "$CLOUDFLARE_DATABASE_ID" ]; then
-              sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" wrangler.toml
-              if [ -f "dist/server/wrangler.json" ]; then
-                sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" dist/server/wrangler.json
-              fi
+              sed -i "s/blog-db-local-id/$CLOUDFLARE_DATABASE_ID/g" wrangler.jsonc
               echo "✅ Injected CLOUDFLARE_DATABASE_ID"
-            fi
-            # Inject Cloudflare Access Zero Trust config
-            if [ -n "$CLOUDFLARE_TEAM_DOMAIN" ]; then
-              sed -i "s/placeholder-team-domain/$CLOUDFLARE_TEAM_DOMAIN/g" wrangler.toml
-              if [ -f "dist/server/wrangler.json" ]; then
-                sed -i "s/placeholder-team-domain/$CLOUDFLARE_TEAM_DOMAIN/g" dist/server/wrangler.json
-              fi
-              echo "✅ Injected CLOUDFLARE_TEAM_DOMAIN"
-            fi
-            if [ -n "$CLOUDFLARE_ACCESS_AUD" ]; then
-              sed -i "s/placeholder-aud-tag/$CLOUDFLARE_ACCESS_AUD/g" wrangler.toml
-              if [ -f "dist/server/wrangler.json" ]; then
-                sed -i "s/placeholder-aud-tag/$CLOUDFLARE_ACCESS_AUD/g" dist/server/wrangler.json
-              fi
-              echo "✅ Injected CLOUDFLARE_ACCESS_AUD"
             fi
           fi
 
@@ -137,11 +117,7 @@ jobs:
           if [ "$TARGET" = "all" ] || [ "$TARGET" = "blog" ]; then
             cd apps/blog
             echo "🚀 Deploying Blog SSR Worker..."
-            if [ -f "dist/server/wrangler.json" ]; then
-              wrangler deploy --config dist/server/wrangler.json
-            else
-              wrangler deploy
-            fi
+            wrangler deploy --config wrangler.jsonc
             echo "✅ Blog SSR Worker deployed"
           else
             echo "⏭️ Skipping Blog deploy (Target: $TARGET)"
