@@ -1,0 +1,86 @@
+---
+interface Props {
+  title: string;
+  category?: string;
+  publishDate: string;
+  formattedDate: string;
+  author: {
+    name: string;
+    avatar: string;
+    handle?: string;
+  };
+}
+
+const {
+  title,
+  category = "Blog",
+  publishDate,
+  formattedDate,
+  author
+} = Astro.props;
+---
+
+<header class="relative w-full">
+  <!-- Top decorative 3-stripe rail -->
+  <div aria-hidden="true" class="grid min-w-0 grid-cols-8 border-b border-delta h-1">
+    <span class="col-span-3 bg-brand-500"></span>
+    <span class="col-span-2 bg-[#1f2328]"></span>
+    <span class="col-span-3 bg-[#3b82f6]"></span>
+  </div>
+
+  <!-- Header Banner Box -->
+  <section class="border-b border-delta relative overflow-clip bg-[var(--delta-surface)]/40">
+    <div class="relative flex flex-col overflow-hidden px-4 py-8 md:px-8 md:py-12">
+
+      <!-- Eyebrow line spanning across margins -->
+      <div class="relative mb-3">
+        <span aria-hidden="true" class="absolute top-1/2 left-[-100vw] h-px w-[200vw] border-t border-delta opacity-60"></span>
+        <span class="relative z-1 -ml-1 bg-[var(--delta-canvas)] px-2 py-0.5 border border-delta font-mono text-[10.5px] uppercase tracking-wider text-[var(--delta-text-subtle)] rounded-[1px]">
+          {category}
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="font-serif text-3xl sm:text-4xl md:text-[2.8rem] leading-tight tracking-tight text-[var(--delta-text)] text-balance">
+        {title}
+      </h1>
+
+      <!-- Author and Metadata -->
+      <div class="relative z-2 mt-6 flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="relative flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-delta bg-[var(--delta-canvas)]">
+            <img
+              src={author.avatar}
+              alt={author.name}
+              width="24"
+              height="24"
+              loading="lazy"
+              decoding="async"
+              class="size-full object-cover"
+            />
+          </span>
+          <span class="font-mono text-xs font-medium text-[var(--delta-text)]">
+            {author.name}
+          </span>
+        </div>
+        <span class="h-3.5 w-px border-l border-delta"></span>
+        <time datetime={publishDate} class="font-mono text-xs text-[var(--delta-text-subtle)]">
+          {formattedDate}
+        </time>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Decorative hatched hairline band separating Header and Article Body -->
+  <div aria-hidden="true" class="relative h-3.5 flex-none overflow-clip border-b border-delta bg-[var(--delta-canvas)]">
+    <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+      <defs>
+        <pattern id="blog-header-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#blog-header-hatch)"></rect>
+    </svg>
+  </div>
+</header>
