@@ -10,29 +10,17 @@
 import { useEffect, useState } from "react";
 import { ToggleGroup } from "@base-ui-components/react/toggle-group";
 import { Toggle } from "@base-ui-components/react/toggle";
-
-type Mode = "light" | "dark" | "system";
-const MODES: Mode[] = ["light", "dark", "system"];
-
-function applyTheme(mode: Mode) {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  document.documentElement.classList.toggle(
-    "dark",
-    mode === "dark" || (mode === "system" && prefersDark),
-  );
-  localStorage.setItem("theme", mode);
-}
+import { applyTheme, getStoredTheme, THEME_MODES, type ThemeMode } from "../../lib/theme";
 
 export default function ThemeSwitch() {
   // "system" until hydration reads localStorage — markup matches SSR either way
-  const [mode, setMode] = useState<Mode>("system");
+  const [mode, setMode] = useState<ThemeMode>("system");
 
   useEffect(() => {
-    const saved = (localStorage.getItem("theme") as Mode | null) ?? "system";
-    setMode(saved);
+    setMode(getStoredTheme());
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if ((localStorage.getItem("theme") ?? "system") === "system") applyTheme("system");
+      if (getStoredTheme() === "system") applyTheme("system");
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
@@ -43,13 +31,13 @@ export default function ThemeSwitch() {
       aria-label="Color theme"
       value={[mode]}
       onValueChange={(next) => {
-        const m = (next[0] as Mode | undefined) ?? mode; // prevent unselecting all
+        const m = (next[0] as ThemeMode | undefined) ?? mode; // prevent unselecting all
         setMode(m);
         applyTheme(m);
       }}
       className="grid grid-cols-3 gap-0.5 rounded-md border border-line-subtle bg-surface p-0.5"
     >
-      {MODES.map((m) => (
+      {THEME_MODES.map((m) => (
         <Toggle
           key={m}
           value={m}

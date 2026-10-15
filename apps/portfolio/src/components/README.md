@@ -16,7 +16,7 @@ components/
 │   └── MobileHeader.astro   mobile top bar + menu trigger
 │
 ├── sections/   Content sections — data in, markup out, no behavior
-│   ├── Hero.astro           status pill, name, CTA row, terminal card
+│   ├── Hero.astro           status pill, name, CTAs, live terminal
 │   ├── Projects.astro       shell + data → ProjectBrowser island
 │   ├── Writings.astro       blog card ScrollRow
 │   ├── Skills.astro         category card ScrollRow + CV CTA
@@ -27,8 +27,17 @@ components/
     ├── MobileMenu.tsx       Base UI Dialog       (client:load)
     ├── ProjectBrowser.tsx   Base UI Tabs         (client:load)
     ├── CopyButton.tsx       plain React          (client:visible)
-    └── ScrollSpy.astro      native custom element (IntersectionObserver)
+    ├── ScrollSpy.astro      native custom element (IntersectionObserver)
+    └── terminal/            interactive shell    (client:load)
+        ├── types.ts         Segment/OutputLine/Command contracts
+        ├── dsl.ts           typed output builders (t, link, kv, blank)
+        ├── registry.ts      alias map + tab completion
+        ├── commands.ts      16 pure commands over injected data
+        └── Terminal.tsx     shell state machine (history, ctrl+c/l)
 ```
+
+Shared typed modules live in `src/lib/` (e.g. `theme.ts` — consumed by
+both `ThemeSwitch` and the terminal's `theme` command).
 
 ## Conventions
 
