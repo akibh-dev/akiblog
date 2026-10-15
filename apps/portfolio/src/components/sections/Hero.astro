@@ -1,55 +1,86 @@
 ---
 /**
  * @file sections/Hero.astro
- * @description Improvised hero — designed, not dumped.
+ * @description Hero — rotating quote epigraph, identity row with portrait
+ *              frame, interactive shell, metric strip.
  *
- * Prose shrinks to a single confident line; the facts live inside a real
- * interactive shell (islands/terminal) — visitors can type `help`,
- * `projects`, `skills`, `theme dark`… Structure: status pill, name,
- * one-liner, CTA row, terminal, metric strip.
+ * POC / Implementation decisions:
+ *
+ * 1. RANDOM QUOTE (eyebrow slot, replaces "01. Identity"):
+ *    The site is fully static, so a frontmatter-only random pick would be
+ *    frozen at build time. Instead the SSR output renders one quote as the
+ *    no-JS fallback, and a tiny module script (bottom of file) re-picks from
+ *    `heroQuotes` on EVERY page load. `heroQuotes` is a standalone export in
+ *    data/portfolio.ts so this script tree-shakes to a few strings rather
+ *    than shipping the whole dataset to the browser.
+ *
+ * 2. PORTRAIT FRAME (right column):
+ *    Placeholder drop-zone with an offset blueprint frame until a real photo
+ *    is added — swap instructions are inline at the <figure> below.
+ *
+ * 3. REMOVED per request: status pill and the CTA row (View Projects /
+ *    Get in Touch / CV). `meta.statusText` stays in the data file — it is
+ *    still used by Layout.astro (meta description) and the Terminal.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import ScrollRow from "../ui/ScrollRow.astro";
 import Terminal from "../islands/terminal/Terminal";
-import { portfolioData } from "../../data/portfolio";
+import { portfolioData, heroQuotes } from "../../data/portfolio";
 
 const { meta, competitiveMetrics } = portfolioData;
 const [first, ...rest] = meta.name.split(" ");
+
+// Build-time fallback pick — ensures the slot is never empty without JS.
+// The client script below re-randomizes on every page load.
+const fallbackQuote = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
 ---
 
 <SectionShell id="about" index="01" label="Identity">
-  {/* status pill — what I'm doing, not what I'm asking for */}
-  <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-line-subtle bg-surface px-3.5 py-1.5 font-mono text-2xs text-subtle">
-    <span class="relative flex size-2">
-      <span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60"></span>
-      <span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
-    </span>
-    {meta.statusText}
-  </div>
-
-  {/* name — fluid scale */}
-  <h1 class="font-display text-[clamp(2.5rem,6vw+0.5rem,4.5rem)] leading-[1.02] tracking-tight text-default">
-    {first}
-    <br />
-    <span class="text-accent">{rest.join(" ")}</span>
-  </h1>
-
-  {/* one line only — no paragraph dump */}
-  <p class="mt-5 max-w-xl font-display text-[clamp(1.05rem,1.2vw+0.9rem,1.35rem)] leading-relaxed text-subtle">
-    I build resilient systems that live at the edge of the web.
+  {/* rotating quote — occupies the eyebrow slot (see SectionShell) */}
+  <p slot="header" class="min-w-0 font-display text-sm italic text-subtle md:text-base">
+    <span class="text-accent" aria-hidden="true">&ldquo;</span><span id="hero-quote">{fallbackQuote}</span><span class="text-accent" aria-hidden="true">&rdquo;</span>
   </p>
 
-  {/* CTA row */}
-  <div class="mt-8 flex flex-wrap items-center gap-3">
-    <a href="#projects" class="rounded-md bg-accent px-5 py-2.5 font-mono text-xs text-white transition-colors hover:bg-accent-hover">
-      View Projects ↓
-    </a>
-    <a href="#contact" class="rounded-md border border-line-subtle bg-surface px-5 py-2.5 font-mono text-xs text-subtle transition-colors hover:border-accent hover:text-accent">
-      Get in Touch
-    </a>
-    <a href={meta.resumeUrl} download class="px-3 py-2.5 font-mono text-xs text-muted transition-colors hover:text-accent">
-      CV ↓
-    </a>
+  {/* identity row — name + one-liner left, portrait frame right */}
+  <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_auto]">
+    <div>
+      {/* name — fluid scale */}
+      <h1 class="font-display text-[clamp(2.5rem,6vw+0.5rem,4.5rem)] leading-[1.02] tracking-tight text-default">
+        {first}
+        <br />
+        <span class="text-accent">{rest.join(" ")}</span>
+      </h1>
+
+      {/* one line only — no paragraph dump */}
+      <p class="mt-5 max-w-xl font-display text-[clamp(1.05rem,1.2vw+0.9rem,1.35rem)] leading-relaxed text-subtle">
+        I build resilient systems that live at the edge of the web.
+      </p>
+    </div>
+
+    {/* ── Portrait frame ───────────────────────────────────────────────
+        To add your photo: drop the file at public/images/portrait.jpg
+        (served as /images/portrait.jpg), then replace the placeholder
+        <div> below with:
+
+        <img
+          src="/images/portrait.jpg"
+          alt="Portrait of Md Akib Hasan"
+          class="aspect-[4/5] w-full object-cover"
+        />
+        ──────────────────────────────────────────────────────────────── */}
+    <figure class="relative mx-auto w-56 sm:w-64 lg:mx-0 lg:w-72 lg:justify-self-end">
+      {/* offset sheet behind — blueprint double-frame */}
+      <div aria-hidden="true" class="absolute inset-0 translate-x-3 translate-y-3 rounded-sm border border-line-subtle"></div>
+      <div class="relative aspect-[4/5] overflow-hidden rounded-sm border border-line bg-surface">
+        {/* placeholder drop-zone (replaced by the <img> above) */}
+        <div class="absolute inset-3 flex flex-col items-center justify-center gap-2 border border-dashed border-line-subtle text-center">
+          <span class="font-mono text-2xs uppercase tracking-widest text-muted">Portrait</span>
+          <span class="px-4 font-mono text-2xs leading-relaxed text-muted">
+            add photo at<br />public/images/portrait.jpg
+          </span>
+        </div>
+      </div>
+    </figure>
   </div>
 
   {/* interactive shell — the hero centerpiece, centered */}
@@ -74,3 +105,16 @@ const [first, ...rest] = meta.name.split(" ");
     }
   </ScrollRow>
 </SectionShell>
+
+<script>
+  /**
+   * Random quote picker — runs on every page load (module script).
+   * Swaps the SSR fallback for a fresh random entry from heroQuotes.
+   */
+  import { heroQuotes } from "../../data/portfolio";
+
+  const el = document.getElementById("hero-quote");
+  if (el && heroQuotes.length > 0) {
+    el.textContent = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
+  }
+</script>

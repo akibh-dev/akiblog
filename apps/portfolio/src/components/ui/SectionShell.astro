@@ -7,6 +7,11 @@
  * WHY: Every section in the previous build hand-rolled the same header
  * (eyebrow number, rule line, hatch band). One shell = consistent rhythm
  * and the scroll-reveal animation applied uniformly.
+ *
+ * Slots:
+ * - default: section content.
+ * - header (optional): overrides the default "NN. Label" eyebrow —
+ *   used by Hero to render its rotating quote in that slot.
  */
 import Hatch from "./Hatch.astro";
 
@@ -25,8 +30,16 @@ const { id, index, label, class: className = "", pad = "px-5 md:px-8 py-14 md:py
   <Hatch id={id} />
   <div class:list={[pad]}>
     <header class="mb-10 flex items-center gap-3">
-      <span class="font-mono text-2xs uppercase tracking-widest text-accent">{index}. {label}</span>
-      <span class="h-px w-16 bg-line"></span>
+      {
+        Astro.slots.has("header") ? (
+          <slot name="header" />
+        ) : (
+          <>
+            <span class="font-mono text-2xs uppercase tracking-widest text-accent">{index}. {label}</span>
+            <span class="h-px w-16 bg-line"></span>
+          </>
+        )
+      }
     </header>
     <slot />
   </div>

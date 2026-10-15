@@ -167,3 +167,23 @@ export const portfolioData = {
     }
   ] as BlogPost[]
 };
+
+/**
+ * Rotating epigraphs shown in the hero eyebrow slot (sections/Hero.astro).
+ * One quote is picked at random in the browser on every page load.
+ *
+ * WHY a standalone export (not inside portfolioData): the tiny client-side
+ * picker script imports ONLY this array, so the hero's JS bundle tree-shakes
+ * down to a few strings instead of shipping the entire dataset to the browser.
+ *
+ * Edit freely — keep each quote a single line; quotation marks are rendered
+ * by the component, attribution included in the string.
+ */
+export const heroQuotes = [
+  "Simplicity is prerequisite for reliability. — Edsger W. Dijkstra",
+  "Make it work, make it right, make it fast. — Kent Beck",
+  "Programs must be written for people to read. — Harold Abelson",
+  "The best way to predict the future is to invent it. — Alan Kay",
+  "Talk is cheap. Show me the code. — Linus Torvalds",
+  "Premature optimization is the root of all evil. — Donald Knuth"
+];
