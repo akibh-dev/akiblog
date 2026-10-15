@@ -1,0 +1,43 @@
+---
+/**
+ * @file islands/ScrollSpy.astro
+ * @description Highlights the sidebar nav link matching the visible section.
+ *
+ * WHY: State is exposed via the standard `aria-current` attribute instead of
+ * ad-hoc classes, so ALL styling stays in CSS ([aria-current] selectors in
+ * global.css). One IntersectionObserver for the whole page; zero reflows.
+ */
+---
+
+<scroll-spy class="contents">
+  <slot />
+</scroll-spy>
+
+<script>
+  class ScrollSpy extends HTMLElement {
+    connectedCallback() {
+      const links = [...this.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+      const targets = links
+        .map((a) => document.getElementById(a.hash.slice(1)))
+        .filter((el): el is HTMLElement => el !== null);
+      if (targets.length === 0) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            links.forEach((a) =>
+              a.setAttribute("aria-current", String(a.hash === `#${entry.target.id}`))
+            );
+          }
+        },
+        // a section counts as "active" when its middle band crosses the viewport middle
+        { rootMargin: "-45% 0px -50% 0px" }
+      );
+
+      targets.forEach((t) => observer.observe(t));
+    }
+  }
+
+  customElements.define("scroll-spy", ScrollSpy);
+</script>

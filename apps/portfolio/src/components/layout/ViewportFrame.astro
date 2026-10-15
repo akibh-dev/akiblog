@@ -1,0 +1,36 @@
+---
+/**
+ * @file layout/ViewportFrame.astro
+ * @description Fixed hatched frame around the viewport — delta.dev's signature.
+ *
+ * Geometry follows delta.dev's real contract (extracted from their CSS):
+ *   grid-cols: [page-left] [content] [page-right]
+ *   grid-rows: [frame-top] [content] [inset-bottom]
+ * All edges respect env(safe-area-inset-*) so the frame hugs notched screens.
+ */
+---
+
+<div
+  aria-hidden="true"
+  class="pointer-events-none fixed inset-0 z-50 grid h-dvh grid-cols-[var(--site-page-left)_minmax(0,1fr)_var(--site-page-right)] grid-rows-[var(--site-frame-top)_minmax(0,1fr)_var(--site-inset-bottom)]"
+>
+  {/* top + bottom hatched bars */}
+  {
+    (["row-start-1 border-b", "row-start-3 border-t"] as const).map((pos, i) => (
+      <div class:list={["relative col-span-full overflow-hidden bg-frame text-hatch", pos]}>
+        <svg class="absolute inset-0 size-full select-none">
+          <defs>
+            <pattern id={`frame-hatch-${i}`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4" stroke="currentColor" stroke-width="1.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#frame-hatch-${i})`} />
+        </svg>
+      </div>
+    ))
+  }
+
+  {/* side gutters: hairline only (hatch would fight the sidebar texture) */}
+  <div class="col-start-1 row-start-2 hidden border-r border-line-subtle bg-frame md:block"></div>
+  <div class="col-start-3 row-start-2 hidden border-l border-line-subtle bg-frame md:block"></div>
+</div>

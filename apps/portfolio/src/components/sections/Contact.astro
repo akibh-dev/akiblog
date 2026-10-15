@@ -1,0 +1,77 @@
+---
+/**
+ * @file sections/Contact.astro
+ * @description Contact form (Formspree) + email + socials + footer bar.
+ *              Only interactivity is the slotted <copy-button> element.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import CopyButton from "../islands/CopyButton";
+import { portfolioData } from "../../data/portfolio";
+
+const { meta, socials } = portfolioData;
+
+const inputClass =
+  "w-full rounded-sm border border-line-subtle bg-surface px-4 py-3 font-mono text-sm text-default placeholder:text-muted transition-colors focus:border-accent focus:outline-none";
+const labelClass = "mb-2 block font-mono text-2xs uppercase tracking-wider text-muted";
+---
+
+<SectionShell id="contact" index="05" label="Transmission" class="border-b-0 bg-surface/40" pad="px-5 md:px-8 pt-14 md:pt-20 pb-10">
+  <p class="max-w-2xl font-display text-[clamp(1.1rem,1.5vw+0.9rem,1.5rem)] leading-relaxed text-subtle">
+    Have an opportunity, a collaboration idea, or just want to say hi? My inbox is open.
+  </p>
+
+  <div class="mt-12 grid gap-6 md:grid-cols-2">
+    {/* form */}
+    <form action="https://formspree.io/f/mnjjnbkl" method="POST" class="space-y-5 rounded-md border border-line-subtle bg-canvas p-6">
+      <div>
+        <label for="name" class={labelClass}>Name</label>
+        <input id="name" name="name" type="text" required placeholder="Your name" class={inputClass} />
+      </div>
+      <div>
+        <label for="email" class={labelClass}>Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@example.com" class={inputClass} />
+      </div>
+      <div>
+        <label for="message" class={labelClass}>Message</label>
+        <textarea id="message" name="message" rows="4" required placeholder="Tell me about your project…" class:list={[inputClass, "resize-none"]}></textarea>
+      </div>
+      <button type="submit" class="w-full rounded-sm bg-accent py-3 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent-hover">
+        Send Message
+      </button>
+    </form>
+
+    {/* direct channels */}
+    <div class="space-y-6">
+      <div class="rounded-md border border-line-subtle bg-canvas p-5">
+        <span class={labelClass}>Direct Email</span>
+        <div class="flex items-center justify-between gap-3 rounded-sm border border-line-subtle bg-surface p-3">
+          <span class="select-all font-mono text-sm text-default">{meta.email}</span>
+          <CopyButton client:visible text={meta.email} />
+        </div>
+      </div>
+
+      <div class="rounded-md border border-line-subtle bg-canvas p-5">
+        <span class={labelClass}>Connect</span>
+        <div class="grid grid-cols-2 gap-2">
+          {
+            socials.map((s) => (
+              <a href={s.url} target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between rounded-sm border border-line-subtle bg-surface p-3 transition-colors hover:border-accent">
+                <span class="font-mono text-xs text-subtle transition-colors group-hover:text-default">{s.name}</span>
+                <svg class="size-3 text-muted transition-colors group-hover:text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9" /></svg>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* footer bar */}
+  <footer class="mt-14 flex flex-col items-center justify-between gap-3 border-t border-line-subtle pt-6 sm:flex-row">
+    <p class="font-mono text-2xs text-muted">© {new Date().getFullYear()} {meta.name}. Built with Astro + Tailwind.</p>
+    <p class="flex items-center gap-2 font-mono text-2xs text-muted">
+      <span class="size-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+      Cloudflare Edge
+    </p>
+  </footer>
+</SectionShell>

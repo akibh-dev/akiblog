@@ -1,0 +1,46 @@
+---
+/**
+ * @file sections/Skills.astro
+ * @description Skill categories as horizontal snap cards + CV download CTA.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import ScrollRow from "../ui/ScrollRow.astro";
+import { portfolioData } from "../../data/portfolio";
+
+const { skills, meta } = portfolioData;
+---
+
+<SectionShell id="skills" index="04" label="Technical Matrix">
+  <ScrollRow label="Skill categories">
+    {
+      skills.map((cat) => (
+        <div class="w-[min(19rem,78vw)] shrink-0 snap-start rounded-md border border-line-subtle bg-surface p-5">
+          <div class="mb-4 flex items-center gap-2">
+            <span class="size-2 rounded-full bg-accent/60" aria-hidden="true"></span>
+            <h3 class="font-mono text-xs font-medium text-default">{cat.category}</h3>
+          </div>
+          <ul class="flex flex-wrap gap-2">
+            {cat.skills.map((skill) => (
+              <li class="cursor-default rounded-sm border border-line-subtle bg-canvas px-2.5 py-1.5 font-mono text-2xs text-subtle transition-colors hover:border-accent hover:text-default">
+                {skill}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </ScrollRow>
+
+  <div class="mt-10">
+    <a
+      href={meta.resumeUrl}
+      download
+      class="inline-flex items-center gap-2.5 rounded-md bg-accent px-6 py-3 font-mono text-xs text-white transition-colors hover:bg-accent-hover"
+    >
+      <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0 4-4m-4 4-4-4M4 20h16" />
+      </svg>
+      Download Full CV
+    </a>
+  </div>
+</SectionShell>

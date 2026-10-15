@@ -1,0 +1,33 @@
+---
+/**
+ * @file ui/SectionShell.astro
+ * @description Standard section wrapper: hatch band + numbered eyebrow header
+ *              + consistent content padding.
+ *
+ * WHY: Every section in the previous build hand-rolled the same header
+ * (eyebrow number, rule line, hatch band). One shell = consistent rhythm
+ * and the scroll-reveal animation applied uniformly.
+ */
+import Hatch from "./Hatch.astro";
+
+interface Props {
+  id: string;
+  index: string; // "01", "02"…
+  label: string;
+  class?: string;
+  pad?: string;
+}
+
+const { id, index, label, class: className = "", pad = "px-5 md:px-8 py-14 md:py-20" } = Astro.props;
+---
+
+<section id={id} data-spy-section class:list={["reveal-on-scroll relative border-b border-line-subtle bg-canvas", className]}>
+  <Hatch id={id} />
+  <div class:list={[pad]}>
+    <header class="mb-10 flex items-center gap-3">
+      <span class="font-mono text-2xs uppercase tracking-widest text-accent">{index}. {label}</span>
+      <span class="h-px w-16 bg-line"></span>
+    </header>
+    <slot />
+  </div>
+</section>

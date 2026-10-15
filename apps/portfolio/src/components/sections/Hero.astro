@@ -1,0 +1,107 @@
+---
+/**
+ * @file sections/Hero.astro
+ * @description Improvised hero — designed, not dumped.
+ *
+ * Instead of pasting the three bio paragraphs, the facts are re-cast as a
+ * terminal session card (`$ whoami` / `$ status` / `$ edu` / `$ loc`) —
+ * the same engineer-at-a-console language the sidebar + project browser
+ * speak. Prose shrinks to a single confident line; everything else is
+ * glanceable structure: status pill, CTA row, metric strip.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import ScrollRow from "../ui/ScrollRow.astro";
+import { portfolioData } from "../../data/portfolio";
+
+const { meta, education, competitiveMetrics } = portfolioData;
+const [first, ...rest] = meta.name.split(" ");
+
+const terminal: { cmd: string; out: string; accent?: boolean }[] = [
+  { cmd: "whoami", out: `${meta.handle} — full-stack engineer` },
+  { cmd: "status", out: "available for opportunities", accent: true },
+  { cmd: "edu", out: `B.Sc. CSE · CUET '${String(education.year).slice(-2)}` },
+  { cmd: "loc", out: `${meta.location} (${meta.timezone})` },
+  { cmd: "focus", out: "edge systems · distributed web · go · ts" },
+];
+---
+
+<SectionShell id="about" index="01" label="Identity">
+  {/* status pill */}
+  <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-line-subtle bg-surface px-3.5 py-1.5 font-mono text-2xs text-subtle">
+    <span class="relative flex size-2">
+      <span class="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-60"></span>
+      <span class="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+    </span>
+    Available for opportunities
+  </div>
+
+  {/* name — fluid scale */}
+  <h1 class="font-display text-[clamp(2.5rem,6vw+0.5rem,4.5rem)] leading-[1.02] tracking-tight text-default">
+    {first}
+    <br />
+    <span class="text-accent">{rest.join(" ")}</span>
+  </h1>
+
+  {/* one line only — no paragraph dump */}
+  <p class="mt-5 max-w-xl font-display text-[clamp(1.05rem,1.2vw+0.9rem,1.35rem)] leading-relaxed text-subtle">
+    I build resilient systems that live at the edge of the web.
+  </p>
+
+  {/* CTA row */}
+  <div class="mt-8 flex flex-wrap items-center gap-3">
+    <a href="#projects" class="rounded-md bg-accent px-5 py-2.5 font-mono text-xs text-white transition-colors hover:bg-accent-hover">
+      View Projects ↓
+    </a>
+    <a href="#contact" class="rounded-md border border-line-subtle bg-surface px-5 py-2.5 font-mono text-xs text-subtle transition-colors hover:border-accent hover:text-accent">
+      Get in Touch
+    </a>
+    <a href={meta.resumeUrl} download class="px-3 py-2.5 font-mono text-xs text-muted transition-colors hover:text-accent">
+      CV ↓
+    </a>
+  </div>
+
+  {/* terminal card — facts as a session, not prose */}
+  <div class="mt-12 max-w-xl overflow-hidden rounded-md border border-line-subtle bg-surface shadow-2xs">
+    <div class="flex items-center gap-1.5 border-b border-line-subtle px-4 py-2.5">
+      <span class="size-2.5 rounded-full bg-line"></span>
+      <span class="size-2.5 rounded-full bg-line"></span>
+      <span class="size-2.5 rounded-full bg-accent/50"></span>
+      <span class="ml-2 font-mono text-[9px] text-muted">{meta.handle}@edge — session</span>
+    </div>
+    <dl class="space-y-2.5 px-4 py-4 font-mono text-xs">
+      {
+        terminal.map((line) => (
+          <div class="grid grid-cols-[5.5rem_1fr] items-baseline gap-2">
+            <dt class="text-muted">
+              <span class="text-accent">$</span> {line.cmd}
+            </dt>
+            <dd class:list={["truncate", line.accent ? "font-medium text-emerald-600 dark:text-emerald-400" : "text-subtle"]}>
+              {line.out}
+            </dd>
+          </div>
+        ))
+      }
+      <div class="grid grid-cols-[5.5rem_1fr] items-baseline gap-2">
+        <dt class="text-muted"><span class="text-accent">$</span> <span class="inline-block w-2 animate-pulse text-default">▊</span></dt>
+        <dd></dd>
+      </div>
+    </dl>
+  </div>
+
+  {/* metric strip */}
+  <ScrollRow label="Competitive programming metrics" class="mt-10">
+    {
+      competitiveMetrics.map((m) => (
+        <a
+          href={m.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-[min(12rem,58vw)] shrink-0 snap-start rounded-md border border-line-subtle bg-surface px-5 py-4 transition-colors hover:border-accent hover:bg-accent-subtle"
+        >
+          <span class="mb-1 block font-mono text-2xs uppercase tracking-wider text-muted">{m.platform}</span>
+          <span class="block font-mono text-base font-medium text-default">{m.stats}</span>
+        </a>
+      ))
+    }
+  </ScrollRow>
+</SectionShell>

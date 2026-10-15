@@ -1,0 +1,51 @@
+---
+/**
+ * @file sections/Writings.astro
+ * @description Blog posts as a horizontal snap-scrolling card row.
+ *              Pure markup; scroll behavior is CSS scroll-snap.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import ScrollRow from "../ui/ScrollRow.astro";
+import { portfolioData } from "../../data/portfolio";
+
+const { blogPosts, meta } = portfolioData;
+---
+
+<SectionShell id="writings" index="03" label="Writings" class="bg-surface/40">
+  <ScrollRow label="Blog posts">
+    {
+      blogPosts.map((post) => (
+        <a
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex w-[min(21rem,80vw)] shrink-0 snap-start flex-col rounded-md border border-line-subtle bg-canvas p-6 transition-all hover:-translate-y-0.5 hover:border-accent"
+        >
+          <div class="mb-4 flex items-center gap-2.5 font-mono text-2xs text-muted">
+            <span>{post.date}</span>
+            <span aria-hidden="true">·</span>
+            <span>{post.readingTime}</span>
+          </div>
+          <h3 class="font-display text-lg leading-snug text-default transition-colors group-hover:text-accent">{post.title}</h3>
+          <p class="mt-3 line-clamp-3 text-sm text-subtle">{post.excerpt}</p>
+          <div class="mt-auto flex flex-wrap gap-2 pt-4">
+            {post.tags.slice(0, 3).map((tag) => (
+              <span class="font-mono text-[9px] text-muted">#{tag}</span>
+            ))}
+          </div>
+        </a>
+      ))
+    }
+
+    {/* terminal card linking to the blog */}
+    <a
+      href={meta.blogUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="group flex w-[min(12rem,50vw)] shrink-0 snap-start flex-col items-center justify-center gap-3 rounded-md border border-dashed border-line bg-surface p-6 transition-colors hover:border-accent"
+    >
+      <span class="font-mono text-2xl text-muted transition-colors group-hover:text-accent" aria-hidden="true">→</span>
+      <span class="font-mono text-2xs text-subtle transition-colors group-hover:text-accent">All articles</span>
+    </a>
+  </ScrollRow>
+</SectionShell>

@@ -1,0 +1,17 @@
+---
+/**
+ * @file sections/Projects.astro
+ * @description Projects section — Astro owns the section shell + data,
+ *              the interactive browser is the Base UI Tabs island.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import ProjectBrowser from "../islands/ProjectBrowser";
+import { portfolioData } from "../../data/portfolio";
+
+const { projects, socials } = portfolioData;
+const repoUrl = socials.find((s) => s.name === "GitHub")?.url;
+---
+
+<SectionShell id="projects" index="02" label="Selected Work" pad="px-0 py-0 md:py-0">
+  <ProjectBrowser client:load projects={projects} repoUrl={repoUrl} />
+</SectionShell>
