@@ -201,23 +201,9 @@
   }
 }
 
-/* Sidebar scroll-progress line fills as the page scrolls */
-@keyframes grow-y {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
-}
-
-@supports (animation-timeline: scroll()) {
-  .scroll-progress {
-    transform-origin: top;
-    animation: grow-y linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal-on-scroll, .scroll-progress { animation: none !important; }
+  .reveal-on-scroll { animation: none !important; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -229,11 +215,6 @@
 }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Active nav link driven by aria-current (set by <scroll-spy>) */
-[aria-current="true"].nav-link {
-  color: var(--ui-accent);
-}
-[aria-current="true"].nav-link .nav-node {
-  border-color: var(--ui-accent);
-  background: var(--ui-accent-subtle);
-}
+/* Sidebar station styling (commit node + terracotta pill) lives in
+   layout/SiteSidebar.astro markup via group-aria-[current=true]:* —
+   aria-current is set by the <scroll-spy> custom element. */

@@ -3,21 +3,89 @@
  * @file layout/SiteSidebar.astro
  * @description Desktop sidebar — on delta.dev the sidebar IS the header.
  *
- * Pure Astro composition: markup is declarative; the only interactivity
- * (scroll-spy, theme) is slotted in as self-contained custom elements.
- * The tree line doubles as a CSS scroll-progress indicator (zero JS).
+ * Nav language: Git commit graph / metro map. ONE rail SVG paints the
+ * entire line system as a single unit: a continuous vertical trunk runs
+ * from the first station to the bottom of the sidebar, hollow station
+ * nodes sit on top of it, and below the last station the trunk grows
+ * into an infinite git tree (branches forking RIGHT in the reference
+ * mockup's cascading waterfall, dx=25/dy=20 diagonals, tracks 1.2px).
+ * Between stations an accent HOP CONNECTOR appears ONLY while
+ * transitioning: it grows out of the previously active node toward the
+ * current one, then retracts into the destination node — no red line at
+ * rest (positioned by ScrollSpy, animated by a CSS transition). The
+ * active station's node grows ~1.4× from its center and its label
+ * becomes a filled terracotta pill (all-caps mono).
+ * CONTACT is the outlined "action" station. Hovering a station DRAWS
+ * the terracotta rectangle around its label as an outline only
+ * (border-accent, no fill); the active (clicked) station keeps the
+ * current implementation — the filled pill. Active state = aria-current
+ * set by ScrollSpy, styled via group-aria-[current=true]:* — the only
+ * JS is ScrollSpy itself.
+ *
+ * WHY ONE SVG (the double-paint bug this fixes): the line used to be
+ * drawn by TWO overlapping layers — a spine <div> (bg-line-subtle,
+ * absolute top-3.5→bottom-0) on top of the tree pattern's own trunk
+ * path (M3.5 0 V760). In light mode --ui-border-subtle is
+ * SEMI-TRANSPARENT (color-mix(..., transparent 82%)), so wherever both
+ * layers painted, the alpha stacked (~18% → ~33%) and the whole tree
+ * zone rendered visibly darker than the stations zone. Now the trunk is
+ * a SINGLE <line> painted exactly once, and the pattern contains ONLY
+ * branches + commit nodes — no trunk — so 1.2px strokes can never stack.
+ * Fork/merge joints where a branch meets the trunk (x=3.5) are masked
+ * by opaque canvas-filled junction circles, exactly like the reference.
+ * Bonus: nothing crosses a pattern tile edge anymore (previously the
+ * trunk did), so vertical tiling is seamless by construction.
+ *
+ * WHY STATION NODES STAY HTML (not circles inside the rail SVG):
+ *  1. Their y must equal each anchor's flex-computed center — font
+ *     metrics decide that, not constants we can hardcode without drift.
+ *  2. The active scale-up is pure CSS via the anchor's aria-current
+ *     (group-aria-[current=true]:scale-[1.4]). A detached SVG circle
+ *     can't inherit that without per-index :has() rules or JS coupling.
+ *  3. Their bg-canvas fill is opaque, so the trunk passes cleanly
+ *     underneath — single paint, same visual as a painted SVG node.
+ * They are still "rendered dynamically": one node per `sections` entry.
+ *
+ * GEOMETRY (derived — keep in sync with the utility classes below):
+ *   label  = text-2xs line-height 16 + py-0.5 (4) + border (2) = 22px
+ *   anchor = py-1.5 (12) + max(node 7, label 22)               = 34px
+ *   ul     = 5×34 + 4×4 (space-y-1)                            = 186px
+ *   first node center = 17 → node TOP edge = 14 = top-3.5, where the
+ *   trunk starts (the line emerges from the node's opaque fill). Tree
+ *   starts at 186 + mt-1 (4) = 190 → TREE_TOP, applied via
+ *   patternTransform so tile-internal coords keep the mockup's 0-based
+ *   y values. Trunk x=3.5 = station node centers (size-[7px] from the
+ *   anchor's left edge). Commits are hollow r=3 circles + 1px stroke =
+ *   7px outer — EXACTLY the station nodes' size-[7px] (border-box), so
+ *   SVG commits and HTML stations read as one symbol set (r=3.5
+ *   rendered 8px outer — visibly bigger next to the stations).
+ *
+ * IMPLEMENTATION NOTES:
+ * - style="stroke: var(...)" (not presentation attributes) — Firefox
+ *   drops presentation attributes referencing var() in some versions.
+ * - The design system has NO --ui-line token; undefined var() is
+ *   invalid at computed-value time, so strokes silently became `none`
+ *   and solid dots fell back to `fill: black` (a previous version
+ *   rendered only black dots). Use existing tokens: --ui-border-subtle
+ *   / --ui-border / --ui-canvas / --ui-accent.
  */
 import { portfolioData } from "../../data/portfolio";
 import ThemeSwitch from "../islands/ThemeSwitch";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 
 const sections = [
-  { id: "about", label: "About", number: "01" },
-  { id: "projects", label: "Projects", number: "02" },
-  { id: "writings", label: "Writings", number: "03" },
-  { id: "skills", label: "Skills", number: "04" },
-  { id: "contact", label: "Contact", number: "05" },
+  { id: "about", label: "About" },
+  { id: "projects", label: "Projects" },
+  { id: "writings", label: "Writings" },
+  { id: "skills", label: "Skills" },
+  { id: "contact", label: "Contact" },
 ];
+
+/* Rail geometry — derivation documented under GEOMETRY above. */
+const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
+const ROW_H = 34;     // anchor height: py-1.5 (12) + 22px label
+const ROW_GAP = 4;    // space-y-1
+const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; // stations (186) + mt-1 (4) = 190
 ---
 
 <aside class="sticky top-[var(--site-content-top)] z-40 hidden h-[calc(100dvh-var(--site-content-top)-var(--site-content-bottom))] md:block">
@@ -33,20 +101,93 @@ const sections = [
       </span>
     </a>
 
-    {/* tree nav with scroll-progress branch */}
+    {/* tree nav: commit-graph stations + scroll-progress branch */}
     <ScrollSpy>
-      <nav aria-label="Sections" class="relative flex-1">
-        <div aria-hidden="true" class="absolute top-1 bottom-1 left-[5px] w-px bg-line-subtle"></div>
-        <div aria-hidden="true" class="scroll-progress absolute top-1 bottom-1 left-[5px] w-px bg-accent"></div>
+      <nav aria-label="Sections" class="relative flex flex-1 flex-col">
+        {/* rail — ONE SVG paints the whole line system as a single unit:
+            the trunk <line> is painted exactly once (no stacking), and
+            the pattern holds ONLY branches + commit nodes (no trunk).
+            No viewBox: SVG user units = CSS px, so the mockup's geometry
+            renders 1:1. pattern width="100%" → exactly ONE tile column;
+            nothing crosses tile edges → seamless vertical tiling.
+            Absolutely positioned behind the in-flow stations, whose
+            opaque node fills paint cleanly over the trunk. */}
+        <svg aria-hidden="true" class="pointer-events-none absolute inset-0 size-full">
+          <defs>
+            <pattern id="git-tree" width="100%" height="760" patternUnits="userSpaceOnUse" patternTransform={`translate(0 ${TREE_TOP})`}>
+              {/* branches — 1.2px, forking RIGHT off the trunk in the
+                  reference waterfall (28.5→53.5→…→153.5). NO trunk here:
+                  the single <line> below is the only trunk paint. */}
+              <g style="stroke: var(--ui-border-subtle); stroke-width: 1.2; stroke-linejoin: round; fill: none">
+                <path d="M3.5 60 L28.5 80 V700 L3.5 720" />
+                <path d="M28.5 120 L53.5 140 V660 L28.5 680" />
+                <path d="M53.5 180 L78.5 200 V620 L53.5 640" />
+                <path d="M78.5 240 L103.5 260 V580 L78.5 600" />
+                <path d="M103.5 300 L128.5 320 V540 L103.5 560" />
+                <path d="M128.5 360 L153.5 380 V500 L128.5 520" />
+              </g>
+              {/* commits — hollow r=3 circles: r=3 + 1px stroke = 7px
+                  outer, EXACTLY the station nodes' size-[7px] border-box
+                  (same border-line bg-canvas). Junction circles at
+                  (3.5, 60) and (3.5, 720) mask the branch/trunk joints
+                  with an opaque fill. */}
+              <g style="stroke: var(--ui-border); stroke-width: 1; fill: var(--ui-canvas)">
+                {/* trunk (60 = branch-1 fork, 720 = branch-1 merge) */}
+                <circle cx="3.5" cy="20" r="3" /><circle cx="3.5" cy="60" r="3" /><circle cx="3.5" cy="110" r="3" /><circle cx="3.5" cy="160" r="3" /><circle cx="3.5" cy="230" r="3" /><circle cx="3.5" cy="290" r="3" /><circle cx="3.5" cy="350" r="3" /><circle cx="3.5" cy="410" r="3" /><circle cx="3.5" cy="470" r="3" /><circle cx="3.5" cy="530" r="3" /><circle cx="3.5" cy="590" r="3" /><circle cx="3.5" cy="650" r="3" /><circle cx="3.5" cy="720" r="3" />
+                {/* branch 1 (120 = branch-2 fork, 680 = branch-2 merge) */}
+                <circle cx="28.5" cy="80" r="3" /><circle cx="28.5" cy="120" r="3" /><circle cx="28.5" cy="180" r="3" /><circle cx="28.5" cy="250" r="3" /><circle cx="28.5" cy="330" r="3" /><circle cx="28.5" cy="410" r="3" /><circle cx="28.5" cy="490" r="3" /><circle cx="28.5" cy="570" r="3" /><circle cx="28.5" cy="640" r="3" /><circle cx="28.5" cy="680" r="3" /><circle cx="28.5" cy="700" r="3" />
+                {/* branch 2 (180 = branch-3 fork, 640 = branch-3 merge) */}
+                <circle cx="53.5" cy="140" r="3" /><circle cx="53.5" cy="180" r="3" /><circle cx="53.5" cy="250" r="3" /><circle cx="53.5" cy="330" r="3" /><circle cx="53.5" cy="410" r="3" /><circle cx="53.5" cy="490" r="3" /><circle cx="53.5" cy="570" r="3" /><circle cx="53.5" cy="640" r="3" />
+                {/* branch 3 (240 = branch-4 fork, 600 = branch-4 merge) */}
+                <circle cx="78.5" cy="200" r="3" /><circle cx="78.5" cy="240" r="3" /><circle cx="78.5" cy="310" r="3" /><circle cx="78.5" cy="390" r="3" /><circle cx="78.5" cy="470" r="3" /><circle cx="78.5" cy="550" r="3" /><circle cx="78.5" cy="600" r="3" />
+                {/* branch 4 (300 = branch-5 fork, 560 = branch-5 merge) */}
+                <circle cx="103.5" cy="260" r="3" /><circle cx="103.5" cy="300" r="3" /><circle cx="103.5" cy="370" r="3" /><circle cx="103.5" cy="450" r="3" /><circle cx="103.5" cy="530" r="3" /><circle cx="103.5" cy="560" r="3" />
+                {/* branch 5 (360 = branch-6 fork, 520 = branch-6 merge) */}
+                <circle cx="128.5" cy="320" r="3" /><circle cx="128.5" cy="360" r="3" /><circle cx="128.5" cy="430" r="3" /><circle cx="128.5" cy="520" r="3" />
+                {/* branch 6 — deepest, shortest */}
+                <circle cx="153.5" cy="380" r="3" /><circle cx="153.5" cy="450" r="3" /><circle cx="153.5" cy="500" r="3" />
+              </g>
+            </pattern>
+          </defs>
+          {/* trunk — painted ONCE from the first station (top-3.5) to the
+              sidebar bottom; y2="100%" resolves against the nav viewport. */}
+          <line x1="3.5" y1={SPINE_TOP} x2="3.5" y2="100%" style="stroke: var(--ui-border-subtle); stroke-width: 1.2" />
+          {/* git tree — branches + commits only, starting below the last
+              station; the SVG viewport clips the rect at the nav bottom. */}
+          <rect x="0" y={TREE_TOP} width="100%" height="100%" fill="url(#git-tree)" />
+        </svg>
 
-        <ul class="relative space-y-0.5">
+        {/* stations */}
+        <div class="relative">
+          {/* hop connector — accent segment that exists ONLY while
+              transitioning between stations ("from circle A to circle B"),
+              never at rest: ScrollSpy spans it from the previously active
+              node to the current one (the CSS transition makes it grow out
+              of the source node), then collapses it into the destination
+              node after the hop lands. Zero height before the first hop →
+              nothing painted; duration-500 matches ScrollSpy's retract
+              timer. */}
+          <div aria-hidden="true" data-station-link class="absolute left-[3px] w-[1.2px] bg-accent transition-[top,height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none" style="top: 17px; height: 0"></div>
+
+        <ul class="relative space-y-1">
           {
             sections.map((s) => (
               <li>
-                <a href={`#${s.id}`} class="nav-link group flex items-center gap-3 rounded-md py-2 pr-2 text-subtle transition-colors hover:text-default">
-                  <span class="nav-node size-[11px] rounded-full border-2 border-line bg-canvas transition-colors"></span>
-                  <span class="font-mono text-xs">
-                    <span class="mr-1.5 text-muted">{s.number}.</span>
+                <a href={`#${s.id}`} class="group flex items-center gap-3 py-1.5">
+                  {/* commit node — grows ~1.4× from its center when active
+                      (stays centered on the trunk). data-station-node lets
+                      ScrollSpy measure exact centers for the hop connector. */}
+                  <span data-station-node class="size-[7px] shrink-0 rounded-full border border-line bg-canvas transition-transform duration-200 group-aria-[current=true]:scale-[1.4] motion-reduce:transition-none"></span>
+                  {/* station label — hover DRAWS the terracotta rectangle
+                      (outline only: border-accent, no fill); active keeps the
+                      current implementation: filled pill. CONTACT stays
+                      outlined by default. */}
+                  <span
+                    class:list={[
+                      "rounded border px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:border-accent group-hover:text-default group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas",
+                      s.id === "contact" ? "border-line-subtle" : "border-transparent",
+                    ]}
+                  >
                     {s.label}
                   </span>
                 </a>
@@ -54,6 +195,11 @@ const sections = [
             ))
           }
         </ul>
+        </div>
+
+        {/* tree-zone spacer — preserves the old mt-1 min-h-8 flex-1 layout;
+            the rail SVG paints the infinite tree through this space */}
+        <div aria-hidden="true" class="mt-1 min-h-8 flex-1"></div>
       </nav>
     </ScrollSpy>
 

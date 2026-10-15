@@ -1,11 +1,29 @@
 ---
 /**
  * @file islands/ScrollSpy.astro
- * @description Highlights the sidebar nav link matching the visible section.
+ * @description Highlights the sidebar nav link matching the visible section,
+ * and drives the sidebar's "hop connector".
  *
  * WHY: State is exposed via the standard `aria-current` attribute instead of
- * ad-hoc classes, so ALL styling stays in CSS ([aria-current] selectors in
- * global.css). One IntersectionObserver for the whole page; zero reflows.
+ * ad-hoc classes, so ALL styling stays in CSS ([aria-current] selectors).
+ * One IntersectionObserver for the whole page; zero reflows while scrolling.
+ *
+ * HOP CONNECTOR ([data-station-link]): the accent line exists ONLY
+ * while transitioning between stations — never a persistent fill and
+ * nothing red at rest. On every activation change we span the segment
+ * from the previously active node to the current one (measured live via
+ * getBoundingClientRect relative to the positioned wrapper, so it stays
+ * correct across font loading, zoom and resize); the CSS transition on
+ * top/height makes it GROW out of the source node toward the
+ * destination. Once the hop lands (one transition duration later), we
+ * collapse the segment into the destination node — the tail catches up
+ * and the line disappears underneath the node's opaque fill. Rapid
+ * successive hops simply retarget the segment (the pending collapse is
+ * cancelled), so the line stays visible while you keep scrolling and
+ * vanishes ~0.5s after you settle. The first activation collapses to a
+ * zero-length segment at the current node, so nothing is painted before
+ * the first hop. Purely additive: usages without [data-station-link]
+ * behave exactly as before.
  */
 ---
 
@@ -22,14 +40,52 @@
         .filter((el): el is HTMLElement => el !== null);
       if (targets.length === 0) return;
 
+      // hop connector (optional) + the positioned wrapper it lives in
+      const link = this.querySelector<HTMLElement>("[data-station-link]");
+      const wrapper = link?.parentElement ?? null;
+      let activeIndex = -1;
+      let retractTimer: ReturnType<typeof setTimeout> | undefined;
+
+      // live node-center measurement (robust to font load / zoom / resize)
+      const centerOf = (i: number) => {
+        const node = links[i].querySelector("[data-station-node]");
+        const r = (node ?? links[i]).getBoundingClientRect();
+        return r.top - wrapper!.getBoundingClientRect().top + r.height / 2;
+      };
+
+      const moveLink = (next: number) => {
+        if (!link || !wrapper || next === activeIndex) return;
+        // first activation: zero-length segment at the current node (invisible)
+        const prev = activeIndex < 0 ? next : activeIndex;
+        activeIndex = next;
+
+        // EXTEND: span prev → next; the CSS transition makes the line grow
+        // out of the source node toward the destination (both directions).
+        const a = centerOf(prev);
+        const b = centerOf(next);
+        link.style.top = `${Math.min(a, b)}px`;
+        link.style.height = `${Math.abs(b - a)}px`;
+
+        // RETRACT: once the hop lands, collapse into the destination node
+        // so no red line remains at rest. Cancelled if another hop starts.
+        clearTimeout(retractTimer);
+        retractTimer = setTimeout(() => {
+          link.style.top = `${centerOf(next)}px`;
+          link.style.height = "0px";
+        }, 500); // keep in sync with duration-500 on the connector element
+      };
+
       const observer = new IntersectionObserver(
         (entries) => {
+          let next = -1;
           for (const entry of entries) {
             if (!entry.isIntersecting) continue;
             links.forEach((a) =>
               a.setAttribute("aria-current", String(a.hash === `#${entry.target.id}`))
             );
+            next = links.findIndex((a) => a.hash === `#${entry.target.id}`);
           }
+          if (next >= 0) moveLink(next);
         },
         // a section counts as "active" when its middle band crosses the viewport middle
         { rootMargin: "-45% 0px -50% 0px" }
