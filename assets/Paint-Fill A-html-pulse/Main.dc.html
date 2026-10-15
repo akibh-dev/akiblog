@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Paint-Fill A Logo</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.pop{transform-box:view-box;transform-origin:300px 300px;animation:intro 1s both}
+.l{animation:sweep 1.6s cubic-bezier(.55,0,.25,1) both}
+.l0{animation-delay:1s}
+.l1{animation-delay:1.14s}
+.l2{animation-delay:1.28s}
+.l3{animation-delay:1.42s}
+.l4{animation-delay:1.56s}
+.l5{animation-delay:1.7s}
+.colors{animation:gone .01s linear 3.35s forwards}
+@keyframes intro{
+0%{opacity:0;transform:scale(1);animation-timing-function:ease-out}
+50%{opacity:1;transform:scale(1.07);animation-timing-function:ease-in-out}
+100%{opacity:1;transform:scale(1)}
+}
+@keyframes sweep{from{transform:translateX(-140px)}to{transform:translateX(640px)}}
+@keyframes gone{to{opacity:0}}
+@media (prefers-reduced-motion: reduce){
+.pop,.l,.colors{animation:none}
+.colors{display:none}
+.l5{transform:translateX(640px)}
+}
+</style>
+</helmet>
+<div style="width: 800px; height: 800px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: #E7E4DD">
+<svg viewBox="0 0 600 600" width="560" height="560" role="img" aria-label="Logo: a hollow white letter A pulses, then colorful paint sweeps across it and turns it black">
+<defs>
+<clipPath id="aClip">
+<path clip-rule="evenodd" d="M235 60 L365 60 L535 540 L405 540 L373.2 450 L226.8 450 L195 540 L65 540 Z M300 243.5 L341.3 360 L258.7 360 Z"></path>
+</clipPath>
+</defs>
+<g class="pop">
+<path fill-rule="evenodd" fill="#FFFFFF" d="M235 60 L365 60 L535 540 L405 540 L373.2 450 L226.8 450 L195 540 L65 540 Z M300 243.5 L341.3 360 L258.7 360 Z"></path>
+<g class="paint" clip-path="url(#aClip)">
+<g class="colors">
+<g class="l l0">
+<path fill="#FF2E93" d="M-1400 -20 L30 -20 C80 50 -20 110 25 190 C70 270 5 330 45 410 C85 490 0 560 40 640 L-1400 640 Z"></path>
+<circle cx="110" cy="120" r="8" fill="#FF2E93"></circle>
+<circle cx="150" cy="260" r="5" fill="#FF2E93"></circle>
+<circle cx="95" cy="350" r="10" fill="#FF2E93"></circle>
+<circle cx="135" cy="470" r="6" fill="#FF2E93"></circle>
+<circle cx="120" cy="545" r="4" fill="#FF2E93"></circle>
+</g>
+<g class="l l1">
+<path fill="#FF7A1A" d="M-1400 -20 L10 -20 C-30 60 60 120 20 200 C-20 280 50 340 15 420 C-20 500 55 570 25 640 L-1400 640 Z"></path>
+<circle cx="80" cy="200" r="6" fill="#FF7A1A"></circle>
+<circle cx="70" cy="420" r="7" fill="#FF7A1A"></circle>
+</g>
+<g class="l l2">
+<path fill="#FFD21F" d="M-1400 -20 L40 -20 C0 70 70 130 30 210 C-10 290 60 350 35 430 C10 510 60 580 20 640 L-1400 640 Z"></path>
+</g>
+<g class="l l3">
+<path fill="#2ED47A" d="M-1400 -20 L20 -20 C70 60 -10 130 30 200 C65 270 0 340 25 420 C55 500 5 570 35 640 L-1400 640 Z"></path>
+</g>
+<g class="l l4">
+<path fill="#19B5FE" d="M-1400 -20 L35 -20 C-10 50 55 120 15 205 C-25 285 45 345 30 425 C15 505 60 575 10 640 L-1400 640 Z"></path>
+</g>
+</g>
+<g class="l l5">
+<path fill="#000000" d="M-1400 -20 L15 -20 C55 60 -15 125 20 205 C55 285 -5 345 30 425 C60 505 5 575 30 640 L-1400 640 Z"></path>
+</g>
+</g>
+<path fill-rule="evenodd" fill="none" stroke="#000000" stroke-width="4" d="M235 60 L365 60 L535 540 L405 540 L373.2 450 L226.8 450 L195 540 L65 540 Z M300 243.5 L341.3 360 L258.7 360 Z"></path>
+</g>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

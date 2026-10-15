@@ -68,10 +68,18 @@
  *   and solid dots fell back to `fill: black` (a previous version
  *   rendered only black dots). Use existing tokens: --ui-border-subtle
  *   / --ui-border / --ui-canvas / --ui-accent.
+ *
+ * BRAND LOGO: the animated Paint-Fill "A" (light + dark variants) lives
+ * in layout/BrandLogo.astro — see its header for the full source-fidelity
+ * rationale. It replaces the old boxed Δ glyph: NO bordered wrapper (the
+ * chrome rectangle fights the artwork), the SVG floats on the canvas
+ * exactly like the source exports, and swapping variants via `dark:`
+ * replays the paint animation on every theme toggle.
  */
 import { portfolioData } from "../../data/portfolio";
 import ThemeSwitch from "../islands/ThemeSwitch";
 import ScrollSpy from "../islands/ScrollSpy.astro";
+import BrandLogo from "./BrandLogo.astro";
 
 const sections = [
   { id: "about", label: "About" },
@@ -91,12 +99,17 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
 <aside class="sticky top-[var(--site-content-top)] z-40 hidden h-[calc(100dvh-var(--site-content-top)-var(--site-content-bottom))] md:block">
   <div class="flex h-full flex-col border-r border-line-subtle px-5 py-6">
     {/* brand */}
-    <a href="#top" class="group mb-8 flex items-center gap-2.5">
-      <span class="flex size-8 items-center justify-center rounded-md border border-line-subtle bg-surface transition-colors group-hover:border-accent">
-        <span class="font-mono text-xs font-semibold text-accent">Δ</span>
-      </span>
-      <span class="font-mono text-sm leading-tight">
-        <span class="block font-medium text-default">{portfolioData.meta.handle}</span>
+    <a href="#top" class="group mb-8 flex items-center gap-3">
+      {/* animated Paint-Fill "A", bare on the canvas — no bordered chip
+          (layout/BrandLogo.astro). size-11 (44px) is the LARGEST the
+          narrowest sidebar admits: at md the content column is ~108px
+          (1fr of the site grid − px-5), and 44 + gap-3 (12) + ~50px
+          handle ≈ 106px — size-12 would overflow. The hover scale
+          restores the affordance the old bordered chip gave, without
+          bringing the chrome rectangle back (motion-safe only). */}
+      <BrandLogo class="size-11 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:scale-105 motion-reduce:transition-none" />
+      <span class="min-w-0 font-mono text-sm leading-tight">
+        <span class="block font-semibold text-default">{portfolioData.meta.handle}</span>
         <span class="block text-2xs text-muted">.dev</span>
       </span>
     </a>
