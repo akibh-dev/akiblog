@@ -1,0 +1,16 @@
+---
+/**
+ * Icon: Python — faithful two-snake interlock: top snake's head starts
+ * top-left and U-turns at the right; bottom snake is its exact 180°
+ * rotation; tails meet at the center like the official mark.
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <path d="M9 9 V6.5 A3 3 0 0 1 12 3.5 H15 A3.5 3.5 0 0 1 15 10.5 H11" />
+  <path d="M15 15 V17.5 A3 3 0 0 1 12 20.5 H9 A3.5 3.5 0 0 1 9 13.5 H13" />
+  <circle cx="9.9" cy="5.4" r="0.95" fill="currentColor" stroke="none" />
+  <circle cx="14.1" cy="18.6" r="0.95" fill="currentColor" stroke="none" />
+</IconBase>

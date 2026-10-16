@@ -1,0 +1,17 @@
+---
+/**
+ * Icon: Network — hub-and-spoke topology: central node linked to four
+ * satellite nodes (networking / distributed systems coursework).
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <circle cx="12" cy="12" r="2.2" />
+  <circle cx="5" cy="5.5" r="1.8" />
+  <circle cx="19" cy="5.5" r="1.8" />
+  <circle cx="5" cy="18.5" r="1.8" />
+  <circle cx="19" cy="18.5" r="1.8" />
+  <path d="M10.4 10.5 L6.3 6.7 M13.6 10.5 L17.7 6.7 M10.4 13.5 L6.3 17.3 M13.6 13.5 L17.7 17.3" />
+</IconBase>

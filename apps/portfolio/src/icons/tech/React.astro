@@ -1,0 +1,14 @@
+---
+/**
+ * Icon: React — atom: three ellipses at 0°/60°/120° + nucleus dot.
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <ellipse cx="12" cy="12" rx="9.6" ry="3.7" />
+  <ellipse cx="12" cy="12" rx="9.6" ry="3.7" transform="rotate(60 12 12)" />
+  <ellipse cx="12" cy="12" rx="9.6" ry="3.7" transform="rotate(120 12 12)" />
+  <circle cx="12" cy="12" r="1.15" fill="currentColor" stroke="none" />
+</IconBase>
