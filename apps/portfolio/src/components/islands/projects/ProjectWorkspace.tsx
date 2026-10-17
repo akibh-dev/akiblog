@@ -53,6 +53,9 @@ interface Props {
   repoUrl?: string;
 }
 
+/** Back/forward deque capacity — oldest entries drop off beyond this. */
+const HISTORY_LIMIT = 8;
+
 export default function ProjectWorkspace({ projects, repoUrl }: Props) {
   const files = useMemo(() => projects.map(toProjectFile), [projects]);
   const firstId = files[0]?.id ?? "";
@@ -67,7 +70,6 @@ export default function ProjectWorkspace({ projects, repoUrl }: Props) {
 
   /** Back/forward navigation deque (bounded; forward entries are
    *  truncated whenever a NEW navigation is recorded). */
-  const HISTORY_LIMIT = 20;
   const [history, setHistory] = useState<string[]>(() => (firstId ? [firstId] : []));
   const [historyIndex, setHistoryIndex] = useState(0);
 

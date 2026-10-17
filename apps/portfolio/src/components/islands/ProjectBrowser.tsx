@@ -20,5 +20,3 @@ interface Props {
 export default function ProjectBrowser(props: Props) {
   return <ProjectWorkspace {...props} />;
 }
-
-export type { ProjectItem };

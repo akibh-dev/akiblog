@@ -53,7 +53,7 @@ export const GROUP_ORDER: { key: TreeGroup; label: string }[] = [
   { key: "archive", label: "archive" },
 ];
 
-export interface StatusMeta {
+interface StatusMeta {
   label: string;
   /** dirty = "uncommitted changes" → tab dot + tree git dot. */
   dirty: boolean;
