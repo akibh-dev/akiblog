@@ -40,12 +40,13 @@ const { title = `${meta.name} — ${meta.role}` } = Astro.props;
     <meta property="og:type" content="website" />
     <meta property="og:url" content={meta.siteUrl} />
 
-    {/* anti-flash: set .dark before first paint (same as delta.dev) */}
+    {/* anti-flash: dark is the DEFAULT — set .dark before first paint
+        unless the user explicitly chose light (legacy "system" values
+        from older versions also resolve to dark) */}
     <script is:inline>
       (() => {
         const t = localStorage.getItem("theme");
-        const d = matchMedia("(prefers-color-scheme: dark)").matches;
-        if (t === "dark" || ((t === "system" || !t) && d)) document.documentElement.classList.add("dark");
+        if (t !== "light") document.documentElement.classList.add("dark");
       })();
     </script>
 

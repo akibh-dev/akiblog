@@ -15,12 +15,11 @@
  * rest (positioned by ScrollSpy, animated by a CSS transition). The
  * active station's node grows ~1.4× from its center and its label
  * becomes a filled terracotta pill (all-caps mono).
- * CONTACT is the outlined "action" station. Hovering a station DRAWS
- * the terracotta rectangle around its label as an outline only
- * (border-accent, no fill); the active (clicked) station keeps the
- * current implementation — the filled pill. Active state = aria-current
- * set by ScrollSpy, styled via group-aria-[current=true]:* — the only
- * JS is ScrollSpy itself.
+ * Hovering a station DRAWS the terracotta rectangle around its label
+ * as an outline only (border-accent, no fill); the active (clicked)
+ * station keeps the filled pill. All stations share identical styling.
+ * Active state = aria-current set by ScrollSpy, styled via
+ * group-aria-[current=true]:* — the only JS is ScrollSpy itself.
  *
  * WHY ONE SVG (the double-paint bug this fixes): the line used to be
  * drawn by TWO overlapping layers — a spine <div> (bg-line-subtle,
@@ -193,13 +192,10 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
                   <span data-station-node class="size-[7px] shrink-0 rounded-full border border-line bg-canvas transition-transform duration-200 group-aria-[current=true]:scale-[1.4] motion-reduce:transition-none"></span>
                   {/* station label — hover DRAWS the terracotta rectangle
                       (outline only: border-accent, no fill); active keeps the
-                      current implementation: filled pill. CONTACT stays
-                      outlined by default. */}
+                      current implementation: filled pill. All stations are
+                      styled identically (transparent border at rest). */}
                   <span
-                    class:list={[
-                      "rounded border px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:border-accent group-hover:text-default group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas",
-                      s.id === "contact" ? "border-line-subtle" : "border-transparent",
-                    ]}
+                    class="rounded border border-transparent px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:border-accent group-hover:text-default group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas"
                   >
                     {s.label}
                   </span>

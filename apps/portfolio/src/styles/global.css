@@ -209,11 +209,31 @@
 /* ---------------------------------------------------------------------------
  * 7. Utilities
  * ------------------------------------------------------------------------- */
-.no-scrollbar {
+/* `@utility` (not plain .classes) so breakpoint variants work —
+   e.g. `max-lg:no-scrollbar lg:zed-scroll` in the Zed workspace tree. */
+@utility no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* IDE-frame scrollbar (projects Zed workspace): thicker (10px) and
+   rectangular — the rounded 6px site scrollbar stays for the rest of the
+   page. The thumb is TRANSPARENT until the container scrolls: the
+   useScrollbarVisibility hook sets `data-scrolling` during scroll, and
+   only then does the thumb paint (mirrors Zed/macOS overlay scrollbars). */
+@utility zed-scroll {
+  scrollbar-width: thin; /* Firefox ≈ 11px; colors below */
+  scrollbar-color: transparent transparent;
+
+  &::-webkit-scrollbar { width: 10px; height: 10px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: transparent; border-radius: 0; }
+
+  &[data-scrolling] { scrollbar-color: var(--ui-border) transparent; }
+  &[data-scrolling]::-webkit-scrollbar-thumb { background: var(--ui-border); }
+  &[data-scrolling]::-webkit-scrollbar-thumb:hover { background: var(--ui-text-muted); }
+}
 
 /* Sidebar station styling (commit node + terracotta pill) lives in
    layout/SiteSidebar.astro markup via group-aria-[current=true]:* —
