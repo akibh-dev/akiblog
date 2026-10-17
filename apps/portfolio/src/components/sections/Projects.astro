@@ -12,6 +12,9 @@ const { projects, socials } = portfolioData;
 const repoUrl = socials.find((s) => s.name === "GitHub")?.url;
 ---
 
-<SectionShell id="projects" index="02" label="Selected Work" pad="px-0 py-0 md:py-0">
+{/* default pad: the ProjectWorkspace island has its own rounded frame
+    (islands/projects/ProjectWorkspace.tsx) — full-bleed would collide
+    with the panel's channel side lines */}
+<SectionShell id="projects" index="02" label="Selected Work">
   <ProjectBrowser client:load projects={projects} repoUrl={repoUrl} />
 </SectionShell>

@@ -64,7 +64,7 @@ Any extra attribute is forwarded to the `<svg>` (e.g. `stroke-width={2}`,
 Verify live: `bun run dev` → http://localhost:4322/icons (built-in gallery
 with a light/dark toggle).
 
-## Inventory (58 exports · 57 unique glyphs — `SqlIcon` aliases `Database`)
+## Inventory (82 exports · 81 unique glyphs — `SqlIcon` aliases `Database`)
 
 | Group | Icons |
 | --- | --- |
@@ -73,6 +73,12 @@ with a light/dark toggle).
 | `tech/` | AstroIcon, React, Django, NodeJs, Flutter, Tailwind, Cloudflare, Database, Bucket, Docker, PostgreSql, Linux, Git, Sqlite, Redis, Kubernetes, Graphql, Terminal, Markdown, Vim, Bun, Vercel, Aws, Gcp, MongoDb |
 | `concept/` | Api, WebSocket, Shield (Zero-Trust), Layers (Clean Arch), Tdd, Key (SSH/Auth), Lambda (Serverless), WebSecurity, Certificate, GradCap, Bug (Sec Testing/QA), DevOps (CI-CD), Network, Microservices |
 | `platform/` | LeetCode, Codeforces, HackerRank, AtCoder |
+| `ui/` | Folder, ChevronRight, FileText, Close, GitBranch, Check, Warning, ArrowLeft, ArrowRight, Plus, SplitPane, Maximize, Search, Sparkles, Lightbulb, Settings, PanelLeftClose, Users, Outline, Braces, MessageSquare, Bot, TerminalPrompt, Copilot |
+
+**Using icons in React islands?** `.astro` components can't be imported in
+`.tsx`. The `ui/` glyphs are mirrored as React components in
+`src/components/islands/projects/icons.tsx` — same path data, same contract.
+If you add a ui glyph that an island needs, mirror it there.
 
 **Want to draw your own?** See [GUIDE.md](./GUIDE.md) — the full creation
 manual: SVG path math, arc recipes, design process, pattern library, QA

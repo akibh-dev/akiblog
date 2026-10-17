@@ -1,19 +1,28 @@
 ---
 /**
  * @file ui/SectionShell.astro
- * @description Standard section wrapper: hatch band + numbered eyebrow header
- *              + consistent content padding.
+ * @description A FLUSH PANEL of the content channel: continuous side
+ *              lines (border-x, inset --site-section-inset from the column
+ *              edge), NO top/bottom borders — the horizontal rhythm comes
+ *              from the <Seam/> bands index.astro inserts BETWEEN panels
+ *              (the "=" gaps). Numbered eyebrow header + consistent
+ *              content padding inside.
  *
- * WHY: Every section in the previous build hand-rolled the same header
- * (eyebrow number, rule line, hatch band). One shell = consistent rhythm
- * and the scroll-reveal animation applied uniformly.
+ * WHY panels stay bg-canvas: structure reads through lines + hatch on ONE
+ * background (delta.dev), not stacked cards. The old per-section <Hatch>
+ * band and border-b are gone: the seam replaces both — it is the hatch
+ * AND the border-y in one band.
+ *
+ * WHY reveal-on-scroll moved to the inner content div: the animation
+ * translates its element — applied to the <section> it would drag the
+ * continuous side lines 1.5rem out of alignment with the seams during
+ * entry. Animating only the content keeps the channel lines still.
  *
  * Slots:
  * - default: section content.
  * - header (optional): overrides the default "NN. Label" eyebrow —
  *   used by Hero to render its rotating quote in that slot.
  */
-import Hatch from "./Hatch.astro";
 
 interface Props {
   id: string;
@@ -26,9 +35,8 @@ interface Props {
 const { id, index, label, class: className = "", pad = "px-5 md:px-8 py-14 md:py-20" } = Astro.props;
 ---
 
-<section id={id} data-spy-section class:list={["reveal-on-scroll relative border-b border-line-subtle bg-canvas", className]}>
-  <Hatch id={id} />
-  <div class:list={[pad]}>
+<section id={id} data-spy-section class:list={["relative mx-(--site-section-inset) overflow-clip border-x border-line bg-surface", className]}>
+  <div class:list={["reveal-on-scroll", pad]}>
     <header class="mb-10 flex items-center gap-3">
       {
         Astro.slots.has("header") ? (

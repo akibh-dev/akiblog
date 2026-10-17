@@ -1,9 +1,25 @@
 ---
 /**
  * @file layouts/Layout.astro
- * @description Root shell — mirrors delta.dev's real layout contract:
- *              fixed hatched frame + [sidebar | content] grid inside a
- *              75rem max-width column, with safe-area-aware insets.
+ * @description Root shell — delta.dev's REAL two-layer layout (plan13.md,
+ *              verified against their live DOM):
+ *
+ *   1. ONE-PAINT BACKGROUND — <body> paints --site-frame-background
+ *      everywhere; the chrome cells use the SAME color, so there is a
+ *      single canvas with independent fixed chrome on top.
+ *   2. FIXED CHROME — ViewportFrame (z-20) holds the four opaque corners
+ *      cells (noise + hatch + border) and the 6px SEGMENTED rail
+ *      ([3/8 brand | 2/8 gray | 3/8 --delta-blue]) fixed atop the content
+ *      track. No 8px accent line — that token was an invention; delta's
+ *      line IS this rail.
+ *   3. SCROLLING LAYER — the z-0 grid mirrors the chrome grid exactly
+ *      ([page-left | 1fr | page-right] margins): sidebar column + main
+ *      column, main carries pt-rail + md:border-r so panels and seams
+ *      scroll BENEATH the fixed rail (the z-0 wrapper creates a stacking
+ *      context, so dropdowns/scrollers inside content cannot escape above
+ *      the chrome).
+ *   4. "=" SEAMS — <Seam /> bands between panels (composed by
+ *      pages/index.astro from the data/sections.ts registry).
  *
  * Font strategy matches delta.dev: self-hosted variable fonts from their
  * public CDN (iA Writer Quattro body / IBM Plex Serif display / Lilex mono),
@@ -78,17 +94,38 @@ const { title = `${meta.name} — ${meta.role}` } = Astro.props;
     </style>
   </head>
 
-  <body class="bg-canvas text-default antialiased">
+  <body class="relative bg-frame-background text-default antialiased">
     <ViewportFrame />
     <MobileHeader />
 
-    {/* content column sits between the frame gutters */}
+    {/* scrolling layer — mirrors the chrome grid (same page-left/right
+        margins); z-0 keeps content under the fixed chrome while still
+        stacking tooltips/dialogs correctly inside it */}
     <div
       id="top"
-      class="mx-auto grid min-h-dvh max-w-[var(--site-max-width)] grid-cols-[var(--site-columns)] px-[var(--site-inset-inline)] pt-[var(--site-content-top)] pb-[var(--site-content-bottom)]"
+      class="relative z-0 grid ml-(--site-page-left) mr-(--site-page-right) grid-cols-(--site-columns) pt-(--site-frame-top) pb-(--site-content-bottom)"
     >
       <SiteSidebar />
-      <main class="col-(--site-main-column) min-w-0 border-line-subtle md:border-r">
+      {/* main content track — pt-rail leaves the 6px fixed rail visible
+          above; the first paint of the rail's right edge continues into
+          main's own border-r (delta verbatim) */}
+      <main id="main-content" tabindex="-1" class="relative col-(--site-main-column) min-w-0 pt-(--site-rail-height) border-line md:border-r focus-visible:outline-none">
+        {/* delta verbatim (plan16): their main carries an absolute noise +
+            hatch layer (inset-0, z-0, BEHIND the sections) — it is what
+            shows through the 1rem inset strips and reads as "background
+            between the | | lines". z-0 under the panels; NOT the chrome
+            cells' texture (that paints the frame only). */}
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 isolate overflow-hidden">
+          <div class="absolute inset-0 z-[-1] bg-repeat opacity-5 dark:opacity-[0.012] [background-size:180px] [background-image:url(/noise.webp)]"></div>
+          <svg class="absolute inset-0 size-full select-none text-hatch">
+            <defs>
+              <pattern id="main-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="4" stroke="currentColor" stroke-width="1.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill={`url(#main-hatch)`} />
+          </svg>
+        </div>
         <slot />
       </main>
     </div>

@@ -75,6 +75,34 @@ export { default as DevOpsIcon } from "./concept/DevOps.astro";
 export { default as NetworkIcon } from "./concept/Network.astro";
 export { default as MicroservicesIcon } from "./concept/Microservices.astro";
 
+// ── UI / editor chrome ─────────────────────────────────────────────────
+// Canonical Astro versions of the glyphs mirrored for React islands in
+// src/components/islands/projects/icons.tsx (keep the two in sync).
+export { default as FolderIcon } from "./ui/Folder.astro";
+export { default as ChevronRightIcon } from "./ui/ChevronRight.astro";
+export { default as FileTextIcon } from "./ui/FileText.astro";
+export { default as CloseIcon } from "./ui/Close.astro";
+export { default as GitBranchIcon } from "./ui/GitBranch.astro";
+export { default as CheckIcon } from "./ui/Check.astro";
+export { default as WarningIcon } from "./ui/Warning.astro";
+export { default as ArrowLeftIcon } from "./ui/ArrowLeft.astro";
+export { default as ArrowRightIcon } from "./ui/ArrowRight.astro";
+export { default as PlusIcon } from "./ui/Plus.astro";
+export { default as SplitPaneIcon } from "./ui/SplitPane.astro";
+export { default as MaximizeIcon } from "./ui/Maximize.astro";
+export { default as SearchIcon } from "./ui/Search.astro";
+export { default as SparklesIcon } from "./ui/Sparkles.astro";
+export { default as LightbulbIcon } from "./ui/Lightbulb.astro";
+export { default as SettingsIcon } from "./ui/Settings.astro";
+export { default as PanelLeftCloseIcon } from "./ui/PanelLeftClose.astro";
+export { default as UsersIcon } from "./ui/Users.astro";
+export { default as OutlineIcon } from "./ui/Outline.astro";
+export { default as BracesIcon } from "./ui/Braces.astro";
+export { default as MessageSquareIcon } from "./ui/MessageSquare.astro";
+export { default as BotIcon } from "./ui/Bot.astro";
+export { default as TerminalPromptIcon } from "./ui/TerminalPrompt.astro";
+export { default as CopilotIcon } from "./ui/Copilot.astro";
+
 // ── Competitive platforms ──────────────────────────────────────────────
 export { default as LeetCodeIcon } from "./platform/LeetCode.astro";
 export { default as CodeforcesIcon } from "./platform/Codeforces.astro";

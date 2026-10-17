@@ -84,9 +84,22 @@
 }
 
 /* ---------------------------------------------------------------------------
- * 3. Site geometry — delta.dev's actual layout contract
+ * 3. Site geometry — delta.dev's REAL chrome contract (plan13.md, verbatim
+ *    from their live CSS; the old --site-column-gap/--site-accent-line
+ *    "channel" tokens were inventions and are gone).
+ *
+ *    ONE full background (--site-frame-background) carries independent chrome:
+ *      • 2-track grid: [sidebar 1fr | content 4fr] — no gap track.
+ *      • --site-section-inset → panels are inset from the column edge; the
+ *        margin strips stay raw frame background and the "=" Seams hatch
+ *        across them.
+ *      • --site-rail-height → the 6px SEGMENTED rail ([3/8 brand, 2/8 gray,
+ *        3/8 --delta-blue]) fixed atop the content track in the chrome
+ *        layer; sections scroll beneath it (main pt-rail + md:border-r).
  * ------------------------------------------------------------------------- */
 :root {
+  --delta-blue: #346dae;  /* delta's rail tail color, verbatim */
+
   --site-inset: 1rem;
   --site-inset-inline: var(--site-inset);
   --site-inset-top: max(var(--site-inset), env(safe-area-inset-top));
@@ -103,6 +116,13 @@
   --site-rail-height: 0.375rem;  /* thin rail under frame */
   --site-columns: minmax(0, 1fr);
   --site-main-column: 1;
+  --site-section-inset: 0rem;   /* mobile: no panel inset (delta verbatim) */
+
+  /* one-paint chrome background (delta verbatim, incl. fallback + forced colors) */
+  --site-frame-background: var(--delta-cream-100);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+  }
 
   --site-frame-top: calc(var(--site-inset-top) + var(--site-header-height) + var(--site-header-gap));
   --site-content-top: calc(var(--site-frame-top) + var(--site-rail-height));
@@ -112,10 +132,25 @@
 @media (min-width: 48rem) {
   :root {
     --site-inset-inline: 0rem;
-    --site-columns: minmax(0, 1fr) minmax(0, 4fr); /* sidebar : content */
+    /* delta verbatim: straight 2-track [sidebar | content] — no gap track */
+    --site-columns: minmax(0, 1fr) minmax(0, 4fr);
     --site-main-column: 2;
+    --site-section-inset: 1rem;
     --site-header-height: 0rem;
     --site-header-gap: 0rem;
+  }
+}
+
+/* dark + forced-colors variants of the chrome background (delta verbatim) */
+.dark {
+  --site-frame-background: var(--delta-neutral);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in oklch, var(--delta-neutral), black 90%);
+  }
+}
+@media (forced-colors: active) {
+  :root, .dark {
+    --site-frame-background: Canvas;
   }
 }
 
@@ -129,6 +164,8 @@
   --color-surface-strong: var(--ui-surface-strong);
   --color-control-hover: var(--ui-control-hover);
   --color-frame: var(--ui-frame);
+  --color-frame-background: var(--site-frame-background);
+  --color-delta-blue: var(--delta-blue);
 
   --color-default: var(--ui-text);
   --color-subtle: var(--ui-text-subtle);
@@ -160,14 +197,14 @@
     /* offset anchored sections below the fixed frame (delta.dev trick) */
     scroll-padding-block: var(--site-content-top) var(--site-content-bottom);
     font-family: var(--font-body);
-    background: var(--ui-canvas);
+    background: var(--site-frame-background);
     color: var(--ui-text);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
   body {
-    background: var(--ui-canvas);
+    background: var(--site-frame-background);
     min-height: 100dvh;
     line-height: 1.6;
   }

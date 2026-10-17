@@ -95,8 +95,13 @@ const ROW_GAP = 4;    // space-y-1
 const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; // stations (186) + mt-1 (4) = 190
 ---
 
-<aside class="sticky top-[var(--site-content-top)] z-40 hidden h-[calc(100dvh-var(--site-content-top)-var(--site-content-bottom))] md:block">
-  <div class="flex h-full flex-col border-r border-line-subtle px-5 py-6">
+<aside class="sticky top-[var(--site-frame-top)] z-40 hidden h-[calc(100dvh-var(--site-frame-top)-var(--site-content-bottom))] border-line border-x bg-surface md:block">
+  {/* delta verbatim: the sidebar itself carries border-x (their sidebar is
+      a zds-bg-subtle bordered column) — its RIGHT border draws the line at
+      the START of the red rail segment (the outer line of the "|=|" at the
+      main column's left edge, plan15); the rail band's/panels' inset
+      border-x is the inner one. Chrome only — content untouched. */}
+  <div class="flex h-full flex-col px-5 py-6">
     {/* brand */}
     <a href="#top" class="group mb-8 flex items-center gap-3">
       {/* animated Paint-Fill "A", bare on the canvas — no bordered chip
