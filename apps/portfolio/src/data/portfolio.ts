@@ -50,7 +50,7 @@ export const portfolioData = {
   socials: [
     { name: "GitHub", handle: "akib35", url: "https://github.com/akib35" },
     { name: "LinkedIn", handle: "akibH", url: "https://linkedin.com/in/akibH" },
-    { name: "Twitter / X", handle: "mdakibhasan18", url: "https://twitter.com/mdakibhasan18" },
+    { name: "X", handle: "mdakibhasan18", url: "https://twitter.com/mdakibhasan18" },
     { name: "Facebook", handle: "akib4040", url: "https://facebook.com/akib4040" },
   ],
 

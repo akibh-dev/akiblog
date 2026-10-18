@@ -30,6 +30,7 @@ import Projects from "../components/sections/Projects.astro";
 import Writings from "../components/sections/Writings.astro";
 import Skills from "../components/sections/Skills.astro";
 import Contact from "../components/sections/Contact.astro";
+import Footer from "../components/sections/Footer.astro";
 import { sections } from "../data/sections";
 
 /* id → panel binding. All panels are no-prop section components, so
@@ -60,4 +61,9 @@ const panels: Record<string, typeof Hero> = {
       );
     })
   }
+  {/* site footer — full-bleed Square Kufic panel (sections/Footer.astro).
+      Deliberately OUTSIDE the nav registry: no sidebar station, just the
+      closing band after the last seam. */}
+  <Seam />
+  <Footer />
 </Layout>

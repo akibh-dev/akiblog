@@ -36,6 +36,11 @@
  * 6. BRAND ICONS — email/social rows use the project's own stroke icon set
  *    (src/icons/social): currentColor glyphs that inherit the muted→accent
  *    hover color transition for free and auto-flip with the theme.
+ *
+ * 7. NO FOOTER BAR — the section ends with the aside grid. The Square
+ *    Kufic colophon moved to its own full-bleed panel (sections/
+ *    Footer.astro, Projects-IDE contract: pad="p-0", headerless), and
+ *    the copyright/Edge texts were removed per request.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import CopyButton from "../islands/CopyButton";
@@ -48,7 +53,7 @@ const { meta, socials } = portfolioData;
 const socialIcons: Record<string, typeof GitHubIcon> = {
   GitHub: GitHubIcon,
   LinkedIn: LinkedInIcon,
-  "Twitter / X": XIcon,
+  X: XIcon,
   Facebook: FacebookIcon,
 };
 
@@ -120,7 +125,8 @@ const labelClass =
           </div>
         </div>
 
-        {/* socials — ruled rows with handle + arrow */}
+        {/* socials — ruled rows: icon only (name lives in aria-label),
+            handle + arrow on the right */}
         <div>
           <span class={labelClass}>Elsewhere</span>
           <ul class="divide-y divide-line-subtle border-y border-line-subtle">
@@ -129,10 +135,9 @@ const labelClass =
                 const Icon = socialIcons[s.name];
                 return (
                   <li>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between gap-4 py-3">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.name} class="group flex items-center justify-between gap-4 py-3">
                       <span class="flex items-center gap-3">
-                        {Icon && <Icon class="size-4 text-muted transition-colors group-hover:text-accent" />}
-                        <span class="font-mono text-sm text-default transition-colors group-hover:text-accent">{s.name}</span>
+                        {Icon && <Icon class="size-6 text-muted transition-colors group-hover:text-accent" />}
                       </span>
                       <span class="flex items-center gap-3">
                         <span class="font-mono text-2xs text-muted">@{s.handle}</span>
@@ -160,11 +165,6 @@ const labelClass =
       </div>
     </aside>
   </div>
-
-  {/* footer bar */}
-  <footer class="mt-16 flex flex-col items-center justify-between gap-3 border-t border-line-subtle pt-6 sm:flex-row">
-
-  </footer>
 </SectionShell>
 
 <script>
