@@ -2,19 +2,20 @@
 /**
  * @file sections/Projects.astro
  * @description Projects section — Astro owns the section shell + data,
- *              the interactive browser is the Base UI Tabs island.
+ *              the interactive browser is a pure-Astro island
+ *              (pre-rendered states + vanilla controller, plan 18).
  */
 import SectionShell from "../ui/SectionShell.astro";
-import ProjectBrowser from "../islands/ProjectBrowser";
+import ProjectsIsland from "../islands/projects/ProjectsIsland.astro";
 import { portfolioData } from "../../data/portfolio";
 
 const { projects, socials } = portfolioData;
 const repoUrl = socials.find((s) => s.name === "GitHub")?.url;
 ---
 
-{/* default pad: the ProjectWorkspace island has its own rounded frame
-    (islands/projects/ProjectWorkspace.tsx) — full-bleed would collide
-    with the panel's channel side lines */}
-<SectionShell id="projects" index="02" label="Selected Work">
-  <ProjectBrowser client:load projects={projects} repoUrl={repoUrl} />
+{/* FULL-BLEED: the IDE window IS the section content — no eyebrow
+    header (index/label omitted) and zero padding (pad="p-0"), so the
+    editor chrome spans the whole panel between the channel side lines */}
+<SectionShell id="projects" pad="p-0">
+  <ProjectsIsland projects={projects} repoUrl={repoUrl} />
 </SectionShell>

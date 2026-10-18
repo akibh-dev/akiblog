@@ -24,7 +24,7 @@
  */
 import SectionShell from "../ui/SectionShell.astro";
 import ScrollRow from "../ui/ScrollRow.astro";
-import Terminal from "../islands/terminal/Terminal";
+import Terminal from "../islands/terminal/Terminal.astro";
 import { portfolioData, heroQuotes } from "../../data/portfolio";
 
 const { meta, competitiveMetrics } = portfolioData;
@@ -85,7 +85,7 @@ const fallbackQuote = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
 
   {/* interactive shell — the hero centerpiece, centered */}
   <div class="mx-auto mt-12 max-w-2xl">
-    <Terminal client:load data={portfolioData} />
+    <Terminal data={portfolioData} />
   </div>
 
   {/* metric strip */}

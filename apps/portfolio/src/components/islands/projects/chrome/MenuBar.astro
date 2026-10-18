@@ -1,0 +1,88 @@
+---
+/**
+ * @file islands/projects/chrome/MenuBar.astro
+ * @description Application menu bar — "Zed File Edit Selection Go Run
+ *              Window Help" + user avatar with a working dropdown
+ *              (Settings / Keymap / Themes / Icon Themes / Extensions /
+ *              Sign Out). Astro port of EditorMenuBar.tsx.
+ *
+ * POC / WHY ONLY THE AVATAR MENU WORKS: per user direction, the text
+ * menus are hover-only chrome; ONLY the avatar opens a real menu, and
+ * its items are actionless (functionality decided later). The React
+ * version used Base UI's Menu + Portal; here controller.ts implements
+ * the WAI-ARIA menu-button pattern (↓/↑ cycle, Home/End, typeahead,
+ * Esc + focus return, outside-pointerdown close).
+ *
+ * WHY NO PORTAL: Base UI's Portal only existed to escape the frame's
+ * overflow-hidden — but the popup opens DOWNWARD into the frame's
+ * interior, so absolute positioning inside a `relative` wrapper in the
+ * bar is never clipped. z-50 keeps it above the preview pane.
+ *
+ * AVATAR: real photo (/my-pic.png) layered over the "AH" initials —
+ * controller.ts hides the img on error (with a pre-check for errors that
+ * fired before the module ran), leaving the initials as the fallback.
+ *
+ * RESPONSIVE: menus from "selection" onward hide below sm.
+ */
+const MENUS = ["Zed", "File", "Edit", "Selection", "Go", "Run", "Window", "Help"];
+const USER_MENU_ITEMS = ["Settings", "Keymap", "Themes", "Icon Themes", "Extensions"];
+
+const ITEM_CLASS =
+  "flex cursor-default select-none items-center rounded-sm px-2.5 py-1.5 font-mono text-xs text-subtle outline-none";
+---
+
+<div class="flex h-8 shrink-0 items-center gap-0.5 border-b border-line-subtle px-2 font-mono text-xs">
+  {
+    MENUS.map((m, i) => (
+      <button
+        type="button"
+        class={`rounded-sm px-2 py-1 outline-none transition-colors hover:bg-control-hover focus-visible:bg-control-hover ${
+          i === 0 ? "font-medium text-default" : "text-muted hover:text-subtle"
+        } ${i >= 3 ? "hidden sm:block" : ""}`}
+      >
+        {m}
+      </button>
+    ))
+  }
+
+  {/* user avatar — the one WORKING menu (items still actionless) */}
+  <div class="relative ml-auto">
+    <button
+      type="button"
+      data-menu-trigger
+      aria-haspopup="menu"
+      aria-expanded="false"
+      aria-label="User menu"
+      title="User menu"
+      class="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-accent-subtle font-mono text-[9px] font-medium text-accent outline-none ring-line transition-shadow hover:ring-2 focus-visible:ring-2"
+    >
+      <span aria-hidden="true">AH</span>
+      <img
+        data-avatar-img
+        src="/my-pic.png"
+        alt="Md Akib Hasan"
+        class="absolute inset-0 size-full object-cover"
+      />
+    </button>
+
+    <div
+      data-menu-popup
+      role="menu"
+      aria-label="User menu"
+      hidden
+      class="absolute right-0 top-[calc(100%+6px)] z-50 min-w-44 rounded-md border border-line-subtle bg-surface p-1 shadow-lg"
+    >
+      {
+        USER_MENU_ITEMS.map((item) => (
+          <div role="menuitem" tabindex="-1" data-menu-item class={ITEM_CLASS}>
+            {item}
+          </div>
+        ))
+      }
+      <div role="separator" class="mx-1 my-1 h-px bg-line-subtle"></div>
+      <div role="menuitem" tabindex="-1" data-menu-item class={ITEM_CLASS}>
+        Sign Out
+      </div>
+    </div>
+  </div>
+</div>

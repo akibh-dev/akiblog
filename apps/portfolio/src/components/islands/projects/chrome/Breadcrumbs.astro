@@ -1,0 +1,70 @@
+---
+/**
+ * @file islands/projects/chrome/Breadcrumbs.astro
+ * @description Breadcrumb fixed row — Astro port of EditorBreadcrumbs.tsx.
+ *
+ * POC / PRE-RENDERED PER FILE: the React version derived the path from
+ * the active file at render time; here ONE nav per file is rendered at
+ * build time (`data-crumbs`), and controller.ts shows exactly the active
+ * one (all hidden when no buffer is open). Segments stay intentionally
+ * NON-links (read-only workspace metaphor); the file segment is
+ * emphasized like Zed does.
+ */
+import {
+  ChevronRightIcon,
+  LightbulbIcon,
+  SearchIcon,
+  SettingsIcon,
+  SparklesIcon,
+} from "../../../../icons";
+import ChromeButton from "./ChromeButton.astro";
+import type { ProjectFile } from "../types";
+
+interface Props {
+  files: ProjectFile[];
+}
+const { files } = Astro.props;
+const firstId = files[0]?.id;
+---
+
+{
+  files.map((file) => {
+    const segments = ["akib35", "projects", file.group, file.file];
+    return (
+      <nav
+        data-crumbs={file.id}
+        hidden={file.id !== firstId}
+        aria-label="Breadcrumb"
+        class="flex h-8 shrink-0 items-center border-b border-line-subtle px-4 font-mono text-2xs whitespace-nowrap text-muted"
+      >
+        {/* path — scrolls if it overflows, icons never get pushed out */}
+        <span class="no-scrollbar flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+          {segments.map((segment, i) => (
+            <>
+              {i > 0 && <ChevronRightIcon class="size-2.5 shrink-0 opacity-60" />}
+              <span class={i === segments.length - 1 ? "text-default" : undefined}>
+                {segment}
+              </span>
+            </>
+          ))}
+        </span>
+
+        {/* file actions — actionless for now */}
+        <span class="ml-auto flex shrink-0 items-center gap-0.5 pl-2">
+          <ChromeButton label="Search in file">
+            <SearchIcon class="size-3" />
+          </ChromeButton>
+          <ChromeButton label="Inline assist">
+            <SparklesIcon class="size-3" />
+          </ChromeButton>
+          <ChromeButton label="Code actions">
+            <LightbulbIcon class="size-3" />
+          </ChromeButton>
+          <ChromeButton label="File settings">
+            <SettingsIcon class="size-3" />
+          </ChromeButton>
+        </span>
+      </nav>
+    );
+  })
+}

@@ -203,8 +203,29 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* ONE unified brand background (public/bg-pattern*.svg — circled-A +
+     name micro-tile, rotated -45°): body and the fixed chrome cells
+     (ViewportFrame's top/bottom rails + side gutters) share the SAME
+     viewport-anchored layer via background-attachment: fixed, so the
+     watermark is pixel-continuous across every chrome area — the old
+     per-cell 45° hatch is gone. The SVG's internal <pattern> tiles at
+     absolute units (identical scale everywhere); attachment:fixed aligns
+     the origin and keeps the watermark still while content scrolls.
+     Sections stay opaque bg-surface on top. iOS Safari degrades to
+     element-local attachment — same scale, possible phase shift. */
+  body,
+  .chrome-bg {
+    background-color: var(--site-frame-background);
+    background-image: url("/bg-pattern.svg");
+    background-attachment: fixed;
+  }
+
+  .dark body,
+  .dark .chrome-bg {
+    background-image: url("/bg-pattern-dark.svg");
+  }
+
   body {
-    background: var(--site-frame-background);
     min-height: 100dvh;
     line-height: 1.6;
   }

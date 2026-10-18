@@ -1,7 +1,16 @@
 {
   "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    // Documented companion to react-jsx (@astrojs/react README): without
+    // it the Astro language server can't resolve the implicit `Fragment`
+    // it injects when virtualizing .astro templates → ts2304 "Cannot find
+    // name 'Fragment'" in files that contain no Fragment at all.
+    "jsxImportSource": "react"
   },
-  "include": ["src/**/*", "astro.config.mjs"]
+  // Astro's tsconfig preset includes .astro/types.d.ts — the language
+  // server type-checks .astro files against those generated types; without
+  // it the editor degrades. (Plain tsc only needs the env.d.ts shim.)
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
+  "exclude": ["dist"]
 }

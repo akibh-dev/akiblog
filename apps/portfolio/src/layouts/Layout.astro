@@ -110,22 +110,12 @@ const { title = `${meta.name} — ${meta.role}` } = Astro.props;
           above; the first paint of the rail's right edge continues into
           main's own border-r (delta verbatim) */}
       <main id="main-content" tabindex="-1" class="relative col-(--site-main-column) min-w-0 pt-(--site-rail-height) border-line md:border-r focus-visible:outline-none">
-        {/* delta verbatim (plan16): their main carries an absolute noise +
-            hatch layer (inset-0, z-0, BEHIND the sections) — it is what
-            shows through the 1rem inset strips and reads as "background
-            between the | | lines". z-0 under the panels; NOT the chrome
-            cells' texture (that paints the frame only). */}
-        <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 isolate overflow-hidden">
-          <div class="absolute inset-0 z-[-1] bg-repeat opacity-5 dark:opacity-[0.012] [background-size:180px] [background-image:url(/noise.webp)]"></div>
-          <svg class="absolute inset-0 size-full select-none text-hatch">
-            <defs>
-              <pattern id="main-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="4" stroke="currentColor" stroke-width="1.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill={`url(#main-hatch)`} />
-          </svg>
-        </div>
+        {/* The 1rem inset strips show the unified body watermark directly.
+            NO local texture layer here: a noise/hatch layer in the SCROLLING
+            content slides over the viewport-FIXED watermark and the two
+            high-frequency textures moiré — the visible "vibration" on
+            scroll/zoom. (The frame cells keep their noise: it's static
+            relative to the fixed pattern, so no relative motion.) */}
         <slot />
       </main>
     </div>

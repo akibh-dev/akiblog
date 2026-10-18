@@ -1,0 +1,167 @@
+---
+/**
+ * @file islands/projects/chrome/ProjectPanel.astro
+ * @description Zed project panel: collapsible workspace roots
+ *              (akib35 → projects), collapsible group folders
+ *              (featured/ archive/), file rows (= tabs), repo footer.
+ *              Astro port of ProjectPanel.tsx.
+ *
+ * POC / KEY DECISIONS (unchanged from the React version):
+ * 1. ONE tablist contains every file row — controller.ts implements the
+ *    roving-tabindex arrow-key navigation across folders (Base UI's role
+ *    in the React version). Folder headers are role="presentation" rows
+ *    with real <button>s inside, never tab stops.
+ * 2. Selection is a FULL-ROW FILL (aria-selected:* variants), not a left
+ *    accent bar — the accent bar is VS Code's language; Zed fills the row.
+ * 3. EVERY directory collapses with correct nesting: closing `akib35`
+ *    hides `projects`; closing `projects` hides the group folders;
+ *    closing a group hides only its files. ALL load EXPANDED.
+ *    data-folder-row / data-folder-content are the controller's cascade
+ *    hooks; `hidden max-lg:contents` keeps the mobile folder-less strip
+ *    showing every file.
+ * 4. Git-status dot maps status → editor language: active/wip =
+ *    "uncommitted changes", shipped = clean tree (no dot).
+ * 5. The sidebar toggles from the status bar but stays MOUNTED
+ *    (data-sidebar) so folder open-state survives.
+ */
+import { ChevronRightIcon, FileTextIcon, FolderIcon } from "../../../../icons";
+import { GROUP_ORDER, STATUS_META, type ProjectFile } from "../types";
+
+interface Props {
+  files: ProjectFile[];
+  repoUrl?: string;
+}
+const { files, repoUrl } = Astro.props;
+const firstId = files[0]?.id;
+
+/**
+ * Mobile: horizontal chip in a scroll strip (bordered, rounded).
+ * Desktop (lg): full-width tree row with file indent, no chrome.
+ * `relative` anchors the indent-guide rail; `title` gives the full file
+ * name on truncated rows.
+ */
+const fileTabClass =
+  "group relative flex shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-line-subtle px-3 py-1.5 font-mono text-xs text-subtle outline-none transition-colors hover:bg-control-hover/60 focus-visible:bg-control-hover aria-selected:border-accent aria-selected:bg-control-hover aria-selected:text-default lg:h-7 lg:w-full lg:rounded-none lg:border-0 lg:py-0 lg:pr-3 lg:pl-[2.625rem]";
+
+const folderButtonClass =
+  "flex h-7 w-full items-center gap-1.5 pr-3 font-mono text-xs text-subtle outline-none transition-colors hover:bg-control-hover/60 focus-visible:bg-control-hover";
+
+const chevronClass = "size-3 shrink-0 text-muted transition-transform rotate-90";
+---
+
+<aside
+  data-sidebar
+  class="flex min-h-0 flex-col border-b border-line-subtle lg:border-r lg:border-b-0"
+>
+  <div
+    data-tree-scroll
+    role="tablist"
+    aria-label="Project files"
+    class="flex shrink-0 gap-1.5 overflow-x-auto p-2 max-lg:no-scrollbar lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-0 lg:overflow-y-auto lg:zed-scroll lg:p-0 lg:py-1"
+  >
+    {/* workspace roots — collapsible like any directory */}
+    <div role="presentation" class="hidden lg:block">
+      <button
+        type="button"
+        data-folder="akib35"
+        aria-expanded="true"
+        class={`${folderButtonClass} pl-2`}
+      >
+        <ChevronRightIcon data-chevron class={chevronClass} />
+        <FolderIcon class="size-3 shrink-0 text-muted" /> akib35
+      </button>
+      <div role="presentation" data-folder-row>
+        <button
+          type="button"
+          data-folder="projects"
+          aria-expanded="true"
+          class={`${folderButtonClass} pl-5`}
+        >
+          <ChevronRightIcon data-chevron class={chevronClass} />
+          <FolderIcon class="size-3 shrink-0 text-muted" /> projects
+        </button>
+      </div>
+    </div>
+
+    {
+      GROUP_ORDER.map((group) => {
+        const groupFiles = files.filter((f) => f.group === group.key);
+        if (groupFiles.length === 0) return null;
+        return (
+          <>
+            {/* group folder — sticky like Zed's sticky_scroll; the
+                controller hides the row when a root above collapses */}
+            <div
+              role="presentation"
+              data-folder-row
+              class="hidden lg:sticky lg:top-0 lg:z-10 lg:block lg:bg-surface"
+            >
+              <button
+                type="button"
+                data-folder={group.key}
+                aria-expanded="true"
+                class={`${folderButtonClass} pl-8`}
+              >
+                <ChevronRightIcon data-chevron class={chevronClass} />
+                <FolderIcon class="size-3 shrink-0 text-muted" />
+                {group.label}/
+              </button>
+            </div>
+
+            {/* files — `contents` keeps rows as flat flex items of the
+                list; the controller swaps to `hidden max-lg:contents`
+                when the folder collapses */}
+            <div role="presentation" data-folder-content={group.key} class="contents">
+              {groupFiles.map((f) => {
+                const meta = STATUS_META[f.status];
+                const isActive = f.id === firstId;
+                return (
+                  <button
+                    type="button"
+                    role="tab"
+                    data-file-tab={f.id}
+                    aria-selected={isActive}
+                    aria-controls={`panel-${f.id}`}
+                    tabindex={isActive ? 0 : -1}
+                    title={f.file}
+                    class={fileTabClass}
+                  >
+                    {/* indent-guide rail under the folder chevron */}
+                    <span
+                      aria-hidden="true"
+                      class="pointer-events-none absolute inset-y-0 left-[2.375rem] hidden border-l border-line-subtle lg:block"
+                    />
+                    <FileTextIcon class="size-3 shrink-0 text-muted transition-colors group-aria-selected:text-accent" />
+                    <span class="min-w-0 truncate">{f.file}</span>
+                    {meta.dirty && (
+                      <span
+                        role="img"
+                        aria-label={`status: ${meta.label}`}
+                        class={`ml-auto size-1.5 shrink-0 rounded-full ${meta.dotClass}`}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        );
+      })
+    }
+  </div>
+
+  {
+    repoUrl && (
+      <div class="hidden shrink-0 border-t border-line-subtle px-4 py-3 lg:block">
+        <a
+          href={repoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-mono text-2xs text-muted transition-colors hover:text-accent"
+        >
+          All repositories ↗
+        </a>
+      </div>
+    )
+  }
+</aside>

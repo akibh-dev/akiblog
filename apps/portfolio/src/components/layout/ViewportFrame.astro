@@ -10,12 +10,12 @@
  *     before:border-y md:before:hidden        ← mobile-only edge hairlines
  *
  *   ├─ top cell      col-span-full row-1   bg-frame-background border-line md:border-b
- *   ├─ left gutter   col-1 row-2           bg-frame-background (+noise/hatch)
+ *   ├─ left gutter   col-1 row-2           chrome-bg (+noise)
  *   ├─ RAIL cell     col-2 row-2           mirrors --site-columns
  *   │                  └─ col-2 (main): inset wrapper [inset 1fr inset] md:pr-px
  *   │                     └─ col-2: pointer-events-auto grid grid-cols-8 border-x
  *   │                        3/8 bg-accent | 2/8 bg-(--delta-neutral-800) | 3/8 bg-delta-blue
- *   ├─ right gutter  col-3 row-2           bg-frame-background (+noise/hatch)
+ *   ├─ right gutter  col-3 row-2           chrome-bg (+noise)
  *   └─ bottom cell   col-span-full row-3   bg-frame-background border-line md:border-t
  *
  * WHY not one big overlay with an 8px accent line: delta has no such token —
@@ -57,21 +57,12 @@ const cells = [
 >
   {
     cells.map((cell) => (
-      <div class:list={["pointer-events-auto relative isolate bg-frame-background", cell.cls]}>
-        {/* noise grain under the hatch — z-[-1] keeps it behind the svg */}
+      <div class:list={["pointer-events-auto relative isolate chrome-bg", cell.cls]}>
+        {/* noise grain over the watermark — z-[-1] keeps it under content */}
         <div
           aria-hidden="true"
           class="pointer-events-none absolute inset-0 z-[-1] opacity-5 dark:opacity-[0.012] bg-repeat [background-size:180px] [background-image:url(/noise.webp)]"
         />
-        {/* 45° hatch — ONE pattern id per instance */}
-        <svg class="pointer-events-none absolute inset-0 size-full select-none text-hatch">
-          <defs>
-            <pattern id={`chrome-hatch-${cell.id}`} width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="4" stroke="currentColor" stroke-width="1.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill={`url(#chrome-hatch-${cell.id})`} />
-        </svg>
       </div>
     ))
   }
