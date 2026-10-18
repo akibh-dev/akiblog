@@ -1,77 +1,187 @@
 ---
 /**
  * @file sections/Contact.astro
- * @description Contact form (Formspree) + email + socials + footer bar.
- *              Only interactivity is the slotted <copy-button> element.
+ * @description Contact section — editorial "pricing-page" layout in the
+ *              delta.dev language: ONE flat surface, structure drawn with
+ *              hairlines only. NO cards, NO boxed panels, NO numbered
+ *              eyebrow header.
+ *
+ * WHY THIS IMPLEMENTATION (POC / rationale):
+ *
+ * 1. LINES, NOT BOXES — delta.dev's pricing page separates tiers with
+ *    vertical hairlines on a single background, never stacked cards. The
+ *    site's own design contract (SectionShell.astro) says the same:
+ *    "structure reads through lines + hatch on ONE background". So the
+ *    form sits directly on the section surface and the aside is divided
+ *    from it by a single `border-l` (a `border-t` on mobile when stacked).
+ *
+ * 2. ASIDE ROWS = PRICE-TABLE ROWS — socials/email/location are rendered
+ *    as full-width rows separated by `divide-y` hairlines (like delta's
+ *    feature lists), with mono labels and an arrow that slides on hover.
+ *    Zero chrome: no bg-canvas, no border, no radius, no padding boxes.
+ *
+ * 3. FLAT FIELDS — inputs keep the site's hairline field style but drop
+ *    the card background (`bg-transparent` over the section surface), so
+ *    the form reads as ruled lines on paper rather than an inset panel.
+ *
+ * 4. LIVE LOCAL TIME — a tiny module script ticks the visitor's view of
+ *    my Dhaka (UTC+6) clock. Costs ~10 lines of JS, adds the "instrument
+ *    panel" honesty delta.dev uses for stats, and answers the practical
+ *    question "is he awake?" before hitting send.
+ *
+ * 5. HEADERLESS SectionShell — index/label are omitted, so no
+ *    "05. Transmission" eyebrow renders; a large display heading does the
+ *    talking instead, matching the pricing page's big serif headline.
+ *
+ * 6. BRAND ICONS — email/social rows use the project's own stroke icon set
+ *    (src/icons/social): currentColor glyphs that inherit the muted→accent
+ *    hover color transition for free and auto-flip with the theme.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import CopyButton from "../islands/CopyButton";
 import { portfolioData } from "../../data/portfolio";
+import { MailIcon, GitHubIcon, LinkedInIcon, XIcon, FacebookIcon } from "../../icons";
 
 const { meta, socials } = portfolioData;
 
-const inputClass =
-  "w-full rounded-sm border border-line-subtle bg-surface px-4 py-3 font-mono text-sm text-default placeholder:text-muted transition-colors focus:border-accent focus:outline-none";
-const labelClass = "mb-2 block font-mono text-2xs uppercase tracking-wider text-muted";
+/* social name (data/portfolio.ts) → brand glyph */
+const socialIcons: Record<string, typeof GitHubIcon> = {
+  GitHub: GitHubIcon,
+  LinkedIn: LinkedInIcon,
+  "Twitter / X": XIcon,
+  Facebook: FacebookIcon,
+};
+
+const fieldClass =
+  "w-full rounded-sm border border-line-subtle bg-transparent px-4 py-3 font-mono text-sm text-default placeholder:text-muted transition-colors focus:border-accent focus:outline-none";
+const labelClass =
+  "mb-2 block font-mono text-2xs uppercase tracking-wider text-muted";
 ---
 
-<SectionShell id="contact" index="05" label="Transmission" class="bg-surface/40" pad="px-5 md:px-8 pt-14 md:pt-20 pb-10">
-  <p class="max-w-2xl font-display text-[clamp(1.1rem,1.5vw+0.9rem,1.5rem)] leading-relaxed text-subtle">
-    Have an opportunity, a collaboration idea, or just want to say hi? My inbox is open.
+<SectionShell id="contact" pad="px-5 md:px-8 pt-8 md:pt-12 pb-10">
+  {/* headline — big serif, one accent mark */}
+  <h2 class="font-display text-[clamp(2.25rem,4vw+1rem,3.75rem)] leading-[1.05] tracking-tight text-default">
+    Let's connect<span class="text-accent">.</span>
+  </h2>
+  <p class="mt-4 max-w-lg font-display text-[clamp(1rem,1vw+0.75rem,1.15rem)] leading-relaxed text-subtle">
+    Have an opportunity, a collaboration idea, or just want to say hi? My inbox is always open.
   </p>
 
-  <div class="mt-12 grid gap-6 md:grid-cols-2">
-    {/* form */}
-    <form action="https://formspree.io/f/mnjjnbkl" method="POST" class="space-y-5 rounded-md border border-line-subtle bg-canvas p-6">
-      <div>
-        <label for="name" class={labelClass}>Name</label>
-        <input id="name" name="name" type="text" required placeholder="Your name" class={inputClass} />
+  {/* two columns split by a single hairline */}
+  <div class="mt-10 grid gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
+    {/* ── form — straight on the surface, no wrapper ── */}
+    <form action="https://formspree.io/f/mnjjnbkl" method="POST" class="space-y-6">
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label for="name" class={labelClass}>Name</label>
+          <input id="name" name="name" type="text" required placeholder="Your name" class={fieldClass} />
+        </div>
+        <div>
+          <label for="email" class={labelClass}>Email</label>
+          <input id="email" name="email" type="email" required placeholder="you@example.com" class={fieldClass} />
+        </div>
       </div>
-      <div>
-        <label for="email" class={labelClass}>Email</label>
-        <input id="email" name="email" type="email" required placeholder="you@example.com" class={inputClass} />
-      </div>
+
       <div>
         <label for="message" class={labelClass}>Message</label>
-        <textarea id="message" name="message" rows="4" required placeholder="Tell me about your project…" class:list={[inputClass, "resize-none"]}></textarea>
+        <textarea
+          id="message"
+          name="message"
+          rows="6"
+          required
+          placeholder="Tell me about your project or idea…"
+          class:list={[fieldClass, "min-h-[160px] resize-none"]}></textarea>
       </div>
-      <button type="submit" class="w-full rounded-sm bg-accent py-3 font-mono text-xs uppercase tracking-wider text-white transition-colors hover:bg-accent-hover">
-        Send Message
-      </button>
+
+      <div class="flex pt-1 sm:justify-end">
+        <button
+          type="submit"
+          class="w-full rounded-sm bg-accent px-8 py-3 font-mono text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface sm:w-auto"
+        >
+          Send Message
+        </button>
+      </div>
     </form>
 
-    {/* direct channels */}
-    <div class="space-y-6">
-      <div class="rounded-md border border-line-subtle bg-canvas p-5">
-        <span class={labelClass}>Direct Email</span>
-        <div class="flex items-center justify-between gap-3 rounded-sm border border-line-subtle bg-surface p-3">
-          <span class="select-all font-mono text-sm text-default">{meta.email}</span>
-          <CopyButton client:visible text={meta.email} />
-        </div>
-      </div>
-
-      <div class="rounded-md border border-line-subtle bg-canvas p-5">
-        <span class={labelClass}>Connect</span>
-        <div class="grid grid-cols-2 gap-2">
-          {
-            socials.map((s) => (
-              <a href={s.url} target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between rounded-sm border border-line-subtle bg-surface p-3 transition-colors hover:border-accent">
-                <span class="font-mono text-xs text-subtle transition-colors group-hover:text-default">{s.name}</span>
-                <svg class="size-3 text-muted transition-colors group-hover:text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9" /></svg>
+    {/* ── aside — hairline-divided rows, price-table style ── */}
+    <aside class="border-t border-line pt-10 lg:border-l lg:border-t-0 lg:pt-0 lg:pl-14">
+      <div class="space-y-10">
+        {/* email */}
+        <div>
+          <span class={labelClass}>Email</span>
+          <div class="flex items-center justify-between gap-3">
+            <span class="flex min-w-0 items-center gap-3">
+              <MailIcon class="size-4 shrink-0 text-muted" />
+              <a href={`mailto:${meta.email}`} class="select-all truncate font-mono text-sm text-default underline decoration-line underline-offset-4 transition-colors hover:text-accent hover:decoration-accent">
+                {meta.email}
               </a>
-            ))
-          }
+            </span>
+            <CopyButton client:visible text={meta.email} />
+          </div>
+        </div>
+
+        {/* socials — ruled rows with handle + arrow */}
+        <div>
+          <span class={labelClass}>Elsewhere</span>
+          <ul class="divide-y divide-line-subtle border-y border-line-subtle">
+            {
+              socials.map((s) => {
+                const Icon = socialIcons[s.name];
+                return (
+                  <li>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="group flex items-center justify-between gap-4 py-3">
+                      <span class="flex items-center gap-3">
+                        {Icon && <Icon class="size-4 text-muted transition-colors group-hover:text-accent" />}
+                        <span class="font-mono text-sm text-default transition-colors group-hover:text-accent">{s.name}</span>
+                      </span>
+                      <span class="flex items-center gap-3">
+                        <span class="font-mono text-2xs text-muted">@{s.handle}</span>
+                        <svg class="size-3 text-muted transition-all group-hover:translate-x-0.5 group-hover:text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9" />
+                        </svg>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
+
+        {/* local time — live clock, instrument-panel detail */}
+        <div>
+          <span class={labelClass}>Local Time</span>
+          <p class="flex items-baseline gap-2 font-mono text-sm text-default">
+            <span class="size-1.5 translate-y-[-1px] rounded-full bg-emerald-500" aria-hidden="true"></span>
+            <span id="contact-local-time">--:--</span>
+            <span class="font-mono text-2xs text-muted">Dhaka, {meta.timezone}</span>
+          </p>
         </div>
       </div>
-    </div>
+    </aside>
   </div>
 
   {/* footer bar */}
-  <footer class="mt-14 flex flex-col items-center justify-between gap-3 border-t border-line-subtle pt-6 sm:flex-row">
-    <p class="font-mono text-2xs text-muted">© {new Date().getFullYear()} {meta.name}. Built with Astro + Tailwind.</p>
-    <p class="flex items-center gap-2 font-mono text-2xs text-muted">
-      <span class="size-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
-      Cloudflare Edge
-    </p>
+  <footer class="mt-16 flex flex-col items-center justify-between gap-3 border-t border-line-subtle pt-6 sm:flex-row">
+
   </footer>
 </SectionShell>
+
+<script>
+  /**
+   * Live Dhaka clock — ticks every 30s (minute precision is enough).
+   * Module script: bundled once, zero dependencies, no hydration cost.
+   */
+  const timeEl = document.getElementById("contact-local-time");
+  if (timeEl) {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Dhaka",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const tick = () => (timeEl.textContent = fmt.format(new Date()));
+    tick();
+    setInterval(tick, 30_000);
+  }
+</script>
