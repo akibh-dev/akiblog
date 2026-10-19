@@ -46,6 +46,22 @@
  *    `btn-primary`); "Copy" is SECONDARY (`btn`, via CopyButton). Both
  *    carry cursor:pointer + the shared brand hover halo.
  *
+ * 7c. SEND BUTTON STATES — the mailer answers only after Cloudflare has
+ *    actually handed the email over, which takes a few seconds. Faking
+ *    an instant "sent" would lie on failures, so the wait stays honest and
+ *    is made legible instead:
+ *    - sending: the arrow becomes a spinner, a thin progress bar eases
+ *      toward ~90% (it never reaches 100% on its own), and the label
+ *      walks real stages: Verifying → Sending → Delivering → Almost there.
+ *    - sent: the bar completes, a check mark draws itself, a ring pulses
+ *      once, and the status line gives a receipt (time + the address
+ *      the reply will go to). After a few seconds it returns to idle,
+ *      and the receipt fades out ~7s later so it doesn't linger.
+ *    - error: a short shake, and the mailer's own message is shown.
+ *    The button is never `disabled` while busy (that would fade it via
+ *    btn-primary:disabled); aria-disabled + a state guard block double
+ *    submits. All motion is CSS, and prefers-reduced-motion turns it off.
+ *
  * 8. FORM BACKEND — same-origin POST /api/contact (Pages Function, functions/api/contact.ts), which
  *    forwards to the private `mailer` Worker (akibh-dev/mailer) over a
  *    service binding; the mailer has no public URL at all. Vanilla-TS
@@ -127,17 +143,27 @@ const labelClass =
       <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
       <div class="flex flex-col gap-4 pt-1 sm:items-end">
         <div class="cf-turnstile" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
-        <div class="flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center">
-          {/* inline status — aria-live so screen readers announce the result */}
-          <p id="contact-status" role="status" aria-live="polite" class="font-mono text-2xs text-muted"></p>
-          <button
-            id="contact-submit"
-            type="submit"
-            class="btn-primary w-full rounded-sm px-8 py-3 font-mono text-xs font-medium uppercase tracking-wider sm:w-auto"
-          >
-            Send Message
-          </button>
-        </div>
+        {/* send button — a small state machine (data-state: idle →
+            sending → sent | error, see note 7c). Fixed min-width so the
+            label swaps never resize it; nowrap so it never breaks to two
+            lines in the narrow form column. */}
+        <button
+          id="contact-submit"
+          type="submit"
+          data-state="idle"
+          class="send-btn btn-primary relative inline-flex w-full items-center justify-center gap-3 overflow-hidden whitespace-nowrap rounded-sm px-7 py-3 font-mono text-xs font-medium uppercase tracking-wider sm:w-auto sm:min-w-56"
+        >
+          <span data-label>Send message</span>
+          <span class="send-icon relative size-4 shrink-0" aria-hidden="true">
+            <svg class="send-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+            <svg class="send-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8" opacity=".3" /><path d="M20 12a8 8 0 0 0-8-8" /></svg>
+            <svg class="send-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+          </span>
+          <span class="send-bar" aria-hidden="true"></span>
+        </button>
+        {/* inline status — its own line under the button (never squeezed
+            beside it); aria-live so screen readers announce the result */}
+        <p id="contact-status" role="status" aria-live="polite" class="min-h-4 font-mono text-2xs text-muted sm:text-right"></p>
       </div>
     </form>
 
@@ -240,22 +266,73 @@ const labelClass =
     const status = document.getElementById("contact-status") as HTMLParagraphElement;
     const ENDPOINT = form.dataset.endpoint as string;
 
+    const label = btn.querySelector("[data-label]") as HTMLSpanElement;
+    const IDLE_LABEL = label.textContent ?? "Send message";
+
     // literal class lookup — Tailwind only generates utilities it can
     // see verbatim in source, never build them by interpolation
     const tones = { idle: "text-muted", ok: "text-default", err: "text-accent" } as const;
+    let statusTimer = 0;
     const setStatus = (msg: string, tone: keyof typeof tones) => {
+      clearTimeout(statusTimer);
       status.textContent = msg;
-      status.className = `font-mono text-2xs ${tones[tone]}`;
+      status.className = `min-h-4 font-mono text-2xs transition-opacity duration-500 sm:text-right ${tones[tone]}`;
+    };
+    // receipts are transient: fade out after `ms`, then clear the text
+    const fadeStatus = (ms: number) => {
+      statusTimer = window.setTimeout(() => {
+        status.classList.add("opacity-0");
+        statusTimer = window.setTimeout(() => setStatus("", "idle"), 500);
+      }, ms);
+    };
+
+    type State = "idle" | "sending" | "sent" | "error";
+    let timers: number[] = [];
+    const clearTimers = () => (timers.forEach(clearTimeout), (timers = []));
+    const setState = (state: State, text = IDLE_LABEL) => {
+      clearTimers();
+      btn.dataset.state = state;
+      btn.setAttribute("aria-disabled", String(state === "sending" || state === "sent"));
+      form.setAttribute("aria-busy", String(state === "sending"));
+      label.textContent = text;
+    };
+
+    /* sending stages — the label walks through them while the request is
+       in flight (see note 7c); times are from the measured flow */
+    const STAGES: [number, string][] = [
+      [0, "Verifying…"],
+      [700, "Sending…"],
+      [2600, "Delivering…"],
+      [6500, "Almost there…"],
+    ];
+    const startSending = () => {
+      setState("sending", STAGES[0][1]);
+      timers = STAGES.slice(1).map(([at, text]) => window.setTimeout(() => (label.textContent = text), at));
+    };
+
+    type Result = { ok: true } | { ok: false; error: string };
+    const post = async (payload: Record<string, string>): Promise<Result> => {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json: { success?: boolean; error?: string } = await res.json().catch(() => ({}));
+      return res.ok && json.success
+        ? { ok: true }
+        : { ok: false, error: json.error ?? "Couldn't send — try again, or email me directly." };
     };
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (btn.dataset.state === "sending" || btn.dataset.state === "sent") return; // no double submits
       const data = new FormData(form);
 
       // honeypot: a filled "website" means bot — fake success, send nothing
       if (data.get("website")) {
         form.reset();
         setStatus("✓ Message sent — I'll get back to you soon.", "ok");
+        fadeStatus(7000);
         return;
       }
 
@@ -269,35 +346,35 @@ const labelClass =
       const email = String(data.get("email") ?? "").trim();
       const message = String(data.get("message") ?? "").trim().slice(0, 5000);
 
-      btn.disabled = true;
-      btn.textContent = "Sending…";
+      startSending();
       setStatus("", "idle");
+      let result: Result;
       try {
-        const res = await fetch(ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            subject: `Portfolio contact — ${name}`, // optional per spec; aids inbox triage
-            message,
-            turnstileToken,
-            website: "", // honeypot stays empty for humans
-          }),
+        result = await post({
+          name,
+          email,
+          subject: `Portfolio contact — ${name}`, // optional per spec; aids inbox triage
+          message,
+          turnstileToken,
+          website: "", // honeypot stays empty for humans
         });
-        const json: { success?: boolean; error?: string } = await res.json().catch(() => ({}));
-        if (res.ok && json.success) {
-          form.reset();
-          setStatus("✓ Message sent — I'll get back to you soon.", "ok");
-        } else {
-          setStatus(`✗ ${json.error ?? "Couldn't send — try again, or email me directly."}`, "err");
-        }
       } catch {
-        setStatus("✗ Network error — try again, or email me directly.", "err");
+        result = { ok: false, error: "Network error — try again, or email me directly." };
       } finally {
-        btn.disabled = false;
-        btn.textContent = "Send Message";
         window.turnstile?.reset(); // tokens are single-use — mint a fresh one
+      }
+
+      if (result.ok) {
+        form.reset();
+        setState("sent", "Sent");
+        const at = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" }).format(new Date());
+        setStatus(`✓ Delivered at ${at}. I'll reply to ${email}.`, "ok");
+        fadeStatus(7000);
+        timers.push(window.setTimeout(() => setState("idle"), 4500));
+      } else {
+        setState("error", "Try again");
+        setStatus(`✗ ${result.error}`, "err");
+        timers.push(window.setTimeout(() => setState("idle"), 2500));
       }
     });
   }
@@ -321,3 +398,101 @@ const labelClass =
     setInterval(tick, 30_000);
   }
 </script>
+
+<style>
+  /* Send button states (note 7c). Transform/opacity/width only, so it
+     stays cheap; every state reads from the button's data-state. */
+  .send-icon svg {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.2s, transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .send-spin,
+  .send-check {
+    opacity: 0;
+  }
+  .send-btn[data-state="idle"]:hover .send-arrow {
+    transform: translateX(3px);
+  }
+  .send-btn[aria-disabled="true"] {
+    cursor: progress;
+  }
+
+  /* sending: arrow flies out, spinner in, bar eases toward ~90% */
+  .send-btn[data-state="sending"] .send-arrow {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  .send-btn[data-state="sending"] .send-spin {
+    opacity: 1;
+    animation: send-spin 0.8s linear infinite;
+  }
+  .send-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: rgb(255 255 255 / 0.8);
+  }
+  .send-btn[data-state="sending"] .send-bar {
+    width: 90%;
+    transition: width 8s cubic-bezier(0.08, 0.75, 0.2, 1);
+  }
+
+  /* sent: bar completes and fades, check draws, one ring pulse */
+  .send-btn[data-state="sent"] .send-arrow {
+    opacity: 0;
+  }
+  .send-btn[data-state="sent"] .send-check {
+    opacity: 1;
+  }
+  .send-check path {
+    stroke-dasharray: 22;
+    stroke-dashoffset: 22;
+  }
+  .send-btn[data-state="sent"] .send-check path {
+    animation: send-draw 0.45s ease-out 0.1s forwards;
+  }
+  .send-btn[data-state="sent"] .send-bar {
+    width: 100%;
+    opacity: 0;
+    transition: width 0.3s ease-out, opacity 0.4s 0.7s;
+  }
+  .send-btn[data-state="sent"] {
+    animation: send-ring 0.9s ease-out;
+  }
+
+  /* error: short shake */
+  .send-btn[data-state="error"] {
+    animation: send-shake 0.4s;
+  }
+
+  @keyframes send-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes send-draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes send-ring {
+    from { box-shadow: 0 0 0 0 color-mix(in oklch, var(--ui-accent), transparent 40%); }
+    to { box-shadow: 0 0 0 14px color-mix(in oklch, var(--ui-accent), transparent 100%); }
+  }
+  @keyframes send-shake {
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .send-btn,
+    .send-btn * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    /* keep a static spinner visible instead of the spin */
+    .send-btn[data-state="sending"] .send-spin {
+      animation: none !important;
+    }
+  }
+</style>
