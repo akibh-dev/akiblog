@@ -1,0 +1,153 @@
+---
+/**
+ * @file sections/About.astro
+ * @description About — the interactive terminal framed by ruled lines, then
+ *              an auto-scrolling strip of fact tiles (delta.dev's
+ *              "Words from early adopters" marquee).
+ *
+ *   ═══════════════════   ← <Seam/> above this panel (index.astro) = the
+ *   │░░│ terminal │░░│      double top rule
+ *   │░░│          │░░│   ← centre column between full-height hairlines,
+ *   ───────────────────      hatched gutters; terminal fills the column
+ *   ‹ tile  tile  tile ›  ← marquee, edge-faded
+ *
+ * POC / WHY THIS APPROACH:
+ * 1. LINES, NOT BOXES — headerless SectionShell (pad="p-0"). The terminal
+ *    row is a 3-column grid: hatched gutters (--color-hatch, the brand
+ *    hatch, so empty space reads as intentional) around a centre column
+ *    with border-x. The terminal runs in `flush` mode (no own border,
+ *    radius, shadow) with NO padding, so it fills that column exactly and
+ *    its edges ARE the column lines — framed, not floating.
+ * 2. MARQUEE IN PURE CSS — the tile list is rendered TWICE in one flex
+ *    track and the track animates translateX(0 → −50%): at −50% copy #2 is
+ *    exactly where copy #1 started, so the loop is seamless. Spacing is a
+ *    per-tile margin (not `gap`) so −50% lands on an exact tile boundary.
+ *    Transform-only → composited, no layout per frame, zero JS.
+ *    - hover/focus-within pauses it (readable on demand);
+ *    - copy #2 is aria-hidden + inert, so screen readers / keyboard see
+ *      each tile once;
+ *    - prefers-reduced-motion: no animation, the strip becomes a normal
+ *      horizontal scroller (copy #2 hidden).
+ * 3. TILE CONTENT IS REAL DATA — no testimonials exist, so tiles are built
+ *    from portfolioData (competitive metrics, education, location) in
+ *    delta's tile anatomy: statement on top, round "avatar" (platform
+ *    glyph) + italic serif name + mono handle at the bottom. Metric tiles
+ *    link to the profile.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import Terminal from "../islands/terminal/Terminal.astro";
+import { portfolioData } from "../../data/portfolio";
+import { LeetCodeIcon, CodeforcesIcon, HackerRankIcon, AtCoderIcon, GradCapIcon, NetworkIcon } from "../../icons";
+
+const { meta, competitiveMetrics, education } = portfolioData;
+
+const platformIcons: Record<string, typeof GradCapIcon> = {
+  LeetCode: LeetCodeIcon,
+  Codeforces: CodeforcesIcon,
+  HackerRank: HackerRankIcon,
+  AtCoder: AtCoderIcon,
+};
+
+interface Tile {
+  text: string;
+  name: string;
+  handle: string;
+  Icon: typeof GradCapIcon;
+  url?: string;
+}
+
+const tiles: Tile[] = [
+  ...competitiveMetrics.map((m) => ({
+    text: `${m.stats} on ${m.platform}.`,
+    name: m.platform,
+    handle: `@${meta.handle}`,
+    Icon: platformIcons[m.platform] ?? NetworkIcon,
+    url: m.url,
+  })),
+  {
+    text: `${education.degree}, class of ${education.year}.`,
+    name: "CUET",
+    handle: education.focus.split(",")[0],
+    Icon: GradCapIcon,
+  },
+  {
+    text: `Based in ${meta.location} — ${meta.timezone}, open to remote work.`,
+    name: meta.location.split(",")[0],
+    handle: meta.timezone,
+    Icon: NetworkIcon,
+  },
+];
+---
+
+<SectionShell id="about" pad="p-0">
+  {/* terminal row — hatched gutters either side, the centre column framed
+      by full-height hairlines; the flush terminal FILLS that box (no inner
+      padding), so its edges are the column lines themselves */}
+  <div class="grid grid-cols-[0.75rem_minmax(0,1fr)_0.75rem] border-b border-line md:grid-cols-[minmax(1.5rem,1fr)_minmax(0,42rem)_minmax(1.5rem,1fr)]">
+    <div aria-hidden="true" class="hatch"></div>
+    <div class="border-x border-line">
+      <Terminal data={portfolioData} flush />
+    </div>
+    <div aria-hidden="true" class="hatch"></div>
+  </div>
+
+  {/* marquee */}
+  <div class="marquee relative overflow-hidden py-8 md:py-10" role="region" aria-label="Highlights">
+    <ul class="marquee-track flex w-max">
+      {
+        [0, 1].map((copy) =>
+          tiles.map(({ text, name, handle, Icon, url }) => {
+            const Tag = url ? "a" : "div";
+            return (
+              <li class="mr-4 flex" aria-hidden={copy === 1 ? "true" : undefined} inert={copy === 1}>
+                <Tag
+                  href={url}
+                  target={url ? "_blank" : undefined}
+                  rel={url ? "noopener noreferrer" : undefined}
+                  class="flex h-44 w-72 flex-col justify-between border border-line bg-surface p-5 transition-colors hover:border-accent"
+                >
+                  <p class="font-mono text-sm leading-relaxed text-subtle">&ldquo;{text}&rdquo;</p>
+                  <span class="flex items-center gap-3">
+                    <span class="flex size-9 shrink-0 items-center justify-center rounded-full border border-line bg-canvas text-subtle">
+                      <Icon class="size-5" />
+                    </span>
+                    <span class="min-w-0">
+                      <span class="block font-display text-sm text-default italic">{name}</span>
+                      <span class="block truncate font-mono text-2xs text-muted">{handle}</span>
+                    </span>
+                  </span>
+                </Tag>
+              </li>
+            );
+          }),
+        )
+      }
+    </ul>
+    {/* edge fades */}
+    <div aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-surface to-transparent"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-surface to-transparent"></div>
+  </div>
+</SectionShell>
+
+<style>
+  .hatch {
+    background-image: repeating-linear-gradient(45deg, var(--color-hatch) 0 1px, transparent 1px 6px);
+  }
+
+  .marquee-track {
+    animation: marquee 45s linear infinite;
+  }
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { overflow-x: auto; }
+    .marquee-track { animation: none; }
+    .marquee-track li[inert] { display: none; }
+  }
+</style>

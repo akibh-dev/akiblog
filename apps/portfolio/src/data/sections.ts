@@ -28,9 +28,10 @@ export interface SectionEntry {
 }
 
 export const sections: SectionEntry[] = [
-  { id: "about", label: "About", number: "01" },
-  { id: "projects", label: "Projects", number: "02" },
-  { id: "writings", label: "Writings", number: "03" },
-  { id: "skills", label: "Skills", number: "04" },
-  { id: "contact", label: "Contact", number: "05" },
+  { id: "home", label: "Home", number: "01" },
+  { id: "about", label: "About", number: "02" },
+  { id: "projects", label: "Projects", number: "03" },
+  { id: "writings", label: "Writings", number: "04" },
+  { id: "skills", label: "Skills", number: "05" },
+  { id: "contact", label: "Contact", number: "06" },
 ];

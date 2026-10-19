@@ -15,6 +15,10 @@
  *   "fix" commands) — parity with the React version.
  * - No client:* directive, no framework runtime, no JSON data island —
  *   shell.ts imports portfolioData directly (same module as the prop).
+ * - `flush` prop: drops the floating-window frame (border, radius, shadow)
+ *   so the terminal can BE a panel's full content, framed only by the
+ *   section's own hairlines — the Projects-IDE contract (sections/About).
+ *   Default stays the standalone window, so other usages are unchanged.
  */
 import { bootEntries } from "./boot";
 import { LINK_CLASS, TONE_CLASS } from "./render";
@@ -22,8 +26,10 @@ import type { PortfolioData } from "./types";
 
 interface Props {
   data: PortfolioData;
+  /** full-bleed mode: no own frame — the host section draws the lines */
+  flush?: boolean;
 }
-const { data } = Astro.props;
+const { data, flush = false } = Astro.props;
 
 let n = 0;
 const boot = bootEntries(data, () => ++n);
@@ -31,7 +37,7 @@ const boot = bootEntries(data, () => ++n);
 
 <div
   data-terminal
-  class="overflow-hidden rounded-md border border-line-subtle bg-surface shadow-2xs"
+  class:list={["overflow-hidden bg-surface", !flush && "rounded-md border border-line-subtle shadow-2xs"]}
 >
   {/* window chrome — macOS traffic lights, decorative by design */}
   <div class="relative flex items-center border-b border-line-subtle px-4 py-2.5">

@@ -5,15 +5,9 @@
  *              island (Base UI Dialog — focus trap, Esc, light-dismiss).
  */
 import { portfolioData } from "../../data/portfolio";
+import { sections } from "../../data/sections"; // single nav registry
 import MobileMenu from "../islands/MobileMenu";
 
-const sections = [
-  { id: "about", label: "About", number: "01" },
-  { id: "projects", label: "Projects", number: "02" },
-  { id: "writings", label: "Writings", number: "03" },
-  { id: "skills", label: "Skills", number: "04" },
-  { id: "contact", label: "Contact", number: "05" },
-];
 ---
 
 <header class="fixed inset-x-0 top-[var(--site-inset-top)] z-40 mx-3 flex h-[var(--site-header-height)] items-center justify-between rounded-md border border-line-subtle bg-surface px-3 md:hidden">

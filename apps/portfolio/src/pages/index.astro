@@ -26,6 +26,7 @@
 import Layout from "../layouts/Layout.astro";
 import Seam from "../components/ui/Seam.astro";
 import Hero from "../components/sections/Hero.astro";
+import About from "../components/sections/About.astro";
 import Projects from "../components/sections/Projects.astro";
 import Writings from "../components/sections/Writings.astro";
 import Skills from "../components/sections/Skills.astro";
@@ -36,7 +37,8 @@ import { sections } from "../data/sections";
 /* id → panel binding. All panels are no-prop section components, so
    `typeof Hero` is the shared signature without importing astro types. */
 const panels: Record<string, typeof Hero> = {
-  about: Hero,
+  home: Hero,
+  about: About,
   projects: Projects,
   writings: Writings,
   skills: Skills,

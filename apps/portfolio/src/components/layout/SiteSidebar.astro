@@ -48,10 +48,10 @@
  * GEOMETRY (derived — keep in sync with the utility classes below):
  *   label  = text-2xs line-height 16 + py-0.5 (4) + border (2) = 22px
  *   anchor = py-1.5 (12) + max(node 7, label 22)               = 34px
- *   ul     = 5×34 + 4×4 (space-y-1)                            = 186px
+ *   ul     = N×34 + (N−1)×4 (space-y-1); N=6 stations           = 224px
  *   first node center = 17 → node TOP edge = 14 = top-3.5, where the
  *   trunk starts (the line emerges from the node's opaque fill). Tree
- *   starts at 186 + mt-1 (4) = 190 → TREE_TOP, applied via
+ *   starts at 224 + mt-1 (4) = 228 → TREE_TOP, applied via
  *   patternTransform so tile-internal coords keep the mockup's 0-based
  *   y values. Trunk x=3.5 = station node centers (size-[7px] from the
  *   anchor's left edge). Commits are hollow r=3 circles + 1px stroke =
@@ -76,6 +76,7 @@
  * replays the paint animation on every theme toggle.
  */
 import { portfolioData } from "../../data/portfolio";
+import { sections } from "../../data/sections";
 import ThemeSwitch from "../islands/ThemeSwitch";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 import BrandLogo from "./BrandLogo.astro";
@@ -90,19 +91,13 @@ const SOCIAL_ICONS: Record<string, AstroComponentFactory> = {
   X: XIcon,
 };
 
-const sections = [
-  { id: "about", label: "About" },
-  { id: "projects", label: "Projects" },
-  { id: "writings", label: "Writings" },
-  { id: "skills", label: "Skills" },
-  { id: "contact", label: "Contact" },
-];
+/* stations come from the single nav registry (data/sections.ts) */
 
 /* Rail geometry — derivation documented under GEOMETRY above. */
 const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
 const ROW_H = 34;     // anchor height: py-1.5 (12) + 22px label
 const ROW_GAP = 4;    // space-y-1
-const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; // stations (186) + mt-1 (4) = 190
+const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; // N=6: stations (224) + mt-1 (4) = 228
 ---
 
 {/* FIXED, NOT STICKY — the scroll-vibration fix.
@@ -132,19 +127,21 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
       main column's left edge, plan15); the rail band's/panels' inset
       border-x is the inner one. Chrome only — content untouched. */}
   <div class="flex h-full flex-col px-5 py-6">
-    {/* brand */}
-    <a href="#top" class="group mb-8 flex items-center gap-3">
-      {/* animated Paint-Fill "A", bare on the canvas — no bordered chip
-          (layout/BrandLogo.astro). size-11 (44px) is the LARGEST the
-          narrowest sidebar admits: at md the content column is ~108px
-          (1fr of the site grid − px-5), and 44 + gap-3 (12) + ~50px
-          handle ≈ 106px — size-12 would overflow. The hover scale
-          restores the affordance the old bordered chip gave, without
-          bringing the chrome rectangle back (motion-safe only). */}
-      <BrandLogo class="size-11 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:scale-105 motion-reduce:transition-none" />
-      <span class="min-w-0 font-mono text-sm leading-tight">
-        <span class="block font-semibold text-default">{portfolioData.meta.handle}</span>
-        <span class="block text-2xs text-muted">.dev</span>
+    {/* brand — delta.dev's sidebar head: mark + wordmark on one line, an
+        italic serif status line under it (their "Now in Beta"). Here the
+        status is AVAILABILITY (meta.availability) with a live green dot —
+        the one fact a recruiter needs before scrolling anywhere.
+        SIZE: the narrow md rail (~108px content column) can't fit a bigger
+        mark beside the wordmark, so at md the mark stacks ABOVE it; from
+        lg (rail ≥ ~200px) they sit side by side. Mark: size-14 (56px, up
+        from 44px). The dot ping is motion-safe only. */}
+    <a href="#top" class="group mb-8 block">
+      <span class="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-3">
+        <BrandLogo class="size-14 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:scale-105 motion-reduce:transition-none" />
+        <span class="min-w-0 leading-tight">
+          <span class="block font-display text-xl text-default">{portfolioData.meta.handle}</span>
+          <span class="block font-mono text-2xs text-muted">.dev</span>
+        </span>
       </span>
     </a>
 
