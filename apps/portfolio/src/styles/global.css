@@ -293,6 +293,68 @@
   &[data-scrolling]::-webkit-scrollbar-thumb:hover { background: var(--ui-text-muted); }
 }
 
+/* ---------------------------------------------------------------------------
+ * DEFAULT BUTTON BEHAVIOUR — one look for every secondary button
+ * (sidebar stations, "View all posts", Copy…).
+ *
+ *   static : hairline border on a light face + 1px bottom "lip" shadow
+ *   hover  : border turns brand, face gets a LOW-OPACITY brand wash
+ *            (--ui-accent-subtle) and a soft 3px brand halo ring outside
+ *            the border — the "drawn rectangle" now also glows faintly.
+ *
+ * WHY @utility (not a component class): variants compose, so the hover
+ * look can be triggered from a parent too — `group-hover:btn-hover` on
+ * the sidebar label, plain `btn` on standalone buttons. Colors come only
+ * from theme tokens, so dark mode needs no extra rules. Box-shadow ring
+ * (not outline/border) so the halo never shifts layout.
+ * ------------------------------------------------------------------------- */
+@utility btn-hover {
+  border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+  background-color: var(--ui-accent-subtle);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  color: var(--ui-text);
+}
+
+/* SECONDARY button (Copy, View all posts…).
+   cursor: pointer is explicit because Tailwind v4's preflight resets
+   <button> to `cursor: default` — links got the hand cursor from the UA,
+   real <button>s didn't (the "hover feels dead" bug on Copy/Send). */
+@utility btn {
+  cursor: pointer;
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-surface-strong);
+  box-shadow: 0 1px 0 var(--ui-border);
+  color: var(--ui-text);
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s, color 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+    background-color: var(--ui-accent-subtle);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+/* PRIMARY button (Send Message — one per view). Solid brand face with a
+   darker 1px lip; hover deepens the face and adds the SAME soft brand halo
+   as the secondary hover, so both tiers share one interaction language. */
+@utility btn-primary {
+  cursor: pointer;
+  border: 1px solid var(--ui-accent-hover);
+  background-color: var(--ui-accent);
+  box-shadow: 0 1px 0 var(--ui-accent-hover);
+  color: white;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    background-color: var(--ui-accent-hover);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 75%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
 /* Sidebar station styling (commit node + terracotta pill) lives in
    layout/SiteSidebar.astro markup via group-aria-[current=true]:* —
    aria-current is set by the <scroll-spy> custom element. */

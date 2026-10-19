@@ -79,7 +79,7 @@ import { portfolioData } from "../../data/portfolio";
 import ThemeSwitch from "../islands/ThemeSwitch";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 import BrandLogo from "./BrandLogo.astro";
-import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon } from "../../icons";
+import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon, RssIcon } from "../../icons";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
 /* Social rows carry their brand glyph from the canonical icon set
@@ -105,7 +105,27 @@ const ROW_GAP = 4;    // space-y-1
 const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; // stations (186) + mt-1 (4) = 190
 ---
 
-<aside class="sticky top-[var(--site-frame-top)] z-40 hidden h-[calc(100dvh-var(--site-frame-top)-var(--site-content-bottom))] border-line border-x bg-surface md:block">
+{/* FIXED, NOT STICKY — the scroll-vibration fix.
+    The sidebar used to be `position: sticky` inside the scrolling grid:
+    the ONLY piece of chrome that lived in the scroller while everything
+    around it (frame cells, gutters, rail) is `position: fixed`. During
+    async (compositor) scrolling the browser moves the page, then offsets
+    the sticky layer back; with fractional scroll steps (smooth wheel,
+    125%/150% display scaling) that compensation lands on sub-pixel
+    offsets and trails the fixed frame by a frame, so its 1.2px tree lines
+    and borders get re-sampled every frame → the panel visibly trembles
+    against the still frame. (Layout-level measurement shows top=16px
+    constantly; the shake is purely compositor-side.)
+    A fixed layer is never part of the scroll, so there is nothing to
+    compensate. It mirrors ViewportFrame's rail track verbatim
+    ([page-left | 1fr | page-right] × --site-columns, column 1) so it sits
+    on exactly the pixels the in-flow grid column did. The in-flow grid
+    still declares the sidebar track and <main> is explicitly placed in
+    column 2, so content layout is unchanged. Height formula unchanged. */}
+<div class="pointer-events-none fixed inset-0 z-30 hidden grid-cols-[var(--site-page-left)_minmax(0,1fr)_var(--site-page-right)] grid-rows-[var(--site-frame-top)_minmax(0,1fr)] md:grid">
+<div class="col-start-2 row-start-2 grid min-h-0 min-w-0 grid-cols-(--site-columns)">
+<aside class="pointer-events-auto col-start-1 row-start-1 h-[calc(100dvh-var(--site-frame-top)-var(--site-content-bottom))] self-start border-line border-x bg-surface">
+
   {/* delta verbatim: the sidebar itself carries border-x (their sidebar is
       a zds-bg-subtle bordered column) — its RIGHT border draws the line at
       the START of the red rail segment (the outer line of the "|=|" at the
@@ -205,12 +225,13 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
                       (stays centered on the trunk). data-station-node lets
                       ScrollSpy measure exact centers for the hop connector. */}
                   <span data-station-node class="size-[7px] shrink-0 rounded-full border border-line bg-canvas transition-transform duration-200 group-aria-[current=true]:scale-[1.4] motion-reduce:transition-none"></span>
-                  {/* station label — hover DRAWS the terracotta rectangle
-                      (outline only: border-accent, no fill); active keeps the
+                  {/* station label — hover uses the shared default button
+                      hover (global.css `btn-hover`: brand border + low-opacity
+                      brand wash + faint halo); active keeps the
                       current implementation: filled pill. All stations are
                       styled identically (transparent border at rest). */}
                   <span
-                    class="rounded border border-transparent px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:border-accent group-hover:text-default group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas"
+                    class="rounded border border-transparent px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:btn-hover group-aria-[current=true]:border-accent group-aria-[current=true]:group-hover:bg-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas"
                   >
                     {s.label}
                   </span>
@@ -253,25 +274,28 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
       </a>
 
       {/* socials — horizontal icon-only buttons (name lives in tooltip +
-          aria-label). size-7 keeps the row inside the narrow md rail:
-          3×28px + 2×6px gaps = 96px ≤ ~108px content column. */}
-      <div class="mt-4 flex items-center gap-1.5">
+          aria-label), then the blog's RSS feed as the 4th glyph (moved here
+          from the Writings header: it's a site-wide subscription, not a
+          per-section action). 4 buttons must fit the narrow md rail
+          (~108px content column): size-6 + gap-0.5 → 4×24 + 3×2 = 102px;
+          lg relaxes to size-7 + gap-1.5 (4×28 + 3×6 = 130px, room to spare). */}
+      <div class="mt-4 flex items-center gap-0.5 lg:gap-1.5">
         {
-          portfolioData.socials.slice(0, 3).map((s) => {
-            const Icon = SOCIAL_ICONS[s.name];
-            return (
-              <a
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={s.name}
-                aria-label={s.name}
-                class="flex size-7 items-center justify-center rounded-md text-muted transition-colors hover:border-accent hover:text-accent"
-              >
-                {Icon && <Icon class="size-5" />}
-              </a>
-            );
-          })
+          [
+            ...portfolioData.socials.slice(0, 3).map((s) => ({ name: s.name, url: s.url, Icon: SOCIAL_ICONS[s.name] })),
+            { name: "RSS feed", url: `${portfolioData.meta.blogUrl}/rss.xml`, Icon: RssIcon },
+          ].map(({ name, url, Icon }) => (
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={name}
+              aria-label={name}
+              class="flex size-6 items-center justify-center rounded-md text-muted transition-colors hover:text-accent lg:size-7"
+            >
+              {Icon && <Icon class="size-5" />}
+            </a>
+          ))
         }
       </div>
     </div>
@@ -283,3 +307,5 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
     </div>
   </div>
 </aside>
+</div>
+</div>

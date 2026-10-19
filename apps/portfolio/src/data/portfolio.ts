@@ -26,6 +26,13 @@ export interface BlogPost {
   tags: string[];
   slug: string;
   url: string;
+  /**
+   * Banner image URL, supplied by the blog (blog.akib35.dev) once posts are
+   * fetched from it. Optional: posts without one render the typographic
+   * "document" thumbnail (ui/PostCover.astro) — that is the default.
+   * The picsum.photos URLs below are DUMMIES until the blog feed is wired.
+   */
+  banner?: string;
 }
 
 export interface SkillCategory {
@@ -145,7 +152,8 @@ export const portfolioData = {
       readingTime: "4 min read",
       tags: ["Cloudflare", "Astro", "Architecture"],
       slug: "astro-cloudflare-workers-ssr",
-      url: "https://blog.akib35.dev"
+      url: "https://blog.akib35.dev",
+      banner: "https://picsum.photos/seed/astro-cloudflare-workers-ssr/960/480"
     },
     {
       title: "Zero-Trust Security for Edge Applications: Replacing Monolithic Auth",
@@ -154,7 +162,8 @@ export const portfolioData = {
       readingTime: "6 min read",
       tags: ["Security", "Zero Trust", "Cloudflare"],
       slug: "zero-trust-edge-auth",
-      url: "https://blog.akib35.dev"
+      url: "https://blog.akib35.dev",
+      banner: "https://picsum.photos/seed/zero-trust-edge-auth/960/480"
     },
     {
       title: "Algorithmic Problem Solving: Patterns from 200+ Challenges",

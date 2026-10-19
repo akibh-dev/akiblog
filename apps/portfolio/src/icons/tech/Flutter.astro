@@ -1,14 +1,14 @@
 ---
 /**
- * Icon: Flutter — derived from the official logo geometry (viewBox 256×295),
- * rescaled to 24×24: long top slash band, crossing middle band, bottom
- * diamond. Theme-aware via currentColor (see IconBase.astro).
+ * Icon: Flutter — the logo's two parallel 45° shards: a long upper bar
+ * (top-right → left) and the lower chevron that folds back on itself.
+ * Redrawn: the previous three-piece version had misaligned edges.
+ * Theme-aware via currentColor (see IconBase.astro).
  */
 import IconBase from "../IconBase.astro";
 ---
 
 <IconBase {...Astro.props}>
-  <path d="M14 2 L3.3 12.7 L6.6 16 L20.6 2 Z" />
-  <path d="M14 8.7 L8.4 14.3 L11.7 17.6 L17.3 12 Z" />
-  <path d="M12 15.4 L15.3 18.7 L12 22 L8.7 18.7 Z" />
+  <path d="M8.2 14.6 L4.6 11 L13.1 2.5 H20.3 Z" />
+  <path d="M14.6 21.5 L9.3 16.2 L14.6 10.9 H19.8 L14.5 16.2 L19.8 21.5 Z" />
 </IconBase>

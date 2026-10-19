@@ -2,6 +2,9 @@
  * @file islands/CopyButton.tsx
  * @description Clipboard button with transient feedback. Plain React —
  *              no Base UI primitive needed for a single button.
+ *              Styling: site-wide default button (global.css `btn`); the
+ *              "Copied!" state holds the hover look (`btn-hover`) for 2s.
+ *              Legacy React island — restyled only; migration per plan17.
  */
 import { useRef, useState } from "react";
 
@@ -24,7 +27,7 @@ export default function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={copy}
-      className="rounded-sm border border-line-subtle bg-canvas px-3 py-1.5 font-mono text-2xs text-subtle transition-colors outline-none hover:border-accent hover:text-accent focus-visible:ring-1 focus-visible:ring-accent data-[ok=true]:border-accent data-[ok=true]:text-accent"
+      className="btn rounded-sm px-3 py-1.5 font-mono text-2xs data-[ok=true]:btn-hover data-[ok=true]:text-accent"
       data-ok={state === "copied"}
     >
       {state === "copied" ? "Copied!" : state === "failed" ? "Failed" : "Copy"}

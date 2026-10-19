@@ -42,6 +42,10 @@
  *    Footer.astro, Projects-IDE contract: pad="p-0", headerless), and
  *    the copyright/Edge texts were removed per request.
  *
+ * 7b. BUTTONS — "Send Message" is the page's PRIMARY button (global.css
+ *    `btn-primary`); "Copy" is SECONDARY (`btn`, via CopyButton). Both
+ *    carry cursor:pointer + the shared brand hover halo.
+ *
  * 8. FORM BACKEND — own Cloudflare Worker (mailer.akib35.workers.dev),
  *    replacing Formspree. Vanilla-TS submit handler (see the second
  *    <script>): fetch POST JSON. Bot/abuse protection is Cloudflare
@@ -128,7 +132,7 @@ const labelClass =
           <button
             id="contact-submit"
             type="submit"
-            class="w-full rounded-sm bg-accent px-8 py-3 font-mono text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-accent-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            class="btn-primary w-full rounded-sm px-8 py-3 font-mono text-xs font-medium uppercase tracking-wider sm:w-auto"
           >
             Send Message
           </button>
