@@ -18,7 +18,7 @@
  * interior, so absolute positioning inside a `relative` wrapper in the
  * bar is never clipped. z-50 keeps it above the preview pane.
  *
- * AVATAR: real photo (/my-pic.png) layered over the "AH" initials —
+ * AVATAR: real photo (/my-pic.webp) layered over the "AH" initials —
  * controller.ts hides the img on error (with a pre-check for errors that
  * fired before the module ran), leaving the initials as the fallback.
  *
@@ -59,7 +59,7 @@ const ITEM_CLASS =
       <span aria-hidden="true">AH</span>
       <img
         data-avatar-img
-        src="/my-pic.png"
+        src="/my-pic.webp"
         alt="Md Akib Hasan"
         class="absolute inset-0 size-full object-cover"
       />
