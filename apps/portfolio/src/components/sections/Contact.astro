@@ -46,12 +46,13 @@
  *    `btn-primary`); "Copy" is SECONDARY (`btn`, via CopyButton). Both
  *    carry cursor:pointer + the shared brand hover halo.
  *
- * 8. FORM BACKEND — own Cloudflare Worker (mailer.akib35.workers.dev),
- *    replacing Formspree. Vanilla-TS submit handler (see the second
- *    <script>): fetch POST JSON. Bot/abuse protection is Cloudflare
- *    Turnstile — the client holds ONLY the public site key (public by
- *    design); the secret key never leaves the worker. No API secret in
- *    client code at all. Rationale + notes live above the script.
+ * 8. FORM BACKEND — same-origin POST /api/contact (Pages Function, functions/api/contact.ts), which
+ *    forwards to the private `mailer` Worker (akibh-dev/mailer) over a
+ *    service binding; the mailer has no public URL at all. Vanilla-TS
+ *    submit handler (see the first <script>): fetch POST JSON. Bot/abuse
+ *    protection is Cloudflare Turnstile — the client holds ONLY the
+ *    public site key; the secret lives in the mailer. Rationale + notes
+ *    live above the script.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import CopyButton from "../islands/CopyButton";
@@ -86,10 +87,10 @@ const labelClass =
   {/* two columns split by a single hairline */}
   <div class="mt-10 grid gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
     {/* ── form — straight on the surface, no wrapper ──
-        Backend: mailer.akib35.workers.dev (see note 8 + script below).
+        Backend: same-origin /api/contact → mailer binding (see note 8).
         No action attribute: submission is JS-driven (fetch JSON), the
         endpoint travels in data-endpoint so the script stays generic. */}
-    <form id="contact-form" data-endpoint="https://mailer.akib35.workers.dev/" class="space-y-6">
+    <form id="contact-form" data-endpoint="/api/contact" class="space-y-6">
       <div class="grid gap-6 sm:grid-cols-2">
         <div>
           <label for="name" class={labelClass}>Name</label>
@@ -201,30 +202,31 @@ const labelClass =
 
 <script>
   /**
-   * Contact form → own mailer worker (replaces Formspree).
+   * Contact form → /api/contact → private mailer Worker (service binding).
    *
-   * WHY fetch+JSON INSTEAD OF A NATIVE FORM POST: the worker speaks
-   * JSON only (spec from GET /), a native <form> POST would send
-   * form-urlencoded and land on a raw JSON error page. JS submission
-   * also keeps the user on the page with an inline status line.
+   * WHY fetch+JSON INSTEAD OF A NATIVE FORM POST: the endpoint speaks
+   * JSON only; a native <form> POST would send form-urlencoded and land
+   * on a raw JSON page. JS submission also keeps the user on the page
+   * with an inline status line.
    *
-   * SECURITY MODEL (v2 — Turnstile): the browser path carries NO
-   * secret whatsoever. Abuse protection is Cloudflare Turnstile: the
-   * widget in the form uses the PUBLIC site key (public by design —
-   * it can only mint challenge tokens), the worker verifies the token
-   * with the secret key via siteverify. X-API-SECRET remains only as
-   * an optional server-to-server path and lives nowhere near this
-   * file. Defense in depth: Turnstile + honeypot + per-IP rate limit
-   * + CORS (akib35.dev only), all enforced worker-side.
+   * SECURITY MODEL (v3 — service binding): the browser path carries NO
+   * secret. It posts SAME-ORIGIN (no CORS, no mailer URL anywhere in
+   * the client); the Pages Function forwards it with Cloudflare's
+   * CF-Connecting-IP header to the mailer over a binding. The mailer validates the fields,
+   * checks the honeypot, applies a per-IP rate limit and verifies the
+   * Turnstile token (secret + hostname check) before sending.
+   *
+   * ERROR TEXT: the mailer's `error` strings are written to be safe to
+   * show ("Invalid email address", "Too many requests…"), so they are
+   * shown verbatim. Network or non-JSON failures fall back to a generic line.
    *
    * TOKEN LIFECYCLE: Turnstile tokens are single-use and expire after
    * 300s, so after EVERY attempt (success or failure) the widget is
    * reset to mint a fresh token for the next submit.
    *
-   * CORS NOTE: the worker allows origin https://akib35.dev ONLY, so
-   * submissions from localhost fail in the browser (curl works).
-   * Add http://localhost:4322 to the worker's ALLOWED_ORIGINS for
-   * local end-to-end testing.
+   * LOCAL TESTING: `astro dev` has no /api/contact (bindings exist only
+   * in the Workers runtime). Build, then `npx wrangler pages dev` here
+   * while the mailer runs `wrangler dev` too; see the mailer README.
    */
   declare global {
     interface Window {
@@ -283,14 +285,15 @@ const labelClass =
             website: "", // honeypot stays empty for humans
           }),
         });
-        const json: { success?: boolean; message?: string; error?: string } = await res
-          .json()
-          .catch(() => ({}));
-        if (!res.ok || !json.success) throw new Error(json.error ?? json.message ?? `HTTP ${res.status}`);
-        form.reset();
-        setStatus("✓ Message sent — I'll get back to you soon.", "ok");
+        const json: { success?: boolean; error?: string } = await res.json().catch(() => ({}));
+        if (res.ok && json.success) {
+          form.reset();
+          setStatus("✓ Message sent — I'll get back to you soon.", "ok");
+        } else {
+          setStatus(`✗ ${json.error ?? "Couldn't send — try again, or email me directly."}`, "err");
+        }
       } catch {
-        setStatus("✗ Couldn't send — try again, or email me directly.", "err");
+        setStatus("✗ Network error — try again, or email me directly.", "err");
       } finally {
         btn.disabled = false;
         btn.textContent = "Send Message";

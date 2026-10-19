@@ -1,0 +1,82 @@
+# ==============================================================================
+# Portfolio → Cloudflare Pages deployment
+#
+# Documentation & Implementation POC:
+# - Trigger: a push to `main` that touches apps/portfolio/** (or this file),
+#   or a manual run from the Actions tab (workflow_dispatch).
+# - Builds IN CI from source with bun (the repo's package manager, workspace
+#   deps such as @repo/tsconfig included), so the deployed site always
+#   matches the pushed commit. No committed dist.tar.gz is involved.
+#   GitHub-hosted ubuntu runners have plenty of RAM, so the OOM concern
+#   behind the Alpine/tarball flow in deploy.yml doesn't apply here.
+# - Deploys with `wrangler pages deploy`, run from apps/portfolio so Wrangler
+#   picks up wrangler.toml (MAILER service binding) and compiles
+#   functions/ (/api/contact) along with the static dist/.
+#   `--branch=main` makes it a PRODUCTION deployment.
+# - First run: if the Pages project doesn't exist yet, it is created with
+#   production branch `main`. After that the step is a no-op.
+# - `concurrency` stops two pushes from racing; the newer deploy wins.
+#
+# Required GitHub repository secrets:
+#   CLOUDFLARE_API_TOKEN   token with "Cloudflare Pages: Edit" permission
+#   CLOUDFLARE_ACCOUNT_ID  the account that owns the Pages project and `mailer`
+# ==============================================================================
+
+name: Deploy Portfolio (Cloudflare Pages)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/portfolio/**"
+      - ".github/workflows/portfolio-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: portfolio-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build & deploy portfolio
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PROJECT_NAME: portfolio
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build portfolio
+        run: bun --filter portfolio build
+
+      - name: Ensure Pages project exists
+        working-directory: apps/portfolio
+        run: |
+          if bunx wrangler pages project list | grep -qw "$PROJECT_NAME"; then
+            echo "Pages project '$PROJECT_NAME' exists"
+          else
+            bunx wrangler pages project create "$PROJECT_NAME" --production-branch=main
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        working-directory: apps/portfolio
+        run: |
+          bunx wrangler pages deploy dist \
+            --project-name="$PROJECT_NAME" \
+            --branch=main \
+            --commit-hash="${{ github.sha }}" \
+            --commit-message="$(git log -1 --pretty=%s | head -c 200)"

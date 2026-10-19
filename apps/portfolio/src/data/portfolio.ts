@@ -48,7 +48,7 @@ export const portfolioData = {
     statusText: "Building distributed edge tools & full-stack applications",
     location: "Dhaka, Bangladesh",
     timezone: "UTC+6",
-    email: "contact@akib35.me",
+    email: "hello@akib35.dev",
     resumeUrl: "/my-cv.pdf",
     siteUrl: "https://akib35.dev",
     blogUrl: "https://blog.akib35.dev"
