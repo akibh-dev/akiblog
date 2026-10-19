@@ -1,0 +1,323 @@
+---
+/**
+ * @file sections/Contact.astro
+ * @description Contact section — editorial "pricing-page" layout in the
+ *              delta.dev language: ONE flat surface, structure drawn with
+ *              hairlines only. NO cards, NO boxed panels, NO numbered
+ *              eyebrow header.
+ *
+ * WHY THIS IMPLEMENTATION (POC / rationale):
+ *
+ * 1. LINES, NOT BOXES — delta.dev's pricing page separates tiers with
+ *    vertical hairlines on a single background, never stacked cards. The
+ *    site's own design contract (SectionShell.astro) says the same:
+ *    "structure reads through lines + hatch on ONE background". So the
+ *    form sits directly on the section surface and the aside is divided
+ *    from it by a single `border-l` (a `border-t` on mobile when stacked).
+ *
+ * 2. ASIDE ROWS = PRICE-TABLE ROWS — socials/email/location are rendered
+ *    as full-width rows separated by `divide-y` hairlines (like delta's
+ *    feature lists), with mono labels and an arrow that slides on hover.
+ *    Zero chrome: no bg-canvas, no border, no radius, no padding boxes.
+ *
+ * 3. FLAT FIELDS — inputs keep the site's hairline field style but drop
+ *    the card background (`bg-transparent` over the section surface), so
+ *    the form reads as ruled lines on paper rather than an inset panel.
+ *
+ * 4. LIVE LOCAL TIME — a tiny module script ticks the visitor's view of
+ *    my Dhaka (UTC+6) clock. Costs ~10 lines of JS, adds the "instrument
+ *    panel" honesty delta.dev uses for stats, and answers the practical
+ *    question "is he awake?" before hitting send.
+ *
+ * 5. HEADERLESS SectionShell — index/label are omitted, so no
+ *    "05. Transmission" eyebrow renders; a large display heading does the
+ *    talking instead, matching the pricing page's big serif headline.
+ *
+ * 6. BRAND ICONS — email/social rows use the project's own stroke icon set
+ *    (src/icons/social): currentColor glyphs that inherit the muted→accent
+ *    hover color transition for free and auto-flip with the theme.
+ *
+ * 7. NO FOOTER BAR — the section ends with the aside grid. The Square
+ *    Kufic colophon moved to its own full-bleed panel (sections/
+ *    Footer.astro, Projects-IDE contract: pad="p-0", headerless), and
+ *    the copyright/Edge texts were removed per request.
+ *
+ * 7b. BUTTONS — "Send Message" is the page's PRIMARY button (global.css
+ *    `btn-primary`); "Copy" is SECONDARY (`btn`, via CopyButton). Both
+ *    carry cursor:pointer + the shared brand hover halo.
+ *
+ * 8. FORM BACKEND — same-origin POST /api/contact (Pages Function, functions/api/contact.ts), which
+ *    forwards to the private `mailer` Worker (akibh-dev/mailer) over a
+ *    service binding; the mailer has no public URL at all. Vanilla-TS
+ *    submit handler (see the first <script>): fetch POST JSON. Bot/abuse
+ *    protection is Cloudflare Turnstile — the client holds ONLY the
+ *    public site key; the secret lives in the mailer. Rationale + notes
+ *    live above the script.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import CopyButton from "../islands/CopyButton";
+import { portfolioData } from "../../data/portfolio";
+import { MailIcon, GitHubIcon, LinkedInIcon, XIcon, FacebookIcon } from "../../icons";
+
+const { meta, socials } = portfolioData;
+
+/* social name (data/portfolio.ts) → brand glyph */
+const socialIcons: Record<string, typeof GitHubIcon> = {
+  GitHub: GitHubIcon,
+  LinkedIn: LinkedInIcon,
+  X: XIcon,
+  Facebook: FacebookIcon,
+};
+
+const fieldClass =
+  "w-full rounded-sm border border-line-subtle bg-transparent px-4 py-3 font-mono text-sm text-default placeholder:text-muted transition-colors focus:border-accent focus:outline-none";
+const labelClass =
+  "mb-2 block font-mono text-2xs uppercase tracking-wider text-muted";
+---
+
+<SectionShell id="contact" pad="px-5 md:px-8 pt-8 md:pt-12 pb-10">
+  {/* headline — big serif, one accent mark */}
+  <h2 class="font-display text-[clamp(2.25rem,4vw+1rem,3.75rem)] leading-[1.05] tracking-tight text-default">
+    Let's connect<span class="text-accent">.</span>
+  </h2>
+  <p class="mt-4 max-w-lg font-display text-[clamp(1rem,1vw+0.75rem,1.15rem)] leading-relaxed text-subtle">
+    Have an opportunity, a collaboration idea, or just want to say hi? My inbox is always open.
+  </p>
+
+  {/* two columns split by a single hairline */}
+  <div class="mt-10 grid gap-x-14 gap-y-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)]">
+    {/* ── form — straight on the surface, no wrapper ──
+        Backend: same-origin /api/contact → mailer binding (see note 8).
+        No action attribute: submission is JS-driven (fetch JSON), the
+        endpoint travels in data-endpoint so the script stays generic. */}
+    <form id="contact-form" data-endpoint="/api/contact" class="space-y-6">
+      <div class="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label for="name" class={labelClass}>Name</label>
+          <input id="name" name="name" type="text" required maxlength="200" placeholder="Your name" class={fieldClass} />
+        </div>
+        <div>
+          <label for="email" class={labelClass}>Email</label>
+          <input id="email" name="email" type="email" required placeholder="you@example.com" class={fieldClass} />
+        </div>
+      </div>
+
+      <div>
+        <label for="message" class={labelClass}>Message</label>
+        <textarea
+          id="message"
+          name="message"
+          rows="6"
+          required
+          maxlength="5000"
+          placeholder="Tell me about your project or idea…"
+          class:list={[fieldClass, "min-h-[160px] resize-none"]}></textarea>
+      </div>
+
+      {/* honeypot — invisible to humans (display:none, tab skip), bots
+          fill it; the script silently drops such submissions and the
+          worker rejects them server-side too (see API spec) */}
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+
+      {/* Cloudflare Turnstile — bot check. The SITE key is public by
+          design (it only renders the challenge); verification happens
+          in the worker with the secret key. The widget auto-injects a
+          hidden cf-turnstile-response input inside this form, so the
+          script below reads the token straight from FormData. */}
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+      <div class="flex flex-col gap-4 pt-1 sm:items-end">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
+        <div class="flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center">
+          {/* inline status — aria-live so screen readers announce the result */}
+          <p id="contact-status" role="status" aria-live="polite" class="font-mono text-2xs text-muted"></p>
+          <button
+            id="contact-submit"
+            type="submit"
+            class="btn-primary w-full rounded-sm px-8 py-3 font-mono text-xs font-medium uppercase tracking-wider sm:w-auto"
+          >
+            Send Message
+          </button>
+        </div>
+      </div>
+    </form>
+
+    {/* ── aside — hairline-divided rows, price-table style ── */}
+    <aside class="border-t border-line pt-10 lg:border-l lg:border-t-0 lg:pt-0 lg:pl-14">
+      <div class="space-y-10">
+        {/* email */}
+        <div>
+          <span class={labelClass}>Email</span>
+          <div class="flex items-center justify-between gap-3">
+            <span class="flex min-w-0 items-center gap-3">
+              <MailIcon class="size-4 shrink-0 text-muted" />
+              <a href={`mailto:${meta.email}`} class="select-all truncate font-mono text-sm text-default underline decoration-line underline-offset-4 transition-colors hover:text-accent hover:decoration-accent">
+                {meta.email}
+              </a>
+            </span>
+            <CopyButton client:visible text={meta.email} />
+          </div>
+        </div>
+
+        {/* socials — ruled rows: icon only (name lives in aria-label),
+            handle + arrow on the right */}
+        <div>
+          <span class={labelClass}>Elsewhere</span>
+          <ul class="divide-y divide-line-subtle border-y border-line-subtle">
+            {
+              socials.map((s) => {
+                const Icon = socialIcons[s.name];
+                return (
+                  <li>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.name} class="group flex items-center justify-between gap-4 py-3">
+                      <span class="flex items-center gap-3">
+                        {Icon && <Icon class="size-6 text-muted transition-colors group-hover:text-accent" />}
+                      </span>
+                      <span class="flex items-center gap-3">
+                        <span class="font-mono text-2xs text-muted">@{s.handle}</span>
+                        <svg class="size-3 text-muted transition-all group-hover:translate-x-0.5 group-hover:text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7M8 7h9v9" />
+                        </svg>
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
+
+        {/* local time — live clock, instrument-panel detail */}
+        <div>
+          <span class={labelClass}>Local Time</span>
+          <p class="flex items-baseline gap-2 font-mono text-sm text-default">
+            <span class="size-1.5 translate-y-[-1px] rounded-full bg-emerald-500" aria-hidden="true"></span>
+            <span id="contact-local-time">--:--</span>
+            <span class="font-mono text-2xs text-muted">Dhaka, {meta.timezone}</span>
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</SectionShell>
+
+<script>
+  /**
+   * Contact form → /api/contact → private mailer Worker (service binding).
+   *
+   * WHY fetch+JSON INSTEAD OF A NATIVE FORM POST: the endpoint speaks
+   * JSON only; a native <form> POST would send form-urlencoded and land
+   * on a raw JSON page. JS submission also keeps the user on the page
+   * with an inline status line.
+   *
+   * SECURITY MODEL (v3 — service binding): the browser path carries NO
+   * secret. It posts SAME-ORIGIN (no CORS, no mailer URL anywhere in
+   * the client); the Pages Function forwards it with Cloudflare's
+   * CF-Connecting-IP header to the mailer over a binding. The mailer validates the fields,
+   * checks the honeypot, applies a per-IP rate limit and verifies the
+   * Turnstile token (secret + hostname check) before sending.
+   *
+   * ERROR TEXT: the mailer's `error` strings are written to be safe to
+   * show ("Invalid email address", "Too many requests…"), so they are
+   * shown verbatim. Network or non-JSON failures fall back to a generic line.
+   *
+   * TOKEN LIFECYCLE: Turnstile tokens are single-use and expire after
+   * 300s, so after EVERY attempt (success or failure) the widget is
+   * reset to mint a fresh token for the next submit.
+   *
+   * LOCAL TESTING: `astro dev` has no /api/contact (bindings exist only
+   * in the Workers runtime). Build, then `npx wrangler pages dev` here
+   * while the mailer runs `wrangler dev` too; see the mailer README.
+   */
+  declare global {
+    interface Window {
+      turnstile?: { reset: () => void };
+    }
+  }
+
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  if (form) {
+    const btn = document.getElementById("contact-submit") as HTMLButtonElement;
+    const status = document.getElementById("contact-status") as HTMLParagraphElement;
+    const ENDPOINT = form.dataset.endpoint as string;
+
+    // literal class lookup — Tailwind only generates utilities it can
+    // see verbatim in source, never build them by interpolation
+    const tones = { idle: "text-muted", ok: "text-default", err: "text-accent" } as const;
+    const setStatus = (msg: string, tone: keyof typeof tones) => {
+      status.textContent = msg;
+      status.className = `font-mono text-2xs ${tones[tone]}`;
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+
+      // honeypot: a filled "website" means bot — fake success, send nothing
+      if (data.get("website")) {
+        form.reset();
+        setStatus("✓ Message sent — I'll get back to you soon.", "ok");
+        return;
+      }
+
+      const turnstileToken = String(data.get("cf-turnstile-response") ?? "");
+      if (!turnstileToken) {
+        setStatus("Human check is still loading — one moment, then retry.", "err");
+        return;
+      }
+
+      const name = String(data.get("name") ?? "").trim().slice(0, 200);
+      const email = String(data.get("email") ?? "").trim();
+      const message = String(data.get("message") ?? "").trim().slice(0, 5000);
+
+      btn.disabled = true;
+      btn.textContent = "Sending…";
+      setStatus("", "idle");
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            subject: `Portfolio contact — ${name}`, // optional per spec; aids inbox triage
+            message,
+            turnstileToken,
+            website: "", // honeypot stays empty for humans
+          }),
+        });
+        const json: { success?: boolean; error?: string } = await res.json().catch(() => ({}));
+        if (res.ok && json.success) {
+          form.reset();
+          setStatus("✓ Message sent — I'll get back to you soon.", "ok");
+        } else {
+          setStatus(`✗ ${json.error ?? "Couldn't send — try again, or email me directly."}`, "err");
+        }
+      } catch {
+        setStatus("✗ Network error — try again, or email me directly.", "err");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Send Message";
+        window.turnstile?.reset(); // tokens are single-use — mint a fresh one
+      }
+    });
+  }
+</script>
+
+<script>
+  /**
+   * Live Dhaka clock — ticks every 30s (minute precision is enough).
+   * Module script: bundled once, zero dependencies, no hydration cost.
+   */
+  const timeEl = document.getElementById("contact-local-time");
+  if (timeEl) {
+    const fmt = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Dhaka",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    const tick = () => (timeEl.textContent = fmt.format(new Date()));
+    tick();
+    setInterval(tick, 30_000);
+  }
+</script>

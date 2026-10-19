@@ -1,0 +1,152 @@
+---
+/**
+ * @file islands/projects/chrome/StatusBar.astro
+ * @description Bottom status bar — full Zed chrome. Astro port of
+ *              EditorStatusBar.tsx, layout unchanged:
+ *   LEFT:  toggle sidebar (WIRED) · git branch icon(+dirty dot) · collab ·
+ *          outline · project search · language servers · diagnostics
+ *   RIGHT: position (25:1) · LF · Markdown · UTF-8 · copilot · debug ·
+ *          terminal · agent · threads
+ *
+ * POC / PRE-RENDERED DYNAMICS: the file-dependent group (data-status-file)
+ * is hidden by controller.ts when no buffer is open; the line count
+ * (data-status-lines) is seeded with the FIRST file's count at build time
+ * and updated from each panel's data-lines on buffer switch; the branch
+ * dirty dot (data-branch-dirty) reflects open tabs' data-dirty.
+ *
+ * POC / TEXT SIZING (the browser min-font saga — UNCHANGED): ALL text
+ * sizing is INLINE (font-size: 9px) — no CSS pipeline can drop it and it
+ * always wins over class rules. NOTE: no CSS can beat a browser-level
+ * minimum font size — 9px + tracking-tight is the chosen floor.
+ */
+import {
+  BotIcon,
+  BracesIcon,
+  BugIcon,
+  CheckIcon,
+  CopilotIcon,
+  GitBranchIcon,
+  MessageSquareIcon,
+  OutlineIcon,
+  PanelLeftCloseIcon,
+  SearchIcon,
+  TerminalPromptIcon,
+  UsersIcon,
+  WarningIcon,
+} from "../../../../icons";
+import ChromeButton from "./ChromeButton.astro";
+import { getHighlights } from "../dummy";
+import { STATUS_META, type ProjectFile } from "../types";
+
+interface Props {
+  file: ProjectFile; // the initially active file (first)
+}
+const { file } = Astro.props;
+
+/** Same formula as the React version: README "lines" for the position item. */
+const lines = 14 + getHighlights(file).length * 2 + file.techStack.length;
+/** Initial dirty state = the initially open file's status. */
+const initialDirty = STATUS_META[file.status].dirty;
+
+/** Shared base for all text buttons — same box as ChromeButton (h-5). */
+const ITEM =
+  "inline-flex h-5 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
+  "transition-colors hover:bg-control-hover hover:text-subtle focus-visible:bg-control-hover";
+---
+
+<footer
+  style="font-size: 9px"
+  class="flex h-7 items-center gap-0.5 border-t border-line-subtle px-2 font-mono text-muted"
+>
+  {/* ── left cluster ─────────────────────────────────────────── */}
+  <ChromeButton label="Toggle Sidebar" pressed data-toggle-sidebar>
+    <PanelLeftCloseIcon class="size-3" />
+  </ChromeButton>
+
+  {/* branch icon only — no label (user direction); dot = dirty */}
+  <button
+    type="button"
+    title="Git branch: main"
+    aria-label="Git branch: main"
+    style="font-size: 9px"
+    class={ITEM}
+  >
+    <GitBranchIcon class="size-3" />
+    <span
+      role="img"
+      aria-label="uncommitted changes"
+      title="Uncommitted changes"
+      data-branch-dirty
+      hidden={!initialDirty}
+      class="size-1.5 rounded-full bg-emerald-500"
+    />
+  </button>
+
+  <ChromeButton label="Collaboration" class="hidden md:inline-flex">
+    <UsersIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Outline" class="hidden md:inline-flex">
+    <OutlineIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Project search" class="hidden md:inline-flex">
+    <SearchIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Language servers" class="hidden md:inline-flex">
+    <BracesIcon class="size-3" />
+  </ChromeButton>
+
+  <button type="button" title="Diagnostics" style="font-size: 9px" class={`${ITEM} gap-2`}>
+    <span class="flex items-center gap-1">
+      <CheckIcon class="size-2.5" /> 0
+    </span>
+    <span class="flex items-center gap-1">
+      <WarningIcon class="size-2.5" /> 0
+    </span>
+  </button>
+
+  {/* ── right cluster — position first, threads at the edge ──── */}
+  <span class="ml-auto"></span>
+
+  {/* file-dependent group — controller hides it when no buffer is open */}
+  <span data-status-file class="contents">
+    <button
+      type="button"
+      data-status-lines
+      title={`Ln ${lines}, Col 1`}
+      style="font-size: 9px"
+      class={`${ITEM} hidden sm:inline-flex`}
+    >
+      {lines}:1
+    </button>
+    <button type="button" title="LF" style="font-size: 9px" class={`${ITEM} hidden md:inline-flex`}>
+      LF
+    </button>
+    <button type="button" title="Markdown" style="font-size: 9px" class={ITEM}>
+      Markdown
+    </button>
+    <button
+      type="button"
+      title="UTF-8"
+      style="font-size: 9px"
+      class={`${ITEM} hidden sm:inline-flex`}
+    >
+      UTF-8
+    </button>
+  </span>
+
+  <ChromeButton label="GitHub Copilot" class="hidden lg:inline-flex">
+    <CopilotIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Debug" class="hidden lg:inline-flex">
+    <BugIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Terminal" class="hidden lg:inline-flex">
+    <TerminalPromptIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Agent panel" class="hidden lg:inline-flex">
+    <BotIcon class="size-3" />
+  </ChromeButton>
+  <ChromeButton label="Threads" class="hidden lg:inline-flex">
+    <MessageSquareIcon class="size-3" />
+  </ChromeButton>
+</footer>

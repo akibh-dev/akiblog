@@ -1,0 +1,21 @@
+---
+/**
+ * Icon: Kubernetes — ship's helm: outer ring, inner hub, seven spokes with
+ * knob ends (spoke angles are multiples of 360°/7 ≈ 51.43° from vertical).
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <circle cx="12" cy="12" r="8.4" />
+  <circle cx="12" cy="12" r="3.1" />
+  <path d="M12 15.1 V20.4 M14.42 13.93 L18.57 17.24 M15.02 11.31 L20.19 10.13 M13.35 9.21 L15.65 4.43 M10.65 9.21 L8.35 4.43 M8.98 11.31 L3.81 10.13 M9.58 13.93 L5.43 17.24" />
+  <circle cx="12" cy="20.4" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="18.57" cy="17.24" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="20.19" cy="10.13" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="15.65" cy="4.43" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="8.35" cy="4.43" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="3.81" cy="10.13" r="0.85" fill="currentColor" stroke="none" />
+  <circle cx="5.43" cy="17.24" r="0.85" fill="currentColor" stroke="none" />
+</IconBase>

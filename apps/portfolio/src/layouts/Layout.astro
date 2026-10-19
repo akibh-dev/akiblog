@@ -1,67 +1,123 @@
 ---
 /**
- * @file apps/portfolio/src/layouts/Layout.astro
- * @description Master HTML layout for the minimalist one-page portfolio.
+ * @file layouts/Layout.astro
+ * @description Root shell — delta.dev's REAL two-layer layout (plan13.md,
+ *              verified against their live DOM):
  *
- * POC / Implementation Architecture:
- * - Zed.dev aesthetic: Precision typography, high-contrast dark palette, subtle grid accents.
- * - Zero third-party blocking scripts: Uses preconnect and modern system-font + JetBrains Mono
- *   for instant First Contentful Paint (FCP).
- * - Standard OpenGraph and Twitter card metadata for developer portfolio indexing.
+ *   1. ONE-PAINT BACKGROUND — <body> paints --site-frame-background
+ *      everywhere; the chrome cells use the SAME color, so there is a
+ *      single canvas with independent fixed chrome on top.
+ *   2. FIXED CHROME — ViewportFrame (z-20) holds the four opaque corners
+ *      cells (noise + hatch + border) and the 6px SEGMENTED rail
+ *      ([3/8 brand | 2/8 gray | 3/8 --delta-blue]) fixed atop the content
+ *      track. No 8px accent line — that token was an invention; delta's
+ *      line IS this rail.
+ *   3. SCROLLING LAYER — the z-0 grid mirrors the chrome grid exactly
+ *      ([page-left | 1fr | page-right] margins): sidebar column + main
+ *      column, main carries pt-rail + md:border-r so panels and seams
+ *      scroll BENEATH the fixed rail (the z-0 wrapper creates a stacking
+ *      context, so dropdowns/scrollers inside content cannot escape above
+ *      the chrome).
+ *   4. "=" SEAMS — <Seam /> bands between panels (composed by
+ *      pages/index.astro from the data/sections.ts registry).
+ *
+ * Font strategy matches delta.dev: self-hosted variable fonts from their
+ * public CDN (iA Writer Quattro body / IBM Plex Serif display / Lilex mono),
+ * preloaded + font-display: swap.
+ *
+ * The only inline script is the 6-line anti-flash theme init — unavoidable
+ * for localStorage-persisted themes (delta.dev does exactly the same).
+ * All other behavior lives in bundled custom elements.
  */
-
-import '../styles/global.css';
-import { portfolioData } from '../data/portfolio';
+import "../styles/global.css";
+import ViewportFrame from "../components/layout/ViewportFrame.astro";
+import SiteSidebar from "../components/layout/SiteSidebar.astro";
+import MobileHeader from "../components/layout/MobileHeader.astro";
+import { portfolioData } from "../data/portfolio";
 
 interface Props {
   title?: string;
-  description?: string;
 }
 
-const {
-  title = `${portfolioData.meta.name} — Full-Stack Engineer`,
-  description = "Minimalist developer portfolio and engineering showcase by Md Akib Hasan."
-} = Astro.props;
+const { meta } = portfolioData;
+const { title = `${meta.name} — ${meta.role}` } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="dark scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="generator" content={Astro.generator} />
-
     <title>{title}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={`Portfolio of ${meta.name} — ${meta.role}. ${meta.statusText}.`} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={portfolioData.meta.siteUrl} />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:creator" content={`@${portfolioData.socials.find(s => s.name.includes('Twitter'))?.handle || 'akib35'}`} />
+    <meta property="og:url" content={meta.siteUrl} />
 
-    <!-- Performance: Preconnect & Load Clean Monospace Accent Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    {/* anti-flash: dark is the DEFAULT — set .dark before first paint
+        unless the user explicitly chose light (legacy "system" values
+        from older versions also resolve to dark) */}
+    <script is:inline>
+      (() => {
+        const t = localStorage.getItem("theme");
+        if (t !== "light") document.documentElement.classList.add("dark");
+      })();
+    </script>
 
-    <style>
-      :root {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    {/* delta.dev font CDN */}
+    <link rel="preconnect" href="https://cdn.delta.dev" crossorigin />
+    <link rel="preload" href="https://cdn.delta.dev/fonts/iAWriterQuattroV.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="https://cdn.delta.dev/fonts/IBMPlexSerif-Var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="https://cdn.delta.dev/fonts/Lilex-Regular.woff2" as="font" type="font/woff2" crossorigin />
+
+    <style is:inline>
+      @font-face {
+        font-family: "iA Writer Quattro S";
+        src: url("https://cdn.delta.dev/fonts/iAWriterQuattroV.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
       }
-      .font-mono {
-        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      @font-face {
+        font-family: "IBM Plex Serif";
+        src: url("https://cdn.delta.dev/fonts/IBMPlexSerif-Var.woff2") format("woff2");
+        font-weight: 100 900;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Lilex";
+        src: url("https://cdn.delta.dev/fonts/Lilex-Regular.woff2") format("woff2");
+        font-weight: 400;
+        font-display: swap;
       }
     </style>
   </head>
-  <body class="min-h-screen bg-[#08090d] text-neutral-200 antialiased selection:bg-neutral-800 selection:text-white">
-    <!-- Subtle technical grid background line pattern -->
-    <div class="fixed inset-0 pointer-events-none opacity-[0.035] bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] z-0"></div>
 
-    <div class="relative z-10 flex min-h-screen flex-col">
-      <slot />
+  <body class="relative bg-frame-background text-default antialiased">
+    <ViewportFrame />
+    <MobileHeader />
+
+    {/* scrolling layer — mirrors the chrome grid (same page-left/right
+        margins); z-0 keeps content under the fixed chrome while still
+        stacking tooltips/dialogs correctly inside it */}
+    <div
+      id="top"
+      class="relative z-0 grid ml-(--site-page-left) mr-(--site-page-right) grid-cols-(--site-columns) pt-(--site-frame-top) pb-(--site-content-bottom)"
+    >
+      <SiteSidebar />
+      {/* main content track — pt-rail leaves the 6px fixed rail visible
+          above; the first paint of the rail's right edge continues into
+          main's own border-r (delta verbatim) */}
+      <main id="main-content" tabindex="-1" class="relative col-(--site-main-column) min-w-0 pt-(--site-rail-height) border-line md:border-r focus-visible:outline-none">
+        {/* The 1rem inset strips show the unified body watermark directly.
+            NO local texture layer here: a noise/hatch layer in the SCROLLING
+            content slides over the viewport-FIXED watermark and the two
+            high-frequency textures moiré — the visible "vibration" on
+            scroll/zoom. (The frame cells keep their noise: it's static
+            relative to the fixed pattern, so no relative motion.) */}
+        <slot />
+      </main>
     </div>
   </body>
 </html>

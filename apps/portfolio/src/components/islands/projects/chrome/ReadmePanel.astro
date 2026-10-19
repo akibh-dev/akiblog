@@ -1,0 +1,117 @@
+---
+/**
+ * @file islands/projects/chrome/ReadmePanel.astro
+ * @description One project rendered as its README.md preview — Astro port
+ *              of ReadmePreview.tsx + the Tabs.Panel wrapper.
+ *
+ * POC / PRE-RENDERED: ProjectsIsland renders ONE of these per file at
+ * build time; controller.ts toggles `hidden` so exactly the active
+ * buffer's panel shows. `data-lines` carries the fake line count the
+ * status bar's position item displays (14 + highlights×2 + stack — the
+ * React version's formula), so the controller needs zero project data.
+ *
+ * LAYOUT (unchanged): H1 (site display serif — Zed's markdown preview
+ * swaps buffer font for UI font), shields-style badge row, <hr>, then
+ * mono-eyebrow sections (Overview / Highlights / Stack) + links footer.
+ */
+import { getHighlights } from "../dummy";
+import { STATUS_META, type ProjectFile } from "../types";
+
+interface Props {
+  project: ProjectFile;
+  hidden?: boolean;
+}
+const { project, hidden = false } = Astro.props;
+
+const meta = STATUS_META[project.status];
+const highlights = getHighlights(project);
+const lines = 14 + highlights.length * 2 + project.techStack.length;
+---
+
+<article
+  data-panel={project.id}
+  data-lines={lines}
+  role="tabpanel"
+  id={`panel-${project.id}`}
+  hidden={hidden}
+  class="outline-none"
+>
+  <div class="px-6 py-8 md:px-10 md:py-10 lg:pr-14">
+    <h1 class="font-display text-[clamp(1.4rem,2vw+1rem,1.9rem)] leading-tight text-default">
+      {project.title}
+    </h1>
+
+    {/* shields-style badge row */}
+    <div class="mt-4 flex flex-wrap items-center gap-2 font-mono text-2xs">
+      <span
+        class={`flex items-center gap-1.5 rounded-sm border border-line-subtle bg-surface px-2.5 py-1 ${meta.textClass}`}
+      >
+        <span class={`size-1.5 rounded-full ${meta.dotClass}`} aria-hidden="true"></span>
+        {meta.label}
+      </span>
+      {
+        project.featured && (
+          <span class="rounded-sm bg-accent-subtle px-2.5 py-1 uppercase tracking-wider text-accent">
+            Featured
+          </span>
+        )
+      }
+      <span class="rounded-sm border border-line-subtle bg-surface px-2.5 py-1 text-subtle">
+        README.md
+      </span>
+    </div>
+
+    <hr class="my-6 border-line-subtle" />
+
+    {/* Overview */}
+    <p class="max-w-2xl text-sm leading-relaxed text-subtle">{project.description}</p>
+
+    {/* Highlights */}
+    <h2 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Highlights</h2>
+    <ul class="max-w-2xl list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-subtle marker:text-muted">
+      {highlights.map((h) => <li>{h}</li>)}
+    </ul>
+
+    {/* Stack */}
+    <h2 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Stack</h2>
+    <ul class="flex flex-wrap gap-2">
+      {
+        project.techStack.map((t) => (
+          <li class="rounded-sm border border-line-subtle bg-surface px-2.5 py-1 font-mono text-2xs text-subtle">
+            {t}
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      (project.githubUrl || project.liveUrl) && (
+        <>
+          <hr class="my-6 border-line-subtle" />
+          <footer class="flex items-center gap-6 font-mono text-xs">
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-subtle transition-colors hover:text-accent"
+              >
+                View Code
+              </a>
+            )}
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent hover:underline"
+              >
+                Live Site →
+              </a>
+            )}
+          </footer>
+        </>
+      )
+    }
+  </div>
+</article>

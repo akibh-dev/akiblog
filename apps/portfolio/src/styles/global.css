@@ -1,67 +1,360 @@
 /**
  * @file apps/portfolio/src/styles/global.css
- * @description Global stylesheet inspired by the sleek, minimalist aesthetics of Zed.dev.
+ * @description Delta.dev-accurate design system built on Tailwind CSS v4 primitives.
  *
- * POC / Implementation Architecture:
- * - Uses Tailwind CSS v4 `@import "tailwindcss";` for modern runtime-free utility compilation.
- * - Adopts a dark-engineered, technical color system: deep obsidian backgrounds (#090a0f, #0d0f17),
- *   precision hairline borders (#1e2330), and high-contrast typography.
- * - Provides subtle custom scrollbars and clean selection highlighting matching developer tooling.
+ * WHY THIS APPROACH (vs hardcoded hex + arbitrary values):
+ * 1. `@theme` registers design tokens as first-class Tailwind utilities
+ *    (bg-canvas, text-default, border-subtle…) — the same pattern delta.dev
+ *    uses for its `zds-*` classes. One token change re-skins everything.
+ * 2. `color-mix()` derives whole color scales from 3 base OKLCH colors —
+ *    exactly how delta.dev generates its palette (verified from their CSS).
+ * 3. `@custom-variant dark` scopes dark mode to a `.dark` class so the
+ *    anti-flash script + <theme-switch> element stay in full control.
+ * 4. Site geometry mirrors delta.dev's real layout contract
+ *    (--site-inset / --site-max-width / --site-columns / rail height),
+ *    including env(safe-area-inset-*) for notched devices.
  */
 
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@layer base {
-  :root {
-    --bg-canvas: #090a0f;
-    --bg-surface: #10121a;
-    --bg-surface-hover: #161924;
-    --border-subtle: #1e2230;
-    --border-accent: #2c3245;
-    --text-primary: #f3f4f6;
-    --text-muted: #9ca3af;
-    --text-dim: #64748b;
-    --accent-cyan: #38bdf8;
-    --accent-emerald: #34d399;
+/* ---------------------------------------------------------------------------
+ * 1. Primitive palette — three OKLCH seeds, everything else is derived
+ * ------------------------------------------------------------------------- */
+:root {
+  --delta-brand: oklch(59% 0.185 32);   /* signature orange-red */
+  --delta-cream: oklch(60% 0.1 75);     /* warm light seed      */
+  --delta-neutral: oklch(53% 0.02 259); /* cool gray seed       */
+
+  --delta-brand-500: var(--delta-brand);
+  --delta-brand-600: color-mix(in oklch, var(--delta-brand), black 8%);
+  --delta-cream-50: color-mix(in oklch, var(--delta-cream), white 95%);
+  --delta-cream-100: color-mix(in oklch, var(--delta-cream), white 85%);
+  --delta-neutral-100: color-mix(in oklch, var(--delta-neutral), white 82%);
+  --delta-neutral-300: color-mix(in oklch, var(--delta-neutral), white 50%);
+  --delta-neutral-500: var(--delta-neutral);
+  --delta-neutral-700: color-mix(in oklch, var(--delta-neutral), black 24%);
+  --delta-neutral-800: color-mix(in oklch, var(--delta-neutral), black 36%);
+  --delta-neutral-900: color-mix(in oklch, var(--delta-neutral), black 46%);
+  --delta-neutral-950: color-mix(in oklch, var(--delta-neutral), black 55%);
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Semantic layer (light) — overridden in .dark
+ * ------------------------------------------------------------------------- */
+:root {
+  --ui-canvas: var(--delta-cream-100);
+  --ui-surface: var(--delta-cream-50);
+  --ui-surface-strong: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+  --ui-control-hover: var(--delta-neutral-100);
+  --ui-frame: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+
+  --ui-text: var(--delta-neutral-950);
+  --ui-text-subtle: var(--delta-neutral-700);
+  --ui-text-muted: var(--delta-neutral-500);
+
+  --ui-border: var(--delta-neutral-300);
+  --ui-border-subtle: color-mix(in oklch, var(--delta-neutral-800), transparent 82%);
+
+  --ui-accent: var(--delta-brand-500);
+  --ui-accent-hover: var(--delta-brand-600);
+  --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 90%);
+  --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 86%);
+}
+
+.dark {
+  --ui-canvas: color-mix(in oklch, var(--delta-brand), black 88%);
+  --ui-surface: var(--delta-neutral-950);
+  --ui-surface-strong: color-mix(in oklch, var(--delta-neutral-900), black 50%);
+  --ui-control-hover: color-mix(in oklch, var(--delta-neutral-900), white 6%);
+  --ui-frame: color-mix(in oklch, var(--delta-neutral), black 90%);
+
+  --ui-text: color-mix(in oklch, var(--delta-neutral), white 88%);
+  --ui-text-subtle: var(--delta-neutral-300);
+  --ui-text-muted: var(--delta-neutral-500);
+
+  --ui-border: var(--delta-neutral-800);
+  --ui-border-subtle: color-mix(in oklch, var(--delta-neutral-800), black 20%);
+
+  --ui-accent: color-mix(in oklch, var(--delta-brand), white 8%);
+  --ui-accent-hover: var(--delta-brand-500);
+  --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 84%);
+  --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 90%);
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Site geometry — delta.dev's REAL chrome contract (plan13.md, verbatim
+ *    from their live CSS; the old --site-column-gap/--site-accent-line
+ *    "channel" tokens were inventions and are gone).
+ *
+ *    ONE full background (--site-frame-background) carries independent chrome:
+ *      • 2-track grid: [sidebar 1fr | content 4fr] — no gap track.
+ *      • --site-section-inset → panels are inset from the column edge; the
+ *        margin strips stay raw frame background and the "=" Seams hatch
+ *        across them.
+ *      • --site-rail-height → the 6px SEGMENTED rail ([3/8 brand, 2/8 gray,
+ *        3/8 --delta-blue]) fixed atop the content track in the chrome
+ *        layer; sections scroll beneath it (main pt-rail + md:border-r).
+ * ------------------------------------------------------------------------- */
+:root {
+  --delta-blue: #346dae;  /* delta's rail tail color, verbatim */
+
+  --site-inset: 1rem;
+  --site-inset-inline: var(--site-inset);
+  --site-inset-top: max(var(--site-inset), env(safe-area-inset-top));
+  --site-inset-bottom: max(var(--site-inset), env(safe-area-inset-bottom));
+  --site-inset-left: max(var(--site-inset-inline), env(safe-area-inset-left));
+  --site-inset-right: max(var(--site-inset-inline), env(safe-area-inset-right));
+
+  --site-max-width: 75rem;
+  --site-page-left: max(var(--site-inset-left), (100% - var(--site-max-width)) / 2);
+  --site-page-right: max(var(--site-inset-right), (100% - var(--site-max-width)) / 2);
+
+  --site-header-height: 3.5rem;  /* mobile top bar        */
+  --site-header-gap: 1rem;
+  --site-rail-height: 0.375rem;  /* thin rail under frame */
+  --site-columns: minmax(0, 1fr);
+  --site-main-column: 1;
+  --site-section-inset: 0rem;   /* mobile: no panel inset (delta verbatim) */
+
+  /* one-paint chrome background (delta verbatim, incl. fallback + forced colors) */
+  --site-frame-background: var(--delta-cream-100);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in srgb, var(--delta-cream-100) 40%, white);
   }
 
+  --site-frame-top: calc(var(--site-inset-top) + var(--site-header-height) + var(--site-header-gap));
+  --site-content-top: calc(var(--site-frame-top) + var(--site-rail-height));
+  --site-content-bottom: calc(var(--site-inset-bottom) + 1px);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --site-inset-inline: 0rem;
+    /* delta verbatim: straight 2-track [sidebar | content] — no gap track */
+    --site-columns: minmax(0, 1fr) minmax(0, 4fr);
+    --site-main-column: 2;
+    --site-section-inset: 1rem;
+    --site-header-height: 0rem;
+    --site-header-gap: 0rem;
+  }
+}
+
+/* dark + forced-colors variants of the chrome background (delta verbatim) */
+.dark {
+  --site-frame-background: var(--delta-neutral);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in oklch, var(--delta-neutral), black 90%);
+  }
+}
+@media (forced-colors: active) {
+  :root, .dark {
+    --site-frame-background: Canvas;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. Tailwind v4 theme — tokens become utilities (bg-canvas, text-default…)
+ *    `inline` keeps the var() reference so .dark overrides propagate.
+ * ------------------------------------------------------------------------- */
+@theme inline {
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-surface-strong: var(--ui-surface-strong);
+  --color-control-hover: var(--ui-control-hover);
+  --color-frame: var(--ui-frame);
+  --color-frame-background: var(--site-frame-background);
+  --color-delta-blue: var(--delta-blue);
+
+  --color-default: var(--ui-text);
+  --color-subtle: var(--ui-text-subtle);
+  --color-muted: var(--ui-text-muted);
+
+  --color-line: var(--ui-border);
+  --color-line-subtle: var(--ui-border-subtle);
+
+  --color-accent: var(--ui-accent);
+  --color-accent-hover: var(--ui-accent-hover);
+  --color-accent-subtle: var(--ui-accent-subtle);
+  --color-hatch: var(--ui-hatch);
+
+  --font-display: "IBM Plex Serif", Georgia, serif;
+  --font-body: "iA Writer Quattro S", "iA Writer Quattro V", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Lilex", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* delta.dev's compact label size (not in Tailwind's default scale) */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Base
+ * ------------------------------------------------------------------------- */
+@layer base {
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
-    background-color: var(--bg-canvas);
-    color: var(--text-primary);
+    /* offset anchored sections below the fixed frame (delta.dev trick) */
+    scroll-padding-block: var(--site-content-top) var(--site-content-bottom);
+    font-family: var(--font-body);
+    background: var(--site-frame-background);
+    color: var(--ui-text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ONE unified brand background (public/bg-pattern*.svg — circled-A +
+     name micro-tile, rotated -45°): body and the fixed chrome cells
+     (ViewportFrame's top/bottom rails + side gutters) share the SAME
+     viewport-anchored layer via background-attachment: fixed, so the
+     watermark is pixel-continuous across every chrome area — the old
+     per-cell 45° hatch is gone. The SVG's internal <pattern> tiles at
+     absolute units (identical scale everywhere); attachment:fixed aligns
+     the origin and keeps the watermark still while content scrolls.
+     Sections stay opaque bg-surface on top. iOS Safari degrades to
+     element-local attachment — same scale, possible phase shift. */
+  body,
+  .chrome-bg {
+    background-color: var(--site-frame-background);
+    background-image: url("/bg-pattern.svg");
+    background-attachment: fixed;
+  }
+
+  .dark body,
+  .dark .chrome-bg {
+    background-image: url("/bg-pattern-dark.svg");
   }
 
   body {
-    background-color: var(--bg-canvas);
-    color: var(--text-primary);
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    selection-background-color: #262c3d;
-    selection-color: #ffffff;
-    overflow-x: hidden;
+    min-height: 100dvh;
+    line-height: 1.6;
   }
 
   ::selection {
-    background: #242c3d;
-    color: #f8fafc;
+    background: var(--ui-accent-subtle);
+    color: var(--ui-accent);
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--ui-border); border-radius: 3px; }
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Motion — scroll-driven, zero-JS, progressively enhanced
+ * ------------------------------------------------------------------------- */
+
+/* Sections fade/slide in as they enter the viewport (Chromium/Safari 18+).
+   Wrapped in @supports so unsupported browsers simply see static content. */
+@keyframes section-enter {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal-on-scroll {
+    animation: section-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
   }
 }
 
-/* Minimalist code-editor scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal-on-scroll { animation: none !important; }
 }
-::-webkit-scrollbar-track {
-  background: #090a0f;
+
+/* ---------------------------------------------------------------------------
+ * 7. Utilities
+ * ------------------------------------------------------------------------- */
+/* `@utility` (not plain .classes) so breakpoint variants work —
+   e.g. `max-lg:no-scrollbar lg:zed-scroll` in the Zed workspace tree. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
-::-webkit-scrollbar-thumb {
-  background: #1e2433;
-  border-radius: 3px;
+
+/* IDE-frame scrollbar (projects Zed workspace): thicker (10px) and
+   rectangular — the rounded 6px site scrollbar stays for the rest of the
+   page. The thumb is TRANSPARENT until the container scrolls: the
+   useScrollbarVisibility hook sets `data-scrolling` during scroll, and
+   only then does the thumb paint (mirrors Zed/macOS overlay scrollbars). */
+@utility zed-scroll {
+  scrollbar-width: thin; /* Firefox ≈ 11px; colors below */
+  scrollbar-color: transparent transparent;
+
+  &::-webkit-scrollbar { width: 10px; height: 10px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: transparent; border-radius: 0; }
+
+  &[data-scrolling] { scrollbar-color: var(--ui-border) transparent; }
+  &[data-scrolling]::-webkit-scrollbar-thumb { background: var(--ui-border); }
+  &[data-scrolling]::-webkit-scrollbar-thumb:hover { background: var(--ui-text-muted); }
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #2c344a;
+
+/* ---------------------------------------------------------------------------
+ * DEFAULT BUTTON BEHAVIOUR — one look for every secondary button
+ * (sidebar stations, "View all posts", Copy…).
+ *
+ *   static : hairline border on a light face + 1px bottom "lip" shadow
+ *   hover  : border turns brand, face gets a LOW-OPACITY brand wash
+ *            (--ui-accent-subtle) and a soft 3px brand halo ring outside
+ *            the border — the "drawn rectangle" now also glows faintly.
+ *
+ * WHY @utility (not a component class): variants compose, so the hover
+ * look can be triggered from a parent too — `group-hover:btn-hover` on
+ * the sidebar label, plain `btn` on standalone buttons. Colors come only
+ * from theme tokens, so dark mode needs no extra rules. Box-shadow ring
+ * (not outline/border) so the halo never shifts layout.
+ * ------------------------------------------------------------------------- */
+@utility btn-hover {
+  border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+  background-color: var(--ui-accent-subtle);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  color: var(--ui-text);
 }
+
+/* SECONDARY button (Copy, View all posts…).
+   cursor: pointer is explicit because Tailwind v4's preflight resets
+   <button> to `cursor: default` — links got the hand cursor from the UA,
+   real <button>s didn't (the "hover feels dead" bug on Copy/Send). */
+@utility btn {
+  cursor: pointer;
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-surface-strong);
+  box-shadow: 0 1px 0 var(--ui-border);
+  color: var(--ui-text);
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s, color 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+    background-color: var(--ui-accent-subtle);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+/* PRIMARY button (Send Message — one per view). Solid brand face with a
+   darker 1px lip; hover deepens the face and adds the SAME soft brand halo
+   as the secondary hover, so both tiers share one interaction language. */
+@utility btn-primary {
+  cursor: pointer;
+  border: 1px solid var(--ui-accent-hover);
+  background-color: var(--ui-accent);
+  box-shadow: 0 1px 0 var(--ui-accent-hover);
+  color: white;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    background-color: var(--ui-accent-hover);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 75%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+/* Sidebar station styling (commit node + terracotta pill) lives in
+   layout/SiteSidebar.astro markup via group-aria-[current=true]:* —
+   aria-current is set by the <scroll-spy> custom element. */

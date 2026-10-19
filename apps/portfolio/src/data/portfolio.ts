@@ -26,6 +26,13 @@ export interface BlogPost {
   tags: string[];
   slug: string;
   url: string;
+  /**
+   * Banner image URL, supplied by the blog (blog.akib35.dev) once posts are
+   * fetched from it. Optional: posts without one render the typographic
+   * "document" thumbnail (ui/PostCover.astro) — that is the default.
+   * The picsum.photos URLs below are DUMMIES until the blog feed is wired.
+   */
+  banner?: string;
 }
 
 export interface SkillCategory {
@@ -41,7 +48,7 @@ export const portfolioData = {
     statusText: "Building distributed edge tools & full-stack applications",
     location: "Dhaka, Bangladesh",
     timezone: "UTC+6",
-    email: "contact@akib35.me",
+    email: "hello@akib35.dev",
     resumeUrl: "/my-cv.pdf",
     siteUrl: "https://akib35.dev",
     blogUrl: "https://blog.akib35.dev"
@@ -50,7 +57,7 @@ export const portfolioData = {
   socials: [
     { name: "GitHub", handle: "akib35", url: "https://github.com/akib35" },
     { name: "LinkedIn", handle: "akibH", url: "https://linkedin.com/in/akibH" },
-    { name: "Twitter / X", handle: "mdakibhasan18", url: "https://twitter.com/mdakibhasan18" },
+    { name: "X", handle: "mdakibhasan18", url: "https://twitter.com/mdakibhasan18" },
     { name: "Facebook", handle: "akib4040", url: "https://facebook.com/akib4040" },
   ],
 
@@ -145,7 +152,8 @@ export const portfolioData = {
       readingTime: "4 min read",
       tags: ["Cloudflare", "Astro", "Architecture"],
       slug: "astro-cloudflare-workers-ssr",
-      url: "https://blog.akib35.dev"
+      url: "https://blog.akib35.dev",
+      banner: "https://picsum.photos/seed/astro-cloudflare-workers-ssr/960/480"
     },
     {
       title: "Zero-Trust Security for Edge Applications: Replacing Monolithic Auth",
@@ -154,7 +162,8 @@ export const portfolioData = {
       readingTime: "6 min read",
       tags: ["Security", "Zero Trust", "Cloudflare"],
       slug: "zero-trust-edge-auth",
-      url: "https://blog.akib35.dev"
+      url: "https://blog.akib35.dev",
+      banner: "https://picsum.photos/seed/zero-trust-edge-auth/960/480"
     },
     {
       title: "Algorithmic Problem Solving: Patterns from 200+ Challenges",
@@ -167,3 +176,23 @@ export const portfolioData = {
     }
   ] as BlogPost[]
 };
+
+/**
+ * Rotating epigraphs shown in the hero eyebrow slot (sections/Hero.astro).
+ * One quote is picked at random in the browser on every page load.
+ *
+ * WHY a standalone export (not inside portfolioData): the tiny client-side
+ * picker script imports ONLY this array, so the hero's JS bundle tree-shakes
+ * down to a few strings instead of shipping the entire dataset to the browser.
+ *
+ * Edit freely — keep each quote a single line; quotation marks are rendered
+ * by the component, attribution included in the string.
+ */
+export const heroQuotes = [
+  "Simplicity is prerequisite for reliability. — Edsger W. Dijkstra",
+  "Make it work, make it right, make it fast. — Kent Beck",
+  "Programs must be written for people to read. — Harold Abelson",
+  "The best way to predict the future is to invent it. — Alan Kay",
+  "Talk is cheap. Show me the code. — Linus Torvalds",
+  "Premature optimization is the root of all evil. — Donald Knuth"
+];

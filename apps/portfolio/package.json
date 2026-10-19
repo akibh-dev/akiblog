@@ -5,19 +5,25 @@
   "type": "module",
   "description": "POC / Implementation: Standalone minimalist edge portfolio for Md Akib Hasan, built with Astro v7 static output and Tailwind v4. Designed for sub-millisecond edge delivery on Cloudflare Workers static assets.",
   "scripts": {
-    "dev": "astro dev --port 4322",
-    "build": "astro build",
+    "dev": "astro dev --port 4322 --host",
+    "build": "astro build --timings",
     "preview": "astro preview",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/react": "^7.0.1",
+    "@base-ui-components/react": "^1.0.0-rc.0",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.3.2",
+    "astro": "^7.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260911.1",
     "@repo/tsconfig": "workspace:*",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "typescript": "^7.0.2",
     "wrangler": "^4.131.1"
   }

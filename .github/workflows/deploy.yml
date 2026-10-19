@@ -2,10 +2,10 @@
 # Cloudflare Multi-Target Production Deployment Workflow
 #
 # Documentation & Implementation POC:
-# - Purpose: Edge deployment for Akiblog monorepo (Blog SSR Worker & Portfolio static site).
-# - Triggers: 
-#     1) Push to 'main': automatically deploys all components.
-#     2) 'workflow_dispatch': allows targeted redeployment (all, blog, or portfolio)
+# - Purpose: Edge deployment for the Akiblog blog (SSR Worker).
+#   The portfolio deploys separately to Cloudflare Pages via
+#   portfolio-deploy.yml (Pages project + /api/contact Function).
+# - Trigger: manual only — 'workflow_dispatch' (Run workflow button) allows targeted redeployment (all or blog)
 #        and optional skipping of D1 database migrations via UI toggle.
 # - Performance & Reliability:
 #     - Designed for Alpine Linux runners (1GB RAM) using pre-packaged dist.tar.gz archives.
@@ -16,20 +16,16 @@
 name: Deploy to Cloudflare
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       target:
-        description: 'Deploy target (all, blog, portfolio)'
+        description: 'Deploy target (all, blog)'
         required: true
         default: 'all'
         type: choice
         options:
           - all
           - blog
-          - portfolio
       apply_migrations:
         description: 'Apply pending D1 migrations (blog)'
         required: true
@@ -148,41 +144,4 @@ jobs:
             echo "✅ Blog SSR Worker deployed"
           else
             echo "⏭️ Skipping Blog deploy (Target: $TARGET)"
-          fi
-
-      # ------------------------------------------------------------------------
-      # PORTFOLIO DEPLOYMENT
-      # ------------------------------------------------------------------------
-      - name: Extract Portfolio Artifacts
-        run: |
-          TARGET="${{ inputs.target }}"
-          [ -z "$TARGET" ] && TARGET="all"
-          if [ "$TARGET" = "all" ] || [ "$TARGET" = "portfolio" ]; then
-            if [ -d "apps/portfolio" ]; then
-              cd apps/portfolio
-              if [ -f "dist.tar.gz" ]; then
-                tar -xzf dist.tar.gz
-                echo "✅ Extracted apps/portfolio/dist.tar.gz"
-              fi
-            fi
-          else
-            echo "⏭️ Skipping Portfolio artifact extraction (Target: $TARGET)"
-          fi
-
-      - name: Deploy Portfolio to Cloudflare
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          TARGET="${{ inputs.target }}"
-          [ -z "$TARGET" ] && TARGET="all"
-          if [ "$TARGET" = "all" ] || [ "$TARGET" = "portfolio" ]; then
-            if [ -d "apps/portfolio" ]; then
-              cd apps/portfolio
-              echo "🚀 Deploying Portfolio application..."
-              wrangler deploy
-              echo "✅ Portfolio deployed"
-            fi
-          else
-            echo "⏭️ Skipping Portfolio deploy (Target: $TARGET)"
           fi

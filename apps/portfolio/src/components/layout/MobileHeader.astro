@@ -1,0 +1,22 @@
+---
+/**
+ * @file layout/MobileHeader.astro
+ * @description Mobile top bar; navigation lives in the MobileMenu React
+ *              island (Base UI Dialog — focus trap, Esc, light-dismiss).
+ */
+import { portfolioData } from "../../data/portfolio";
+import { sections } from "../../data/sections"; // single nav registry
+import MobileMenu from "../islands/MobileMenu";
+
+---
+
+<header class="fixed inset-x-0 top-[var(--site-inset-top)] z-40 mx-3 flex h-[var(--site-header-height)] items-center justify-between rounded-md border border-line-subtle bg-surface px-3 md:hidden">
+  <a href="#top" class="flex items-center gap-2">
+    <span class="flex size-7 items-center justify-center rounded-md border border-line-subtle bg-canvas">
+      <span class="font-mono text-[10px] font-semibold text-accent">Δ</span>
+    </span>
+    <span class="font-mono text-sm font-medium text-default">{portfolioData.meta.handle}</span>
+  </a>
+
+  <MobileMenu client:load sections={sections} brand={portfolioData.meta.handle} />
+</header>
