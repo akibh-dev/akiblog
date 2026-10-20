@@ -1,22 +1,20 @@
 ---
 /**
  * @file layout/MobileHeader.astro
- * @description Mobile top bar; navigation lives in the MobileMenu React
- *              island (Base UI Dialog — focus trap, Esc, light-dismiss).
+ * @description Mobile top bar (below md); navigation lives in the
+ *              MobileMenu island (pure Astro, native <dialog> — focus trap,
+ *              Esc, backdrop dismiss come from the platform).
  */
 import { portfolioData } from "../../data/portfolio";
-import { sections } from "../../data/sections"; // single nav registry
-import MobileMenu from "../islands/MobileMenu";
-
+import MobileMenu from "../islands/MobileMenu.astro";
+import BrandLogo from "./BrandLogo.astro";
 ---
 
 <header class="fixed inset-x-0 top-[var(--site-inset-top)] z-40 mx-3 flex h-[var(--site-header-height)] items-center justify-between rounded-md border border-line-subtle bg-surface px-3 md:hidden">
   <a href="#top" class="flex items-center gap-2">
-    <span class="flex size-7 items-center justify-center rounded-md border border-line-subtle bg-canvas">
-      <span class="font-mono text-[10px] font-semibold text-accent">Δ</span>
-    </span>
+    <BrandLogo class="size-7" />
     <span class="font-mono text-sm font-medium text-default">{portfolioData.meta.handle}</span>
   </a>
 
-  <MobileMenu client:load sections={sections} brand={portfolioData.meta.handle} />
+  <MobileMenu />
 </header>

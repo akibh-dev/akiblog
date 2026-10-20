@@ -30,8 +30,9 @@
  *    question "is he awake?" before hitting send.
  *
  * 5. HEADERLESS SectionShell — index/label are omitted, so no
- *    "05. Transmission" eyebrow renders; a large display heading does the
- *    talking instead, matching the pricing page's big serif headline.
+ *    "05. Transmission" eyebrow renders. The heading + subtitle use the
+ *    same type pair as Skills/Writings (font-display 2xl→3xl title,
+ *    font-mono xs subtitle) so every section header reads as one system.
  *
  * 6. BRAND ICONS — email/social rows use the project's own stroke icon set
  *    (src/icons/social): currentColor glyphs that inherit the muted→accent
@@ -92,11 +93,11 @@ const labelClass =
 ---
 
 <SectionShell id="contact" pad="px-5 md:px-8 pt-8 md:pt-12 pb-10">
-  {/* headline — big serif, one accent mark */}
-  <h2 class="font-display text-[clamp(2.25rem,4vw+1rem,3.75rem)] leading-[1.05] tracking-tight text-default">
+  {/* headline — same scale as Skills/Writings headers, one accent mark */}
+  <h2 class="font-display text-2xl text-default md:text-3xl">
     Let's connect<span class="text-accent">.</span>
   </h2>
-  <p class="mt-4 max-w-lg font-display text-[clamp(1rem,1vw+0.75rem,1.15rem)] leading-relaxed text-subtle">
+  <p class="mt-2 max-w-lg font-mono text-xs leading-relaxed text-subtle">
     Have an opportunity, a collaboration idea, or just want to say hi? My inbox is always open.
   </p>
 

@@ -34,11 +34,27 @@
  *    - Stacks on mobile (divider becomes a border-t). Top padding trimmed
  *      vs. the old eyebrow-header version.
  *
+ * 2b. PHOTO PIPELINE — astro:assets <Picture> from src/assets/my-pic.png
+ *    (890×920 source, ~1MB PNG). At build, sharp emits AVIF + WebP at
+ *    480/640/890w with a WebP <img> fallback (a PNG fallback weighed
+ *    up to 1.5MB; every browser that ignores AVIF takes WebP); `sizes` matches the
+ *    rendered size (the cell is ≈85vw on phones / ≤300px at md+, ×1.35
+ *    zoom → 110vw / 400px), so a phone downloads a ~20-40KB AVIF instead
+ *    of the full PNG.
+ *    Intrinsic width/height come from the import (no CLS); eager +
+ *    fetchpriority=high because it's the LCP image above the fold.
+ *    FRAMING: the source is a wide beach shot with the subject small,
+ *    left of centre. The <img> fills an overflow-hidden clip box and is
+ *    scaled 1.35× from origin 43%/58% (the subject's chest), so face +
+ *    shirt fill the cell while some sea/sky context stays.
+ *
  * 3. REMOVED per request: status pill and the CTA row (View Projects /
  *    Get in Touch / CV). `meta.statusText` stays in the data file — it is
  *    still used by Layout.astro (meta description) and the Terminal.
  */
+import { Picture } from "astro:assets";
 import SectionShell from "../ui/SectionShell.astro";
+import myPic from "../../assets/my-pic.png";
 import { portfolioData, heroQuotes } from "../../data/portfolio";
 
 const { meta } = portfolioData;
@@ -80,14 +96,21 @@ const fallbackQuote = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
         <span aria-hidden="true" class="hatch absolute inset-x-0 top-0 h-[18%] border-b border-line"></span>
         <span aria-hidden="true" class="hatch absolute inset-x-0 bottom-0 h-[18%] border-t border-line"></span>
         {/* photo — fills the centre cell */}
-        <img
-          src="/my-pic.webp"
-          alt={`Portrait of ${meta.name}`}
-          width="400"
-          height="416"
-          fetchpriority="high"
-          class="absolute inset-x-[8%] inset-y-[18%] h-[64%] w-[84%] object-cover object-[50%_30%]"
-        />
+        {/* clip box = the centre cell; the photo inside is zoomed toward
+            the subject (see note 2b) without spilling over the bands */}
+        <span class="absolute inset-x-[8%] inset-y-[18%] overflow-hidden">
+          <Picture
+            src={myPic}
+            alt={`Portrait of ${meta.name}`}
+            formats={["avif", "webp"]}
+            fallbackFormat="webp"
+            widths={[480, 640, 890]}
+            sizes="(min-width: 48rem) 400px, 110vw"
+            loading="eager"
+            fetchpriority="high"
+            class="size-full origin-[43%_58%] scale-[1.35] object-cover"
+          />
+        </span>
         {/* vertical construction lines — drawn last so they cross the bands and the photo edges */}
         <span aria-hidden="true" class="absolute inset-y-0 left-[8%] border-l border-line"></span>
         <span aria-hidden="true" class="absolute inset-y-0 right-[8%] border-r border-line"></span>

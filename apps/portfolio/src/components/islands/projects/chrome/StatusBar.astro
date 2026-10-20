@@ -48,9 +48,12 @@ const lines = 14 + getHighlights(file).length * 2 + file.techStack.length;
 /** Initial dirty state = the initially open file's status. */
 const initialDirty = STATUS_META[file.status].dirty;
 
-/** Shared base for all text buttons — same box as ChromeButton (h-5). */
+/** Shared base for all text buttons — same box as ChromeButton (h-5).
+ *  Carries NO display utility: always-visible items add `inline-flex`,
+ *  responsive ones add `hidden sm:inline-flex` (one display class per
+ *  breakpoint, so `hidden` actually hides on mobile). */
 const ITEM =
-  "inline-flex h-5 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
+  "h-5 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
   "transition-colors hover:bg-control-hover hover:text-subtle focus-visible:bg-control-hover";
 ---
 
@@ -69,7 +72,7 @@ const ITEM =
     title="Git branch: main"
     aria-label="Git branch: main"
     style="font-size: 9px"
-    class={ITEM}
+    class={`${ITEM} inline-flex`}
   >
     <GitBranchIcon class="size-3" />
     <span
@@ -95,7 +98,7 @@ const ITEM =
     <BracesIcon class="size-3" />
   </ChromeButton>
 
-  <button type="button" title="Diagnostics" style="font-size: 9px" class={`${ITEM} gap-2`}>
+  <button type="button" title="Diagnostics" style="font-size: 9px" class={`${ITEM} inline-flex gap-2`}>
     <span class="flex items-center gap-1">
       <CheckIcon class="size-2.5" /> 0
     </span>
@@ -121,7 +124,7 @@ const ITEM =
     <button type="button" title="LF" style="font-size: 9px" class={`${ITEM} hidden md:inline-flex`}>
       LF
     </button>
-    <button type="button" title="Markdown" style="font-size: 9px" class={ITEM}>
+    <button type="button" title="Markdown" style="font-size: 9px" class={`${ITEM} inline-flex`}>
       Markdown
     </button>
     <button
