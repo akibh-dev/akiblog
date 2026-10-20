@@ -63,19 +63,28 @@
   --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 86%);
 }
 
+/* DARK LADDER — one cool-neutral lightness ramp, no brand tint:
+ *   canvas (~L19) < surface (~L24) < surface-strong (~L31) < control-hover
+ *   < border-subtle (~L34) < border (~L40).
+ * Why: the old canvas (brand + 88% black ≈ L7, reddish) turned every
+ * inset (Zed editor pane, active tab, commit nodes, theme pill) into a
+ * near-black hole, and border/border-subtle sat within ~3-10 L of the
+ * surface, so the sidebar git tree, section hairlines and IDE splits
+ * vanished. Light mode keeps the same ORDER (canvas a step below
+ * surface, hairlines clearly above), so components need no dark: rules. */
 .dark {
-  --ui-canvas: color-mix(in oklch, var(--delta-brand), black 88%);
+  --ui-canvas: color-mix(in oklch, var(--delta-neutral-950), black 22%);
   --ui-surface: var(--delta-neutral-950);
-  --ui-surface-strong: color-mix(in oklch, var(--delta-neutral-900), black 50%);
-  --ui-control-hover: color-mix(in oklch, var(--delta-neutral-900), white 6%);
+  --ui-surface-strong: color-mix(in oklch, var(--delta-neutral-900), white 4%);
+  --ui-control-hover: color-mix(in oklch, var(--delta-neutral-900), white 9%);
   --ui-frame: color-mix(in oklch, var(--delta-neutral), black 90%);
 
   --ui-text: color-mix(in oklch, var(--delta-neutral), white 88%);
   --ui-text-subtle: var(--delta-neutral-300);
-  --ui-text-muted: var(--delta-neutral-500);
+  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), white 14%);
 
-  --ui-border: var(--delta-neutral-800);
-  --ui-border-subtle: color-mix(in oklch, var(--delta-neutral-800), black 20%);
+  --ui-border: var(--delta-neutral-700);
+  --ui-border-subtle: var(--delta-neutral-800);
 
   --ui-accent: color-mix(in oklch, var(--delta-brand), white 8%);
   --ui-accent-hover: var(--delta-brand-500);
