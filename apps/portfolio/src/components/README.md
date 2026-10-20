@@ -23,10 +23,10 @@ components/
 │   └── Contact.astro        form + channels + footer bar
 │
 └── islands/    Interactive — the ONLY components with client-side JS
-    ├── ThemeSwitch.tsx      Base UI ToggleGroup  (client:load)
+    ├── ThemeSwitch.astro    toggle group custom element (synced)
     ├── MobileMenu.astro     native <dialog> + custom element
     ├── ProjectBrowser.tsx   Base UI Tabs         (client:load)
-    ├── CopyButton.tsx       plain React          (client:visible)
+    ├── CopyButton.astro     clipboard custom element
     ├── ScrollSpy.astro      native custom element (IntersectionObserver)
     └── terminal/            interactive shell    (client:load)
         ├── types.ts         Segment/OutputLine/Command contracts

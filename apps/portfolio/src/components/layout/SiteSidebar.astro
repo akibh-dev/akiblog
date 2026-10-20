@@ -77,7 +77,7 @@
  */
 import { portfolioData } from "../../data/portfolio";
 import { sections } from "../../data/sections";
-import ThemeSwitch from "../islands/ThemeSwitch";
+import ThemeSwitch from "../islands/ThemeSwitch.astro";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 import BrandLogo from "./BrandLogo.astro";
 import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon, RssIcon } from "../../icons";
@@ -305,7 +305,7 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
 
     {/* theme + copyright */}
     <div class="mt-3 pt-2">
-      <ThemeSwitch client:load />
+      <ThemeSwitch />
       <p class="mt-4 font-mono text-[9px] text-muted">&#x24B6; {new Date().getFullYear()} {portfolioData.meta.name}</p>
     </div>
   </div>

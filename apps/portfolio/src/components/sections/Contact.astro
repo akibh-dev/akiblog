@@ -70,9 +70,21 @@
  *    protection is Cloudflare Turnstile — the client holds ONLY the
  *    public site key; the secret lives in the mailer. Rationale + notes
  *    live above the script.
+ *
+ * 8b. LAZY TURNSTILE — api.js used to load with the page. It's ~50KB of
+ *    third-party JS plus an iframe for a form at the very bottom, it
+ *    logged errors for every headless visitor (Lighthouse), and its
+ *    iframe disqualified the page from the back/forward cache. Now the
+ *    script is injected once, when the first of these happens:
+ *      - the form comes within 600px of the viewport (IntersectionObserver),
+ *      - anything inside the form gets focus (keyboard users tabbing in),
+ *      - the form is submitted.
+ *    A real visitor scrolling to the form gets the widget before they
+ *    reach it, so the flow is unchanged; the existing "still loading"
+ *    guard covers a submit that beats the challenge.
  */
 import SectionShell from "../ui/SectionShell.astro";
-import CopyButton from "../islands/CopyButton";
+import CopyButton from "../islands/CopyButton.astro";
 import { portfolioData } from "../../data/portfolio";
 import { MailIcon, GitHubIcon, LinkedInIcon, XIcon, FacebookIcon } from "../../icons";
 
@@ -140,10 +152,13 @@ const labelClass =
           design (it only renders the challenge); verification happens
           in the worker with the secret key. The widget auto-injects a
           hidden cf-turnstile-response input inside this form, so the
-          script below reads the token straight from FormData. */}
-      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+          script below reads the token straight from FormData.
+          LAZY: api.js is injected by the form script only when the form
+          nears the viewport (note 8b); it then renders this div itself
+          (implicit rendering). min-h reserves the widget's 65px so the
+          Send button doesn't jump when it appears. */}
       <div class="flex flex-col gap-4 pt-1 sm:items-end">
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
+        <div class="cf-turnstile min-h-[65px]" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
         {/* send button — a small state machine (data-state: idle →
             sending → sent | error, see note 7c). Fixed min-width so the
             label swaps never resize it; nowrap so it never breaks to two
@@ -181,12 +196,14 @@ const labelClass =
                 {meta.email}
               </a>
             </span>
-            <CopyButton client:visible text={meta.email} />
+            <CopyButton text={meta.email} />
           </div>
         </div>
 
-        {/* socials — ruled rows: icon only (name lives in aria-label),
-            handle + arrow on the right */}
+        {/* socials — ruled rows: icon only, handle + arrow on the right.
+            aria-label = "<network> @handle": it must CONTAIN the visible
+            handle (WCAG 2.5.3 label-in-name) or voice-control users
+            saying "click @akib35" can't hit it */}
         <div>
           <span class={labelClass}>Elsewhere</span>
           <ul class="divide-y divide-line-subtle border-y border-line-subtle">
@@ -195,7 +212,7 @@ const labelClass =
                 const Icon = socialIcons[s.name];
                 return (
                   <li>
-                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.name} class="group flex items-center justify-between gap-4 py-3">
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={`${s.name} @${s.handle}`} class="group flex items-center justify-between gap-4 py-3">
                       <span class="flex items-center gap-3">
                         {Icon && <Icon class="size-6 text-muted transition-colors group-hover:text-accent" />}
                       </span>
@@ -267,6 +284,24 @@ const labelClass =
     const status = document.getElementById("contact-status") as HTMLParagraphElement;
     const ENDPOINT = form.dataset.endpoint as string;
 
+    // ── lazy Turnstile (note 8b): inject api.js once, on first need ──
+    let turnstileRequested = false;
+    const loadTurnstile = () => {
+      if (turnstileRequested) return;
+      turnstileRequested = true;
+      nearObserver.disconnect();
+      const s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      s.async = true;
+      document.head.append(s);
+    };
+    const nearObserver = new IntersectionObserver(
+      (entries) => entries.some((e) => e.isIntersecting) && loadTurnstile(),
+      { rootMargin: "600px 0px" }
+    );
+    nearObserver.observe(form);
+    form.addEventListener("focusin", loadTurnstile, { once: true });
+
     const label = btn.querySelector("[data-label]") as HTMLSpanElement;
     const IDLE_LABEL = label.textContent ?? "Send message";
 
@@ -326,6 +361,7 @@ const labelClass =
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      loadTurnstile(); // no-op once loaded; covers a submit before it was needed
       if (btn.dataset.state === "sending" || btn.dataset.state === "sent") return; // no double submits
       const data = new FormData(form);
 

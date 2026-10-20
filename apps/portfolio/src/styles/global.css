@@ -42,6 +42,13 @@
 
 /* ---------------------------------------------------------------------------
  * 2. Semantic layer (light) — overridden in .dark
+ *
+ * CONTRAST CONTRACT (WCAG AA 4.5:1 for the site's 9–12px mono text; values
+ * found by sweeping each mix % in-browser and taking the smallest that
+ * passes, so the palette moves as little as possible):
+ *   text-muted  ≥4.6 on surface, canvas and surface-strong (both themes)
+ *   text-accent ≥4.6 on surface, canvas and the accent-subtle wash
+ *   white       ≥4.6 on accent-fill (btn-primary)
  * ------------------------------------------------------------------------- */
 :root {
   --ui-canvas: var(--delta-cream-100);
@@ -52,15 +59,22 @@
 
   --ui-text: var(--delta-neutral-950);
   --ui-text-subtle: var(--delta-neutral-700);
-  --ui-text-muted: var(--delta-neutral-500);
+  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), black 4%);
 
   --ui-border: var(--delta-neutral-300);
   --ui-border-subtle: color-mix(in oklch, var(--delta-neutral-800), transparent 82%);
 
-  --ui-accent: var(--delta-brand-500);
-  --ui-accent-hover: var(--delta-brand-600);
+  --ui-accent: color-mix(in oklch, var(--delta-brand), black 10%);
+  --ui-accent-hover: color-mix(in oklch, var(--delta-brand), black 18%);
   --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 90%);
   --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 86%);
+
+  /* SOLID brand faces that carry white text (btn-primary). Separate from
+     --ui-accent because text-red and fill-red pull opposite ways: dark
+     mode needs a LIGHTER red for text on dark surfaces but a DARKER red
+     behind white text. Same in both themes (≥4.6:1 vs white). */
+  --ui-accent-fill: var(--delta-brand-600);
+  --ui-accent-fill-hover: color-mix(in oklch, var(--delta-brand), black 16%);
 }
 
 /* DARK LADDER — one cool-neutral lightness ramp, no brand tint:
@@ -81,13 +95,13 @@
 
   --ui-text: color-mix(in oklch, var(--delta-neutral), white 88%);
   --ui-text-subtle: var(--delta-neutral-300);
-  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), white 14%);
+  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), white 36%);
 
   --ui-border: var(--delta-neutral-700);
   --ui-border-subtle: var(--delta-neutral-800);
 
-  --ui-accent: color-mix(in oklch, var(--delta-brand), white 8%);
-  --ui-accent-hover: var(--delta-brand-500);
+  --ui-accent: color-mix(in oklch, var(--delta-brand), white 22%);
+  --ui-accent-hover: color-mix(in oklch, var(--delta-brand), white 10%);
   --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 84%);
   --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 90%);
 }
@@ -244,9 +258,20 @@
     color: var(--ui-accent);
   }
 
+  /* Page scrollbar in the brand red (--ui-accent, theme-aware). Two
+     mechanisms because browsers split: the standard `scrollbar-color`
+     on the root covers Firefox; the ::-webkit-* rules keep the slim
+     6px rounded thumb in Chromium/Safari. Only the ROOT gets
+     scrollbar-color — in Chromium it overrides ::-webkit-* on the same
+     element, which would drop the 6px width elsewhere. Inner scrollers
+     (Zed IDE) keep their own `zed-scroll` neutral thumb. */
+  html {
+    scrollbar-color: var(--ui-accent) transparent;
+  }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--ui-border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--ui-accent); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ui-accent-hover); }
 }
 
 /* ---------------------------------------------------------------------------
@@ -350,15 +375,15 @@
    as the secondary hover, so both tiers share one interaction language. */
 @utility btn-primary {
   cursor: pointer;
-  border: 1px solid var(--ui-accent-hover);
-  background-color: var(--ui-accent);
-  box-shadow: 0 1px 0 var(--ui-accent-hover);
+  border: 1px solid var(--ui-accent-fill-hover);
+  background-color: var(--ui-accent-fill);
+  box-shadow: 0 1px 0 var(--ui-accent-fill-hover);
   color: white;
   transition: background-color 0.15s, box-shadow 0.15s;
   &:hover:not(:disabled),
   &:focus-visible {
     outline: none;
-    background-color: var(--ui-accent-hover);
+    background-color: var(--ui-accent-fill-hover);
     box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 75%);
   }
   &:disabled { cursor: not-allowed; opacity: 0.6; }
