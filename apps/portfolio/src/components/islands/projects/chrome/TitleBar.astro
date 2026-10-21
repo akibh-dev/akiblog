@@ -20,7 +20,10 @@ const { title } = Astro.props;
     <span class="size-3 rounded-full bg-[#ffbd2e] ring-1 ring-black/10"></span>
     <span class="size-3 rounded-full bg-[#28c840] ring-1 ring-black/10"></span>
   </span>
-  <span class="absolute inset-x-0 text-center font-mono text-[9px] text-muted">
+  {/* inset-x-20 (80px) clears the traffic lights (16px pad + 3×12 + 2×8 =
+      68px) on both sides so the centered title truncates instead of
+      running under the lights on ~320px phones */}
+  <span class="absolute inset-x-20 truncate text-center font-mono text-[9px] text-muted">
     {title}
   </span>
 </div>

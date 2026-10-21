@@ -24,7 +24,7 @@ components/
 │
 └── islands/    Interactive — the ONLY components with client-side JS
     ├── ThemeSwitch.tsx      Base UI ToggleGroup  (client:load)
-    ├── MobileMenu.tsx       Base UI Dialog       (client:load)
+    ├── MobileMenu.astro     native <dialog> + custom element
     ├── ProjectBrowser.tsx   Base UI Tabs         (client:load)
     ├── CopyButton.tsx       plain React          (client:visible)
     ├── ScrollSpy.astro      native custom element (IntersectionObserver)

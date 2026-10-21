@@ -45,6 +45,11 @@
  *     WHY NO WRAPPER BOX above.
  *  4. role="img" + aria-label become aria-hidden — the logo renders
  *     inside a link whose adjacent text already names the site.
+ *  5. clipPath ids also carry a per-INSTANCE suffix (logo-a-clip-dark-x7k2q9).
+ *     With one shared id, url(#…) resolves to the FIRST match in the
+ *     document; once the mobile header (display:none on desktop) rendered
+ *     a logo before the sidebar's, every logo pointed at that hidden
+ *     clipPath, the clip failed and the desktop A became a white square.
  *
  * Reduced motion: jumps straight to the final filled A (rainbow hidden,
  * last layer parked at its end position, dark outline already white) —
@@ -57,6 +62,10 @@ interface Props {
 }
 
 const { class: size = "size-8" } = Astro.props;
+
+// unique per rendered instance — see deviation 5. Frontmatter runs once
+// per render, so a short random token is enough (static build: fixed in HTML)
+const uid = Math.random().toString(36).slice(2, 8);
 
 /* Geometry below is source 1:1 — do not "fix" values; the animation
    timings in <style> are tuned to exactly these shapes. */
@@ -119,13 +128,13 @@ const VARIANTS = [
   VARIANTS.map((v) => (
     <svg class:list={[size, v.visibility]} viewBox="0 0 600 600" aria-hidden="true">
       <defs>
-        <clipPath id={`logo-a-clip-${v.id}`}>
+        <clipPath id={`logo-a-clip-${v.id}-${uid}`}>
           <path clip-rule="evenodd" d={A_PATH} />
         </clipPath>
       </defs>
       <g class="logo-a-pop">
         <path fill-rule="evenodd" fill={v.baseFill} d={A_PATH} />
-        <g clip-path={`url(#logo-a-clip-${v.id})`}>
+        <g clip-path={`url(#logo-a-clip-${v.id}-${uid})`}>
           <g class="logo-a-colors">
             {RAINBOW_LAYERS.map((layer, i) => (
               <g class={`logo-a-layer logo-a-l${i}`}>

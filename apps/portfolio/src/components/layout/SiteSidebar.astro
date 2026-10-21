@@ -219,16 +219,22 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
               <li>
                 <a href={`#${s.id}`} class="group flex items-center gap-3 py-1.5">
                   {/* commit node — grows ~1.4× from its center when active
-                      (stays centered on the trunk). data-station-node lets
+                      (stays centered on the trunk) and fills with the brand
+                      red (bg/border-accent), matching the active pill and
+                      the red hop connector. data-station-node lets
                       ScrollSpy measure exact centers for the hop connector. */}
-                  <span data-station-node class="size-[7px] shrink-0 rounded-full border border-line bg-canvas transition-transform duration-200 group-aria-[current=true]:scale-[1.4] motion-reduce:transition-none"></span>
+                  <span data-station-node class="size-[7px] shrink-0 rounded-full border border-line bg-canvas transition-[transform,background-color,border-color] duration-200 group-aria-[current=true]:scale-[1.4] group-aria-[current=true]:border-accent group-aria-[current=true]:bg-accent motion-reduce:transition-none"></span>
                   {/* station label — hover uses the shared default button
                       hover (global.css `btn-hover`: brand border + low-opacity
-                      brand wash + faint halo); active keeps the
-                      current implementation: filled pill. All stations are
-                      styled identically (transparent border at rest). */}
+                      brand wash + faint halo). Active is an OUTLINED pill —
+                      brand border + brand text, no fill — because the filled
+                      red commit node already marks the station; a second
+                      solid red block was redundant. Hovering the active
+                      pill adds the same btn-hover wash/halo but keeps the
+                      red text. All stations share one box (transparent
+                      border at rest), so nothing shifts on change. */}
                   <span
-                    class="rounded border border-transparent px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:btn-hover group-aria-[current=true]:border-accent group-aria-[current=true]:group-hover:bg-accent group-aria-[current=true]:bg-accent group-aria-[current=true]:text-canvas group-aria-[current=true]:group-hover:text-canvas"
+                    class="rounded border border-transparent px-2 py-0.5 font-mono text-2xs font-semibold uppercase tracking-[0.18em] text-subtle transition-colors duration-200 group-hover:btn-hover group-aria-[current=true]:border-accent group-aria-[current=true]:text-accent group-aria-[current=true]:group-hover:text-accent"
                   >
                     {s.label}
                   </span>

@@ -4,8 +4,11 @@
  * 
  * POC / Implementation Architecture:
  * - Employs static output mode (`output: 'static'`) for optimal edge CDN caching and zero server runtime costs.
- * - Uses `passthrough` image service to eliminate native C++ Sharp binary dependencies, preventing runner OOM
- *   and platform compatibility issues on constrained Alpine runners.
+ * - Image service: Astro's default (sharp, a devDependency). Images under src/assets go through
+ *   astro:assets <Image>/<Picture> and are resized + converted to AVIF/WebP AT BUILD TIME, so the
+ *   static output ships small files and no runtime image service is needed on Cloudflare.
+ *   (Previously `passthrough` to keep sharp off constrained Alpine CI runners; switched by request
+ *   so the hero portrait is optimized — the build host must be able to install sharp.)
  * - Integrates Tailwind CSS v4 via `@tailwindcss/vite` plugin for lightning-fast builds and utility-first styling.
  * - Deploys to Cloudflare Workers static assets routing directly to apex domain `akib35.dev`.
  */
@@ -18,11 +21,6 @@ export default defineConfig({
   output: 'static',
   site: 'https://akib35.dev',
   integrations: [react()],
-  image: {
-    service: {
-      entrypoint: 'astro/assets/services/passthrough',
-    },
-  },
   vite: {
     plugins: [tailwindcss()],
     server: {
