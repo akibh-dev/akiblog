@@ -63,10 +63,10 @@ jobs:
 
     steps:
       - name: Checkout akiblog
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout notes (post content)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: akibh-dev/notes
           path: .notes
