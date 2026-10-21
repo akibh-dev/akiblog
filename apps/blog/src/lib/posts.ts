@@ -33,7 +33,23 @@ export async function getPosts(): Promise<Post[]> {
   if (clash) {
     throw new Error(`Post "${clash.id}" uses a reserved slug (it would shadow /${clash.id}/). Set a different \`slug:\` in its frontmatter.`);
   }
+  warnShortDescriptions(posts);
   return posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+}
+
+/**
+ * Search engines show ~120–160 chars of description; under ~50 they pad the
+ * snippet with random page text. The schema allows short descriptions (the
+ * text is the author's), so the build says so — once per build, not fatal.
+ */
+let warned = false;
+function warnShortDescriptions(posts: Post[]) {
+  if (warned) return;
+  warned = true;
+  for (const p of posts) {
+    const n = p.data.description.length;
+    if (n < 50) console.warn(`[seo] "${p.id}": description is ${n} chars — aim for 50–160 so search snippets show it in full`);
+  }
 }
 
 /** Whole minutes to read `markdown` (≥ 1). */
