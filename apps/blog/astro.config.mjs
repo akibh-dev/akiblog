@@ -15,6 +15,8 @@
  *   tokens in src/styles/global.css (copied from apps/portfolio @ 091c7cf).
  * - No UI framework integration: every island is a pure .astro component
  *   with a vanilla custom element (AGENTS.md / plan 17).
+ * - postAssets (src/lib/post-assets.ts): files a note LINKS to next to its
+ *   index.md (`./pic.png`) are served at /<slug>/<file>, like on GitHub.
  * - security.csp: the portfolio's hash-based Content-Security-Policy, with
  *   Turnstile + picsum removed and Pagefind added (see inline notes).
  */
@@ -32,6 +34,7 @@ import {
   shikiCodeFrame,
 } from './src/lib/markdown.ts';
 import { giscus } from './src/config/giscus.ts';
+import postAssets from './src/lib/post-assets.ts';
 
 // giscus.app is allowed ONLY once comments are configured (plan21 §3):
 // its client script + the comments iframe.
@@ -43,9 +46,12 @@ export default defineConfig({
   // trailing slashes everywhere: /posts/<slug>/ is the URL contract (plan19 §3),
   // and Pages serves folder/index.html at exactly that path
   trailingSlash: 'always',
-  // sitemap: emits sitemap-index.xml from `site`; the 404 and the /feed/<n>/
-  // lazy-load fragments (plan26) are not pages, so they're filtered out
-  integrations: [sitemap({ filter: (page) => !page.includes('/404') && !page.includes('/feed/') })],
+  // sitemap: emits sitemap-index.xml from `site` — home + posts only. Out:
+  // the 404, the /feed/<n>/ lazy-load fragments (plan26), and /tags/<tag>/
+  // (thin listings, noindex below 2 posts — a noindex URL in the sitemap is
+  // a contradictory signal Search Console flags; tags stay crawlable via
+  // links, plan28)
+  integrations: [postAssets(), sitemap({ filter: (page) => !/\/(404|feed|tags)\//.test(new URL(page).pathname + '/') })],
   markdown: {
     // src/lib/markdown.ts (each plugin documented there), via Astro 7.4's
     // `processor: unified()` (top-level remark/rehypePlugins are deprecated).

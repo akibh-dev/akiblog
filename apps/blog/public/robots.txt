@@ -11,7 +11,8 @@
 #   directive: Lighthouse/Google flag it as an unknown robots.txt rule
 #   (SEO audit fails). Our preference, for reference:
 #   Content-Signal: search=yes, ai-input=yes, ai-train=no
-# - Search UI (/search/) is a page, not a crawl trap: it has no results without JS.
+# - LLM-friendly map of the blog: /llms.txt (https://llmstxt.org), with a
+#   plain-Markdown copy of every post at /<slug>.md.
 #
 # robots.txt is a request, not an enforcement. Hard blocking lives in the
 # Cloudflare dashboard (Security → Bots → "Block AI bots").

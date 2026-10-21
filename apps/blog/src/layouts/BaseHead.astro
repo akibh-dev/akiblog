@@ -17,7 +17,7 @@
  *   don't resolve relative URLs) and 1200×630 — posts pass their cover
  *   (rendered to JPEG by the page, see pages/[slug].astro), others
  *   fall back to public/og.png.
- * - JSON-LD: WebSite on every page; BlogPosting on posts (headline,
+ * - JSON-LD: WebSite on every page; BlogPosting + BreadcrumbList on posts (headline,
  *   description, image, dates, keywords, author → the portfolio's Person
  *   node `https://akib35.dev/#person`, so Google links blog + portfolio).
  * - `keywords` meta: ignored by Google, still read by Bing/aggregators —
@@ -64,7 +64,10 @@ const {
   noindex = false,
 } = Astro.props;
 
-const title = pageTitle ? `${pageTitle} — ${site.name}` : `${site.name} — ${site.tagline}`;
+/* home: "akiblog — notes by Md Akib Hasan" (33 chars). The tagline is 70
+   chars — as a title Google truncates it at ~60, so it lives in the
+   description instead (plan28). */
+const title = pageTitle ? `${pageTitle} — ${site.name}` : `${site.name} — notes by ${site.author.name}`;
 const origin = Astro.site ?? new URL(site.url);
 const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, origin).href;
 const ogImage = new URL(image ?? "/og.png", origin).href;
@@ -97,6 +100,14 @@ if (article) {
     isPartOf: { "@id": `${origin.origin}/#website` },
     inLanguage: "en",
   });
+  // breadcrumb trail in search results: akiblog › <post title>
+  graph.push({
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: site.name, item: `${origin.origin}/` },
+      { "@type": "ListItem", position: 2, name: pageTitle, item: canonical },
+    ],
+  });
 }
 const jsonLd = { "@context": "https://schema.org", "@graph": graph };
 ---
@@ -113,6 +124,8 @@ const jsonLd = { "@context": "https://schema.org", "@graph": graph };
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title={`${site.name} — RSS`} href="/rss.xml" />
+{/* posts: plain-Markdown copy for LLM agents (pages/[slug].md.ts, llmstxt.org) */}
+{article && <link rel="alternate" type="text/markdown" href={canonical.replace(/\/$/, ".md")} />}
 <meta name="theme-color" content="#fcf7f7" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#1c1f23" media="(prefers-color-scheme: dark)" />
 

@@ -34,6 +34,9 @@
 /rss.xml
   Content-Type: application/rss+xml; charset=utf-8
 
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+
 # giscus themes (public/giscus/*.css) are fetched by the giscus iframe
 # (origin https://giscus.app). Short cache: re-resolved tokens ship at once.
 /giscus/*

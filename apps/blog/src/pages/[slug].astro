@@ -21,7 +21,8 @@
  *
  * OG IMAGE: the cover is rendered to a 1200×630 JPEG via getImage() at
  * build — social scrapers don't reliably accept AVIF/WebP (plan19 §2.1).
- * Posts without a cover fall back to /og.png in BaseHead.
+ * Posts without a cover get their own generated card, /og/<slug>.png
+ * (lib/og.ts, plan28).
  */
 import { getImage } from "astro:assets";
 import { render } from "astro:content";
@@ -54,7 +55,10 @@ const { post, prev, next } = Astro.props;
 const { Content, headings } = await render(post);
 const d = post.data;
 
+// share image: the cover (as a 1200×630 JPEG), else the post's generated
+// card (pages/og/[slug].png.ts — title, tags, reading time)
 const og = d.cover ? await getImage({ src: d.cover, width: 1200, height: 630, fit: "cover", format: "jpeg", quality: 82 }) : undefined;
+const ogImage = og?.src ?? `/og/${post.id}.png`;
 const tocHeadings = d.toc ? headings.filter((h) => h.depth >= 2 && h.depth <= 4) : [];
 const hasToc = tocHeadings.length > 1;
 const hasComments = giscus !== null && d.comments;
@@ -63,7 +67,7 @@ const hasComments = giscus !== null && d.comments;
 <Layout
   title={d.title}
   description={d.description}
-  image={og?.src}
+  image={ogImage}
   imageAlt={d.coverAlt}
   canonical={d.canonical}
   keywords={d.keywords}
