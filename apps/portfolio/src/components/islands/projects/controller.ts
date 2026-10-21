@@ -52,7 +52,7 @@ export function mountProjectsIsland(root: HTMLElement) {
   let history: string[] = [firstId];
   let historyIndex = 0;
   const folders: Record<string, boolean> = {
-    akib35: true,
+    akibh: true,
     projects: true,
     featured: true,
     archive: true,
@@ -167,16 +167,16 @@ export function mountProjectsIsland(root: HTMLElement) {
   // ── folders (all collapse; nested cascade like the React version) ──
   function toggleFolder(key: string) {
     folders[key] = !folders[key];
-    const rootsOpen = folders.akib35 && folders.projects;
+    const rootsOpen = folders.akibh && folders.projects;
     $$("[data-folder]").forEach((btn) => {
       const k = btn.dataset.folder!;
       const open =
-        k === "akib35" || k === "projects" ? folders[k] : rootsOpen && folders[k];
+        k === "akibh" || k === "projects" ? folders[k] : rootsOpen && folders[k];
       btn.setAttribute("aria-expanded", String(open));
       btn.querySelector("[data-chevron]")?.classList.toggle("rotate-90", open);
-      // `projects` row hides with `akib35`; group rows hide with roots
+      // `projects` row hides with `akibh`; group rows hide with roots
       if (k === "projects")
-        btn.closest("[data-folder-row]")!.toggleAttribute("hidden", !folders.akib35);
+        btn.closest("[data-folder-row]")!.toggleAttribute("hidden", !folders.akibh);
       if (k === "featured" || k === "archive")
         btn.closest("[data-folder-row]")!.toggleAttribute("hidden", !rootsOpen);
     });

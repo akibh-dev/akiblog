@@ -2,7 +2,7 @@
 /**
  * @file islands/projects/chrome/ProjectPanel.astro
  * @description Zed project panel: collapsible workspace roots
- *              (akib35 → projects), collapsible group folders
+ *              (akibh → projects), collapsible group folders
  *              (featured/ archive/), file rows (= tabs), repo footer.
  *              Astro port of ProjectPanel.tsx.
  *
@@ -16,7 +16,7 @@
  *    remains reachable as a tab by keyboard and screen reader.
  * 2. Selection is a FULL-ROW FILL (aria-selected:* variants), not a left
  *    accent bar — the accent bar is VS Code's language; Zed fills the row.
- * 3. EVERY directory collapses with correct nesting: closing `akib35`
+ * 3. EVERY directory collapses with correct nesting: closing `akibh`
  *    hides `projects`; closing `projects` hides the group folders;
  *    closing a group hides only its files. ALL load EXPANDED.
  *    data-folder-row / data-folder-content are the controller's cascade
@@ -67,12 +67,12 @@ const chevronClass = "size-3 shrink-0 text-muted transition-transform rotate-90"
       <button
         type="button"
         tabindex="-1"
-        data-folder="akib35"
+        data-folder="akibh"
         aria-expanded="true"
         class={`${folderButtonClass} pl-2`}
       >
         <ChevronRightIcon data-chevron class={chevronClass} />
-        <FolderIcon class="size-3 shrink-0 text-muted" /> akib35
+        <FolderIcon class="size-3 shrink-0 text-muted" /> akibh
       </button>
       <div data-folder-row>
         <button

@@ -52,12 +52,12 @@ export const site = {
     "akiblog — technical notes and guides by Md Akib Hasan on web platforms, Cloudflare, tooling and software craft.",
   author: {
     name: "Md Akib Hasan",
-    handle: "akib35",
+    handle: "akibh",
     role: "Full-Stack Engineer & Systems Builder",
-    email: "hello@akib35.dev",
+    email: "hello@akibh.dev",
   },
-  url: "https://blog.akib35.dev",
-  portfolioUrl: "https://akib35.dev",
+  url: "https://blog.akibh.dev",
+  portfolioUrl: "https://akibh.dev",
   /** the notes repo posts are sourced from (plan19/20) */
   notesRepo: "https://github.com/akibh-dev/notes",
   socials: [

@@ -18,7 +18,7 @@ import type { HistoryEntry, OutputLine, PortfolioData } from "./types";
 export function bootEntries(data: PortfolioData, nextId: () => number): HistoryEntry[] {
   const mk = (segments: OutputLine): HistoryEntry => ({ id: nextId(), kind: "output", segments });
   return [
-    mk([t("akib35 portfolio shell", "accent"), t(" v2.0", "muted")]),
+    mk([t("akibh portfolio shell", "accent"), t(" v2.0", "muted")]),
     mk([t("──────────────────────────────────", "muted")]),
     mk([t("● ", "success"), t(data.meta.statusText, "success")]),
     mk(kv("edu", t(`B.Sc. CSE · CUET '${String(data.education.year).slice(-2)}`))),

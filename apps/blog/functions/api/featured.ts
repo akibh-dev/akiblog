@@ -3,7 +3,7 @@
  * @description Pages Function for GET /api/featured — the posts the
  *              portfolio's Writings section shows (plan26).
  *
- *   portfolio ──GET https://blog.akib35.dev/api/featured?limit=3──▶ this Function
+ *   portfolio ──GET https://blog.akibh.dev/api/featured?limit=3──▶ this Function
  *                                                      │ env.ASSETS.fetch("/posts.json")
  *                                                      ▼  (the build's own static file)
  *                                        featured first, filled with the newest
@@ -51,7 +51,15 @@ interface Post {
   [key: string]: unknown;
 }
 
-const ALLOWED_ORIGINS = new Set(["https://akib35.dev", "https://www.akib35.dev", "http://localhost:4322", "http://localhost:4323"]);
+// akibh.dev = the portfolio; akib35.dev kept while the old domain 301s (plan29)
+const ALLOWED_ORIGINS = new Set([
+  "https://akibh.dev",
+  "https://www.akibh.dev",
+  "https://akib35.dev",
+  "https://www.akib35.dev",
+  "http://localhost:4322",
+  "http://localhost:4323",
+]);
 const DEFAULT_LIMIT = 4;
 const MAX_LIMIT = 6;
 

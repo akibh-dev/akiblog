@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "akiblog — static Astro blog (blog.akib35.dev). Posts are synced at build time from the notes repo (github.com/akibh-dev/notes), styled with the portfolio's design system, indexed by Pagefind, deployed to Cloudflare Pages. See plan/plan19-21.md.",
+  "description": "akiblog — static Astro blog (blog.akibh.dev). Posts are synced at build time from the notes repo (github.com/akibh-dev/notes), styled with the portfolio's design system, indexed by Pagefind, deployed to Cloudflare Pages. See plan/plan19-21.md.",
   "scripts": {
     "dev": "bun scripts/dev.ts",
     "sync": "bun scripts/sync-content.ts",

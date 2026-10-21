@@ -11,7 +11,7 @@
 #   over the MAILER service binding below. The mailer has no public URL, so
 #   the binding is the only way in.
 # - Top-level bindings apply to BOTH production and preview deployments.
-# - The custom domain (akib35.dev) is attached in the dashboard:
+# - The custom domain (akibh.dev) is attached in the dashboard:
 #   Pages → portfolio → Custom domains. Pages configs have no `routes`.
 # - No secrets here; Turnstile's secret lives in the mailer only.
 # ==============================================================================
