@@ -1,0 +1,29 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+#
+# WHY:
+# - /_astro/* files are content-hashed by Astro (name changes whenever the
+#   bytes change), and /fonts/* never change → cache for a year, immutable.
+#   Fixes Lighthouse "Use efficient cache lifetimes" for same-origin assets.
+# - Everything else (HTML, robots, llms.txt, CV) keeps Pages' default
+#   revalidation so a deploy shows up immediately.
+# - Security headers (Lighthouse best practices / securityheaders.com):
+#   nosniff, strict referrer, no framing, minimal permissions. HSTS is set
+#   at the zone level by Cloudflare (SSL/TLS → Edge Certificates).
+#   No CSP yet: Turnstile + Cloudflare Web Analytics + inline theme script
+#   need a hash/nonce-based policy — see the follow-up list.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/llms.txt
+  Content-Type: text/plain; charset=utf-8

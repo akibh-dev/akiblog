@@ -26,15 +26,15 @@
  *    the active station — same rule as the desktop sidebar, no new JS.
  * 5. Resume + socials are only in the desktop sidebar, which is hidden
  *    below md. They're repeated here so mobile visitors can reach them.
- * 6. Theme switch reuses the existing ThemeSwitch island unchanged (its
- *    own migration is a separate plan 17 Phase 5 item).
+ * 6. Theme switch is the shared ThemeSwitch.astro element (same one as
+ *    the sidebar; all instances stay in sync).
  *
  * POC:
  *   <MobileMenu />  — drop into MobileHeader; renders trigger + dialog.
  */
 import { portfolioData } from "../../data/portfolio";
 import { sections } from "../../data/sections";
-import ThemeSwitch from "./ThemeSwitch";
+import ThemeSwitch from "./ThemeSwitch.astro";
 import ScrollSpy from "./ScrollSpy.astro";
 import BrandLogo from "../layout/BrandLogo.astro";
 import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon, RssIcon } from "../../icons";
@@ -92,7 +92,6 @@ const links = [
                   data-menu-close
                   class="group flex min-h-11 items-center gap-3 rounded-md border border-transparent px-4 py-2.5 font-mono text-sm text-default transition-colors outline-none hover:bg-control-hover focus-visible:bg-control-hover aria-[current=true]:border-accent aria-[current=true]:text-accent"
                 >
-                  <span class="text-2xs text-muted group-aria-[current=true]:text-accent">{s.number}.</span>
                   {s.label}
                 </a>
               </li>
@@ -132,7 +131,7 @@ const links = [
     </div>
 
     <div class="border-t border-line-subtle p-3">
-      <ThemeSwitch client:load />
+      <ThemeSwitch />
     </div>
   </dialog>
 </mobile-menu>

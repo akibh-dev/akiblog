@@ -7,8 +7,9 @@
  * POC / STATES: actionless BY DEFAULT; two real states exist for wired
  * buttons — `disabled` (history arrows: dimmed, non-interactive) and
  * `pressed` (sidebar toggle: aria-pressed + persistent active fill).
- * BOX: `h-5 w-5` + leading-none — identical to the status bar's text-item
- * height, so icons and text sit on one center line in every chrome row.
+ * BOX: `size-6` (24px — WCAG 2.2 minimum target size; was 20px and
+ * failed Lighthouse target-size) + leading-none — identical to the
+ * status bar's text-item height, so icons and text sit on one center line in every chrome row.
  *
  * RESPONSIVE HIDING: a caller may pass `hidden md:inline-flex`. The base
  * `inline-flex` is then DROPPED — two display utilities on one node
@@ -36,7 +37,7 @@ const display = /(^|\s)hidden(\s|$)/.test(className) ? "" : "inline-flex";
   aria-label={label}
   aria-pressed={pressed}
   disabled={disabled}
-  class={`${display} h-5 w-5 shrink-0 items-center justify-center rounded-sm leading-none text-muted outline-none transition-colors hover:bg-control-hover hover:text-default focus-visible:bg-control-hover disabled:pointer-events-none disabled:opacity-40 ${
+  class={`${display} size-6 shrink-0 items-center justify-center rounded-sm leading-none text-muted outline-none transition-colors hover:bg-control-hover hover:text-default focus-visible:bg-control-hover disabled:pointer-events-none disabled:opacity-40 ${
     pressed ? "bg-control-hover/60 text-default" : ""
   } ${className}`}
   {...rest}

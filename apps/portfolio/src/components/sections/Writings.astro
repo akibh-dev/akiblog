@@ -21,12 +21,20 @@
  * 4. "View all posts" uses the site-wide default button (global.css
  *    `btn`). The RSS feed link lives in the sidebar's social row.
  * 5. Pure static Astro, zero client JS (AGENTS.md rule 5).
+ * 6. POSTS COME FROM THE BLOG: lib/blog.ts fetches /api/featured?limit=3 at
+ *    build time (featured first, filled with the newest). If the API was
+ *    unreachable, the grid is replaced by a one-line pointer to the blog —
+ *    no placeholder posts.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import PostCover from "../ui/PostCover.astro";
 import { portfolioData } from "../../data/portfolio";
+import { getBlogPosts } from "../../lib/blog";
 
-const { blogPosts, meta } = portfolioData;
+const { meta } = portfolioData;
+/* the blog's featured posts (filled with its newest), fetched at build —
+   lib/blog.ts. Empty if the blog API was unreachable during the build. */
+const blogPosts = await getBlogPosts();
 
 /** "4 min read" → 4; meter shows up to METER_MAX ticks. */
 const METER_MAX = 8;
@@ -47,7 +55,12 @@ const minutes = (s: string) => Math.min(METER_MAX, parseInt(s, 10) || 1);
     </a>
   </div>
 
-  <ul class="grid border-t border-line lg:grid-cols-3">
+  {blogPosts.length === 0 && (
+    <p class="border-t border-line px-5 py-10 font-mono text-xs text-subtle md:px-8">
+      Latest posts live on <a href={meta.blogUrl} class="text-accent underline underline-offset-4">{meta.blogUrl.replace("https://", "")}</a>.
+    </p>
+  )}
+  <ul class:list={["grid border-t border-line lg:grid-cols-3", blogPosts.length === 0 && "hidden"]}>
     {
       blogPosts.map((post, i) => {
         const mins = minutes(post.readingTime);

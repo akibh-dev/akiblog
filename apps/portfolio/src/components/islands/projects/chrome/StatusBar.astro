@@ -48,12 +48,13 @@ const lines = 14 + getHighlights(file).length * 2 + file.techStack.length;
 /** Initial dirty state = the initially open file's status. */
 const initialDirty = STATUS_META[file.status].dirty;
 
-/** Shared base for all text buttons — same box as ChromeButton (h-5).
+/** Shared base for all text buttons — same box as ChromeButton (h-6, the
+ *  24px WCAG 2.2 minimum target).
  *  Carries NO display utility: always-visible items add `inline-flex`,
  *  responsive ones add `hidden sm:inline-flex` (one display class per
  *  breakpoint, so `hidden` actually hides on mobile). */
 const ITEM =
-  "h-5 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
+  "h-6 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
   "transition-colors hover:bg-control-hover hover:text-subtle focus-visible:bg-control-hover";
 ---
 

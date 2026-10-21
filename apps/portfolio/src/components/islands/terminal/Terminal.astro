@@ -23,6 +23,7 @@
 import { bootEntries } from "./boot";
 import { LINK_CLASS, TONE_CLASS } from "./render";
 import type { PortfolioData } from "./types";
+import { getBlogPosts } from "../../../lib/blog";
 
 interface Props {
   data: PortfolioData;
@@ -30,6 +31,10 @@ interface Props {
   flush?: boolean;
 }
 const { data, flush = false } = Astro.props;
+/* blog posts are fetched at build (lib/blog.ts) — not part of the static
+   portfolioData module the client imports — so they ride to shell.ts in a
+   data attribute (JSON, CSP-safe: no inline script) */
+const blogPosts = await getBlogPosts();
 
 let n = 0;
 const boot = bootEntries(data, () => ++n);
@@ -37,6 +42,7 @@ const boot = bootEntries(data, () => ++n);
 
 <div
   data-terminal
+  data-blog-posts={JSON.stringify(blogPosts)}
   class:list={["overflow-hidden bg-surface", !flush && "rounded-md border border-line-subtle shadow-2xs"]}
 >
   {/* window chrome — macOS traffic lights, decorative by design */}

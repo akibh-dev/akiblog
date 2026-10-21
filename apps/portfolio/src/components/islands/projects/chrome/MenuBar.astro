@@ -21,7 +21,9 @@
  * AVATAR: real photo (src/assets/my-pic.png via astro:assets <Image>,
  * resized to 48px WebP at build — a 24px circle at 2× DPR — instead of
  * shipping the full portrait) layered over the "AH" initials —
- * controller.ts hides the img on error (with a pre-check for errors that
+ * alt="" because the button's aria-label already names it — a non-empty
+ * alt became visible text missing from the name (label-content-name-
+ * mismatch). controller.ts hides the img on error (with a pre-check for errors that
  * fired before the module ran), leaving the initials as the fallback.
  *
  * RESPONSIVE: menus from "selection" onward hide below sm.
@@ -57,7 +59,7 @@ const ITEM_CLASS =
       data-menu-trigger
       aria-haspopup="menu"
       aria-expanded="false"
-      aria-label="User menu"
+      aria-label="AH, user menu"
       title="User menu"
       class="relative flex size-6 items-center justify-center overflow-hidden rounded-full bg-accent-subtle font-mono text-[9px] font-medium text-accent outline-none ring-line transition-shadow hover:ring-2 focus-visible:ring-2"
     >
@@ -65,7 +67,7 @@ const ITEM_CLASS =
       <Image
         data-avatar-img
         src={myPic}
-        alt="Md Akib Hasan"
+        alt=""
         width={48}
         height={48}
         format="webp"

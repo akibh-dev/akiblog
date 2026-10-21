@@ -1,0 +1,153 @@
+---
+/**
+ * @file layouts/BaseHead.astro
+ * @description Everything inside <head>, shared by every page (index, 404):
+ *              charset/viewport, SEO + social metadata, structured data,
+ *              anti-flash theme init, self-hosted fonts.
+ *
+ * WHY ONE COMPONENT: the 404 page must render OUTSIDE Layout.astro (its
+ * sidebar links are `#section` anchors that would resolve against the
+ * missing URL), but it needs the same fonts, theme script and metadata.
+ * Extracting the head keeps both pages byte-identical where it matters.
+ *
+ * SEO / SOCIAL (what each tag is for):
+ * - <link rel="canonical">: one URL per page (akib35.dev vs
+ *   www./?utm=… variants) so ranking signals don't split.
+ * - Open Graph + Twitter card: link previews on LinkedIn/X/Slack/Discord.
+ *   og:image is a 1200×630 PNG (public/og.png) — the size every network
+ *   crops cleanly; absolute URL because crawlers don't resolve relative.
+ * - JSON-LD Person + WebSite (schema.org): lets Google build a knowledge
+ *   panel for the name and connect the social profiles (sameAs).
+ * - theme-color per scheme: mobile browser chrome matches the site.
+ * - `noindex` prop: the 404 asks search engines not to index it.
+ *
+ * FONTS — SELF-HOSTED (public/fonts, all SIL OFL 1.1): previously
+ * hot-linked from cdn.delta.dev. A third-party CDN we don't control can
+ * change or vanish, adds a DNS+TLS connection on the critical path, and
+ * its cache headers were short (Lighthouse "efficient cache lifetimes").
+ * Same-origin files get the immutable cache rule in public/_headers.
+ * ONLY the body font (51KB) is preloaded. Preloading all three (~280KB)
+ * made them compete with the hero photo on slow mobile links: Lighthouse
+ * mobile LCP 3.8s → 2.3s, score 88 → 97 when Plex Serif (164KB) and Lilex
+ * load on demand instead (font-display: swap covers the gap).
+ *
+ * CSP NOTE: Astro writes its CSP <meta> AFTER this head content, so the
+ * inline anti-flash script runs before the policy applies (a policy only
+ * governs content parsed after it). Keep it inline and first: moving it
+ * below the meta would get it blocked.
+ *
+ * ANTI-FLASH: dark is the DEFAULT — `.dark` is set before first paint
+ * unless the user explicitly chose light (legacy "system" values from
+ * older versions also resolve to dark).
+ *
+ * POC:
+ *   <head><BaseHead title="…" description="…" /></head>
+ *   <BaseHead title="404 — Not found" noindex />
+ */
+import { portfolioData } from "../data/portfolio";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** keep the page out of search indexes (404) */
+  noindex?: boolean;
+}
+
+const { meta, socials } = portfolioData;
+const {
+  title = `${meta.name} — ${meta.role}`,
+  description = `Portfolio of ${meta.name} — ${meta.role} in ${meta.location}. ${meta.statusText}.`,
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(meta.siteUrl);
+const canonical = new URL(Astro.url.pathname, site).href;
+const ogImage = new URL("/og.png", site).href;
+const xHandle = socials.find((s) => s.name === "X")?.handle;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${site.origin}/#person`,
+      name: meta.name,
+      alternateName: meta.handle,
+      jobTitle: meta.role,
+      url: site.origin,
+      image: new URL("/og.png", site).href,
+      email: `mailto:${meta.email}`,
+      address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
+      sameAs: [...socials.map((s) => s.url), meta.blogUrl],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.origin}/#website`,
+      url: site.origin,
+      name: `${meta.handle}.dev`,
+      author: { "@id": `${site.origin}/#person` },
+      inLanguage: "en",
+    },
+  ],
+};
+---
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="author" content={meta.name} />
+{noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link rel="alternate" type="application/rss+xml" title={`${meta.name} — blog`} href={`${meta.blogUrl}/rss.xml`} />
+<meta name="theme-color" content="#fcf7f7" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1c1f23" media="(prefers-color-scheme: dark)" />
+
+{/* Open Graph + Twitter */}
+<meta property="og:type" content={noindex ? "website" : "profile"} />
+<meta property="og:site_name" content={`${meta.handle}.dev`} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={`${meta.name} — ${meta.role}`} />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:card" content="summary_large_image" />
+{xHandle && <meta name="twitter:creator" content={`@${xHandle}`} />}
+
+{!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+<script is:inline>
+  (() => {
+    const t = localStorage.getItem("theme");
+    if (t !== "light") document.documentElement.classList.add("dark");
+  })();
+</script>
+
+<link rel="preload" href="/fonts/iAWriterQuattroV.woff2" as="font" type="font/woff2" crossorigin />
+
+<style is:inline>
+  @font-face {
+    font-family: "iA Writer Quattro S";
+    src: url("/fonts/iAWriterQuattroV.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "IBM Plex Serif";
+    src: url("/fonts/IBMPlexSerif-Var.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Lilex";
+    src: url("/fonts/Lilex-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+  }
+</style>

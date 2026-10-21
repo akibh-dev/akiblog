@@ -10,6 +10,9 @@
  * status bar's position item displays (14 + highlights×2 + stack — the
  * React version's formula), so the controller needs zero project data.
  *
+ * ELEMENT: a <div role="tabpanel">, not <article> — ARIA forbids the
+ * tabpanel role on <article> (axe aria-allowed-role).
+ *
  * LAYOUT (unchanged): H1 (site display serif — Zed's markdown preview
  * swaps buffer font for UI font), shields-style badge row, <hr>, then
  * mono-eyebrow sections (Overview / Highlights / Stack) + links footer.
@@ -28,7 +31,7 @@ const highlights = getHighlights(project);
 const lines = 14 + highlights.length * 2 + project.techStack.length;
 ---
 
-<article
+<div
   data-panel={project.id}
   data-lines={lines}
   role="tabpanel"
@@ -114,4 +117,4 @@ const lines = 14 + highlights.length * 2 + project.techStack.length;
       )
     }
   </div>
-</article>
+</div>

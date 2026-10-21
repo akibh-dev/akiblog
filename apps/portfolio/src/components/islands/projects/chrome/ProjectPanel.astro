@@ -9,8 +9,11 @@
  * POC / KEY DECISIONS (unchanged from the React version):
  * 1. ONE tablist contains every file row — controller.ts implements the
  *    roving-tabindex arrow-key navigation across folders (Base UI's role
- *    in the React version). Folder headers are role="presentation" rows
- *    with real <button>s inside, never tab stops.
+ *    in the React version). Folder headers are aria-hidden rows whose
+ *    <button>s carry tabindex="-1": a tablist may only own role="tab"
+ *    children (axe aria-required-children / Lighthouse a11y), so folder
+ *    collapse stays a pointer-only visual affordance while every file
+ *    remains reachable as a tab by keyboard and screen reader.
  * 2. Selection is a FULL-ROW FILL (aria-selected:* variants), not a left
  *    accent bar — the accent bar is VS Code's language; Zed fills the row.
  * 3. EVERY directory collapses with correct nesting: closing `akib35`
@@ -60,9 +63,10 @@ const chevronClass = "size-3 shrink-0 text-muted transition-transform rotate-90"
     class="flex shrink-0 gap-1.5 overflow-x-auto p-2 max-lg:no-scrollbar lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-0 lg:overflow-y-auto lg:zed-scroll lg:p-0 lg:py-1"
   >
     {/* workspace roots — collapsible like any directory */}
-    <div role="presentation" class="hidden lg:block">
+    <div aria-hidden="true" class="hidden lg:block">
       <button
         type="button"
+        tabindex="-1"
         data-folder="akib35"
         aria-expanded="true"
         class={`${folderButtonClass} pl-2`}
@@ -70,9 +74,10 @@ const chevronClass = "size-3 shrink-0 text-muted transition-transform rotate-90"
         <ChevronRightIcon data-chevron class={chevronClass} />
         <FolderIcon class="size-3 shrink-0 text-muted" /> akib35
       </button>
-      <div role="presentation" data-folder-row>
+      <div data-folder-row>
         <button
           type="button"
+          tabindex="-1"
           data-folder="projects"
           aria-expanded="true"
           class={`${folderButtonClass} pl-5`}
@@ -92,12 +97,13 @@ const chevronClass = "size-3 shrink-0 text-muted transition-transform rotate-90"
             {/* group folder — sticky like Zed's sticky_scroll; the
                 controller hides the row when a root above collapses */}
             <div
-              role="presentation"
+              aria-hidden="true"
               data-folder-row
               class="hidden lg:sticky lg:top-0 lg:z-10 lg:block lg:bg-surface"
             >
               <button
                 type="button"
+                tabindex="-1"
                 data-folder={group.key}
                 aria-expanded="true"
                 class={`${folderButtonClass} pl-8`}
