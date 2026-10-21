@@ -1,0 +1,7 @@
+# Cloudflare Pages redirects (https://developers.cloudflare.com/pages/configuration/redirects/)
+#
+# The CV was renamed my-cv.pdf → akib_s_resume.pdf (2026-10-21). Links to
+# the old file (shared before, cached by search engines, old CV printouts
+# with a QR/link) 301 to the new one. Applies to static assets only; the
+# /api/contact Function is unaffected.
+/my-cv.pdf  /akib_s_resume.pdf  301

@@ -48,7 +48,7 @@ export const portfolioData = {
     location: "Dhaka, Bangladesh",
     timezone: "UTC+6",
     email: "hello@akibh.dev",
-    resumeUrl: "/my-cv.pdf",
+    resumeUrl: "/akib_s_resume.pdf",
     siteUrl: "https://akibh.dev",
     blogUrl: "https://blog.akibh.dev"
   },
