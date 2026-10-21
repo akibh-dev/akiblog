@@ -19,6 +19,11 @@
 # - The build runs the content schema (bad frontmatter fails here, before
 #   anything is deployed) and Pagefind (search index into dist/pagefind).
 # - Commit message on Pages shows both revisions: blog@<sha> · notes@<sha>.
+# - After a successful deploy it re-runs portfolio-deploy.yml: the
+#   portfolio's Writings section fetches /api/featured AT ITS BUILD
+#   (apps/portfolio/src/lib/blog.ts), so it must rebuild to show new or
+#   newly featured posts. Dispatch via the job's GITHUB_TOKEN is allowed
+#   for workflow_dispatch (needs `actions: write` below).
 #
 # Required GitHub repository secrets (the SAME two as the portfolio):
 #   CLOUDFLARE_API_TOKEN   token with "Cloudflare Pages: Edit"
@@ -45,6 +50,7 @@ concurrency:
 
 permissions:
   contents: read
+  actions: write   # dispatch portfolio-deploy.yml after a blog deploy
 
 jobs:
   deploy:
@@ -104,3 +110,8 @@ jobs:
             --branch=main \
             --commit-hash="${{ github.sha }}" \
             --commit-message="blog@${GITHUB_SHA::7} · notes@${NOTES_SHA} · $(git log -1 --pretty=%s | head -c 150)"
+
+      - name: Refresh the portfolio's Writings (re-run portfolio deploy)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run portfolio-deploy.yml --ref main -R "${{ github.repository }}"
