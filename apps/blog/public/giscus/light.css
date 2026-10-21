@@ -115,3 +115,13 @@ main .link-primary {
 main a:hover {
   color: rgb(163 50 31);
 }
+
+/* Keep borders off the iframe's last pixel column. giscus draws the
+   comment box edge-to-edge (right edge = iframe width), so under some
+   engines/zoom levels (Safari, Firefox, fractional display scaling) the
+   1px right border rounds out of the viewport and looks clipped. body is
+   auto-width, so this padding shrinks its content instead of overflowing:
+   the box ends 2px inside the frame everywhere. */
+body {
+  padding-inline: 2px;
+}
