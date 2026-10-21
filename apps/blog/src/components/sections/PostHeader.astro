@@ -1,0 +1,95 @@
+---
+/**
+ * @file sections/PostHeader.astro
+ * @description Post hero — replaces the Delta reference BlogHeader
+ *              (docs/ui-guide §6: no author avatar, single-author blog).
+ *
+ *   ← All posts                                   (mono back link)
+ *   GUIDE / #web / #css                           (eyebrow: type + tag links)
+ *   Title in IBM Plex Serif                       (the page's only h1)
+ *   description in mono subtle                    (= meta description)
+ *   ▮▮▮▮▯▯▯▯ 4 min read · Oct 13, 2026 · Updated Oct 20, 2026
+ *   [AI disclosure banner, if ai ≠ none]
+ *
+ * WHY the description is shown: it is written for SEO anyway (required,
+ * ≤160 chars), and showing it keeps meta description and visible lead in
+ * sync — search snippets match what readers see.
+ * The reading meter is the PostCard meter at a larger scale, so card and
+ * page read as one system.
+ *
+ * SEARCH (Pagefind, plan21 §2): the header is a second data-pagefind-body
+ * region (the article is the first), so title + description are indexed
+ * and the h1 becomes the result title. Navigation and meta text are
+ * data-pagefind-ignore. Tags/type are FILTERS (attribute form `tag:web`,
+ * so the visible "#" never leaks into filter values); the ISO date is the
+ * sort key, the formatted date a result meta.
+ *
+ * Example: <PostHeader post={post} />
+ */
+import AiBanner from "../ui/AiBanner.astro";
+import { formatDate, readingMinutes, type Post } from "../../lib/posts";
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, type, tags, date, updated, ai, draft, series } = post.data;
+const mins = readingMinutes(post.body);
+const METER_MAX = 8;
+---
+
+<header data-pagefind-body>
+  <a href="/#posts" data-pagefind-ignore class="group inline-flex min-h-6 items-center gap-1.5 font-mono text-2xs uppercase tracking-wider text-muted transition-colors hover:text-accent">
+    <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span> All posts
+  </a>
+
+  <p data-pagefind-ignore class="mt-8 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-2xs uppercase tracking-widest">
+    {draft && <span class="rounded-sm border border-accent px-1.5 text-accent">draft</span>}
+    <span class="text-accent" data-pagefind-filter={`type:${type}`}>{type}</span>
+    {
+      tags.map((t) => (
+        <>
+          <span aria-hidden="true" class="text-line">/</span>
+          <a href={`/tags/${t}/`} data-pagefind-filter={`tag:${t}`} class="text-muted transition-colors hover:text-accent">#{t}</a>
+        </>
+      ))
+    }
+  </p>
+
+  <h1 class="mt-4 font-display text-[clamp(2rem,3vw+1rem,3.25rem)] leading-[1.08] tracking-tight text-balance text-default">
+    {title}
+  </h1>
+  <p class="mt-5 max-w-2xl font-mono text-xs leading-relaxed text-subtle md:text-sm">{description}</p>
+
+  <div data-pagefind-ignore data-pagefind-sort={`date:${date.toISOString().slice(0, 10)}`} class="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-2xs text-muted">
+    <span class="flex items-center gap-2">
+      <span class="flex gap-0.5" aria-hidden="true">
+        {Array.from({ length: METER_MAX }, (_, t) => <span class:list={["h-3 w-1", t < mins ? "bg-accent" : "bg-line-subtle"]} />)}
+      </span>
+      {mins} min read
+    </span>
+    <span aria-hidden="true" class="text-line">·</span>
+    <time datetime={date.toISOString()} data-pagefind-meta="date">{formatDate(date)}</time>
+    {
+      updated && (
+        <>
+          <span aria-hidden="true" class="text-line">·</span>
+          <span>
+            Updated <time datetime={updated.toISOString()}>{formatDate(updated)}</time>
+          </span>
+        </>
+      )
+    }
+    {
+      series && (
+        <>
+          <span aria-hidden="true" class="text-line">·</span>
+          <span>Series: <span class="text-subtle">{series}</span></span>
+        </>
+      )
+    }
+  </div>
+
+  {ai !== "none" && <div data-pagefind-ignore><AiBanner level={ai} /></div>}
+</header>

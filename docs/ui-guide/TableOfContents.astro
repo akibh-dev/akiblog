@@ -1,0 +1,176 @@
+---
+interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: HeadingItem[];
+}
+
+const { headings = [] } = Astro.props;
+
+// Filter to h2 and h3
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+---
+
+<aside class="hidden border-l border-delta lg:block">
+  <div class="sticky top-6 flex max-h-[calc(100vh-3rem)] flex-col">
+    <!-- Header -->
+    <p class="border-b border-delta px-4 py-3 font-mono text-xs uppercase tracking-wider text-[var(--delta-text-subtle)] select-none">
+      On this page
+    </p>
+
+    <!-- Interactive Custom Element -->
+    <table-of-contents class="block min-h-0 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <nav aria-label="On this page">
+        <ol class="flex flex-col gap-1.5 text-[13px] font-body list-none m-0 p-0">
+          {tocHeadings.map((h) => (
+            <li class:list={[h.depth === 3 ? "pl-3 text-[12px]" : ""]}>
+              <a
+                href={`#${h.slug}`}
+                data-toc-link
+                class="block rounded-[2px] leading-5 text-[var(--delta-text-muted)] underline-offset-4 py-0.5 hover:text-[var(--delta-text)] hover:underline focus-visible:outline-2 focus-visible:outline-[var(--delta-brand)] aria-[current=location]:text-[var(--delta-brand)] aria-[current=location]:font-medium aria-[current=location]:underline no-underline transition-colors"
+              >
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </table-of-contents>
+  </div>
+</aside>
+
+<script is:inline>
+  (function () {
+    const settleDuration = 150;
+    class TableOfContents extends HTMLElement {
+      initializationFrame;
+      updateFrame;
+      clickSettleTimeout;
+      links = [];
+      headings = [];
+      currentLink = null;
+      suppressScrollUpdates = false;
+
+      connectedCallback() {
+        this.addEventListener('click', this.handleClick);
+        window.addEventListener('resize', this.scheduleUpdate, { passive: true });
+        window.addEventListener('scroll', this.handleScroll, { passive: true });
+        this.initializationFrame = requestAnimationFrame(this.initialize);
+      }
+
+      disconnectedCallback() {
+        this.removeEventListener('click', this.handleClick);
+        window.removeEventListener('resize', this.scheduleUpdate);
+        window.removeEventListener('scroll', this.handleScroll);
+        if (this.initializationFrame) cancelAnimationFrame(this.initializationFrame);
+        if (this.updateFrame) cancelAnimationFrame(this.updateFrame);
+        if (this.clickSettleTimeout) window.clearTimeout(this.clickSettleTimeout);
+        this.links = [];
+        this.headings = [];
+        this.currentLink = null;
+        this.suppressScrollUpdates = false;
+      }
+
+      initialize = () => {
+        this.initializationFrame = undefined;
+        this.links = Array.from(this.querySelectorAll('a[data-toc-link]'));
+        const matched = this.links
+          .map((link) => {
+            const hash = decodeURIComponent(link.hash.slice(1));
+            const el = document.getElementById(hash);
+            return el instanceof HTMLHeadingElement ? { heading: el, link } : null;
+          })
+          .filter((item) => item !== null);
+
+        this.headings = matched.map((item) => item.heading);
+        this.links = matched.map((item) => item.link);
+        if (this.headings.length !== 0) {
+          this.setInitialHeading();
+        }
+      };
+
+      setInitialHeading() {
+        const hash = decodeURIComponent(window.location.hash.slice(1));
+        const index = this.headings.findIndex((h) => h.id === hash);
+        if (index >= 0) {
+          this.setCurrentLink(this.links[index] || null);
+          return;
+        }
+        this.updateCurrentHeading();
+      }
+
+      handleScroll = () => {
+        if (!this.suppressScrollUpdates) {
+          this.scheduleUpdate();
+        }
+      };
+
+      scheduleUpdate = () => {
+        if (this.updateFrame === undefined) {
+          this.updateFrame = requestAnimationFrame(() => {
+            this.updateFrame = undefined;
+            this.updateCurrentHeading();
+          });
+        }
+      };
+
+      updateCurrentHeading() {
+        const first = this.headings[0];
+        if (!first) return;
+
+        const scrollY = window.scrollY;
+        const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrollMarginTop = Number.parseFloat(getComputedStyle(first).scrollMarginTop) || 0;
+
+        const positions = this.headings.map(
+          (h) => h.getBoundingClientRect().top + scrollY - scrollMarginTop
+        );
+
+        let activeIdx = 0;
+        for (let i = 0; i < positions.length; i++) {
+          if (scrollY >= positions[i] - 2) {
+            activeIdx = i;
+          } else {
+            break;
+          }
+        }
+
+        this.setCurrentLink(this.links[activeIdx] || null);
+      }
+
+      setCurrentLink(link) {
+        if (link !== this.currentLink) {
+          if (this.currentLink) {
+            this.currentLink.removeAttribute('aria-current');
+          }
+          if (link) {
+            link.setAttribute('aria-current', 'location');
+          }
+          this.currentLink = link;
+        }
+      }
+
+      handleClick = (e) => {
+        if (!(e.target instanceof Element)) return;
+        const link = e.target.closest('a[data-toc-link]');
+        if (link && this.contains(link)) {
+          this.setCurrentLink(link);
+          this.suppressScrollUpdates = true;
+          if (this.clickSettleTimeout) window.clearTimeout(this.clickSettleTimeout);
+          this.clickSettleTimeout = window.setTimeout(() => {
+            this.clickSettleTimeout = undefined;
+            this.suppressScrollUpdates = false;
+          }, settleDuration);
+        }
+      };
+    }
+
+    if (!customElements.get('table-of-contents')) {
+      customElements.define('table-of-contents', TableOfContents);
+    }
+  })();
+</script>

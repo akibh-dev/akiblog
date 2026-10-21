@@ -1,34 +1,22 @@
-name = "blog"
+# ==============================================================================
+# akiblog — Cloudflare Pages configuration (wrangler.toml)
+#
+# POC / Implementation Architecture:
+# - Cloudflare Pages project "akiblog" (plan21 §4: `blog.pages.dev` is taken
+#   globally, and the name matches the brand → akiblog.pages.dev previews).
+#   `pages_build_output_dir` marks this as a Pages config, making this file
+#   the source of truth for the project's settings.
+# - Static site + ONE Pages Function: functions/api/featured.ts
+#   (GET /api/featured for the portfolio, plan26). Pages auto-generates
+#   _routes.json so only /api/* invokes it; everything else is free static.
+#   No bindings to declare — the Function only uses the built-in ASSETS
+#   binding. `wrangler pages deploy dist`, run from apps/blog, uploads dist/
+#   AND compiles functions/ (see .github/workflows/blog-deploy.yml).
+# - Custom domain blog.akib35.dev is attached in the dashboard
+#   (Pages → akiblog → Custom domains) AFTER detaching it from the old
+#   `blog` Worker — plan21 §4 cutover order.
+# ==============================================================================
+
+name = "akiblog"
 compatibility_date = "2026-03-13"
-compatibility_flags = ["nodejs_compat"]
-
-# Custom Domain attached directly to akib35.dev in Cloudflare
-routes = [
-  { pattern = "blog.akib35.dev", custom_domain = true }
-]
-
-[assets]
-directory = "dist/client"
-binding = "ASSETS"
-
-# D1 Database binding
-[[d1_databases]]
-binding = "DB"
-database_name = "blog-db"
-database_id = "blog-db-local-id"
-
-# R2 Bucket binding
-[[r2_buckets]]
-binding = "BUCKET"
-bucket_name = "blog-media"
-
-# Non-sensitive environment variables
-[vars]
-SITE_URL = "https://blog.akib35.dev"
-DEV_MODE = "false"
-R2_PUBLIC_DOMAIN = "/api/media"
-
-# Cloudflare Access configuration injected via CI secrets
-# These placeholder values are replaced during deployment
-CLOUDFLARE_TEAM_DOMAIN = "placeholder-team-domain"
-CLOUDFLARE_ACCESS_AUD = "placeholder-aud-tag"
+pages_build_output_dir = "dist"

@@ -1,15 +1,12 @@
 {
   "extends": "@repo/tsconfig/base.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@ui/*": ["src/components/ui/*"],
-      "@lib/*": ["src/lib/*"]
-    }
-  },
-  "include": ["src/**/*", "env.d.ts"]
+  // No jsx options: React was removed (plan 17 Phase 5) — every
+  // component is .astro, and Astro's language server handles its own
+  // template typing. The old react-jsx / jsxImportSource pair only
+  // existed for @astrojs/react.
+  // Astro's tsconfig preset includes .astro/types.d.ts — the language
+  // server type-checks .astro files against those generated types; without
+  // it the editor degrades. (Plain tsc only needs the env.d.ts shim.)
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
+  "exclude": ["dist"]
 }

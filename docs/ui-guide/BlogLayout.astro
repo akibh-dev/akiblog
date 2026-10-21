@@ -1,0 +1,176 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import BlogHeader from './BlogHeader.astro';
+import TableOfContents from './TableOfContents.astro';
+import MorePosts from './MorePosts.astro';
+import './blog.css';
+import '../styles/global.css';
+
+interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  description?: string;
+  publishDate: string;
+  formattedDate: string;
+  author: {
+    name: string;
+    avatar: string;
+    handle?: string;
+  };
+  headings: HeadingItem[];
+}
+
+const {
+  title,
+  description,
+  publishDate,
+  formattedDate,
+  author,
+  headings = []
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Anti-Flash Dark Mode Initialization Script -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (!theme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+
+    <!-- Font Preloads -->
+    <link rel="preconnect" href="https://cdn.delta.dev" crossorigin="anonymous">
+    <link rel="preload" href="https://cdn.delta.dev/fonts/iAWriterQuattroV.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://cdn.delta.dev/fonts/IBMPlexSerif-Var.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://cdn.delta.dev/fonts/Lilex-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <title>{title} — Delta Blog Reference</title>
+    {description && <meta name="description" content={description} />}
+  </head>
+  <body class="relative bg-[var(--delta-canvas)] text-[var(--delta-text)] selection:bg-[#eceadf] selection:text-[#201e13] dark:selection:bg-[#343840] dark:selection:text-[#eceae5]">
+
+    <!-- Fixed Viewport Framing Overlay matching delta.dev -->
+    <div class="pointer-events-none fixed inset-0 z-20 grid h-dvh grid-cols-[1fr_minmax(0,78rem)_1fr] grid-rows-[0.75rem_minmax(0,1fr)_0.75rem]">
+      <div class="pointer-events-none relative isolate col-span-full row-start-1 bg-[var(--delta-canvas)] border-b border-delta overflow-hidden">
+        <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+          <defs>
+            <pattern id="hatch-blog-top" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hatch-blog-top)"></rect>
+        </svg>
+      </div>
+
+      <div class="pointer-events-none relative isolate col-start-1 row-start-2 bg-[var(--delta-canvas)] border-r border-delta overflow-hidden hidden xl:block" aria-hidden="true">
+        <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+          <defs>
+            <pattern id="hatch-blog-left" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hatch-blog-left)"></rect>
+        </svg>
+      </div>
+
+      <div class="pointer-events-none relative isolate col-start-3 row-start-2 bg-[var(--delta-canvas)] border-l border-delta overflow-hidden hidden xl:block" aria-hidden="true">
+        <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+          <defs>
+            <pattern id="hatch-blog-right" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hatch-blog-right)"></rect>
+        </svg>
+      </div>
+
+      <div class="pointer-events-none relative isolate col-span-full row-start-3 bg-[var(--delta-canvas)] border-t border-delta overflow-hidden" aria-hidden="true">
+        <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+          <defs>
+            <pattern id="hatch-blog-bottom" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hatch-blog-bottom)"></rect>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Mobile Header -->
+    <Navbar />
+
+    <!-- Site Inset 78rem Container -->
+    <div class="max-w-[78rem] mx-auto min-h-screen pt-3 pb-3 relative z-1">
+      <div class="grid grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)] lg:grid-cols-[14.5rem_minmax(0,1fr)]">
+
+        <!-- Left Sidebar (Desktop) -->
+        <div class="hidden md:block h-[calc(100vh-1.5rem)] sticky top-3 z-10">
+          <Sidebar />
+        </div>
+
+        <!-- Main Blog Article & Table of Contents Column -->
+        <div class="flex flex-col min-w-0 md:border-r border-delta bg-[var(--delta-canvas)]">
+          <main id="main-content" tabindex="-1" class="grow">
+
+            <!-- Blog Article Hero Header -->
+            <BlogHeader
+              title={title}
+              publishDate={publishDate}
+              formattedDate={formattedDate}
+              author={author}
+            />
+
+            <!-- 2-Column Split: Article (max-w-3xl) + Aside Table of Contents -->
+            <section class="border-b border-delta lg:grid lg:grid-cols-[minmax(0,1fr)_14rem]">
+              <div class="min-w-0 px-4 py-8 md:px-6 lg:p-8">
+                <article class="markdown-content mx-auto max-w-3xl">
+                  <slot />
+                </article>
+              </div>
+
+              <!-- Sticky Table of Contents -->
+              <TableOfContents headings={headings} />
+            </section>
+
+            <!-- Decorative Hatched Spacer Band -->
+            <div aria-hidden="true" class="relative h-3.5 flex-none overflow-clip border-b border-delta bg-[var(--delta-canvas)]">
+              <svg class="pointer-events-none absolute inset-0 size-full select-none stroke-[var(--delta-brand)] opacity-15 dark:opacity-5">
+                <defs>
+                  <pattern id="blog-divider-hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                    <line x1="0" y1="0" x2="0" y2="4" stroke-width="1.5"></line>
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#blog-divider-hatch)"></rect>
+              </svg>
+            </div>
+
+            <!-- More Posts Section -->
+            <MorePosts />
+
+          </main>
+
+          <Footer />
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>

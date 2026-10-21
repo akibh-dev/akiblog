@@ -1,0 +1,60 @@
+---
+/**
+ * @file pages/tags/[tag].astro
+ * @description Posts for one tag: header panel (eyebrow, `#tag` h1, count,
+ *              sibling tag pills) + the ruled PostGrid.
+ *
+ * SEO: tag pages with a single post are thin duplicates of that post's
+ * card, so they are `noindex, follow` (crawlers still follow to the post)
+ * — plan19 §5. (They still appear in the sitemap; robots meta wins, and
+ * they become indexable automatically once a second post uses the tag.)
+ */
+import Layout from "../../layouts/Layout.astro";
+import SectionShell from "../../components/ui/SectionShell.astro";
+import Seam from "../../components/ui/Seam.astro";
+import Footer from "../../components/sections/Footer.astro";
+import PostGrid from "../../components/sections/PostGrid.astro";
+import TagPill from "../../components/ui/TagPill.astro";
+import { getPosts, tagIndex, type Post } from "../../lib/posts";
+
+export async function getStaticPaths() {
+  const tags = tagIndex(await getPosts());
+  return tags.map(({ tag, posts }) => ({ params: { tag }, props: { posts, all: tags.map((t) => ({ tag: t.tag, count: t.posts.length })) } }));
+}
+
+interface Props {
+  posts: Post[];
+  all: { tag: string; count: number }[];
+}
+
+const { tag } = Astro.params;
+const { posts, all } = Astro.props;
+---
+
+<Layout
+  title={`#${tag}`}
+  description={`${posts.length} ${posts.length === 1 ? "post" : "posts"} tagged #${tag} on akiblog.`}
+  noindex={posts.length < 2}
+>
+  <SectionShell id="tag-header">
+    <a href="/#tags" class="group inline-flex min-h-6 items-center gap-1.5 font-mono text-2xs uppercase tracking-wider text-muted transition-colors hover:text-accent">
+      <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span> All tags
+    </a>
+    <h1 class="mt-8 font-display text-[clamp(2rem,3vw+1rem,3.25rem)] leading-[1.08] tracking-tight text-default">
+      <span class="text-accent">#</span>{tag}
+    </h1>
+    <p class="mt-4 font-mono text-xs text-subtle">{posts.length} {posts.length === 1 ? "post" : "posts"}</p>
+    <ul class="mt-8 flex flex-wrap gap-2" aria-label="Other tags">
+      {all.map((t) => <li><TagPill tag={t.tag} count={t.count} current={t.tag === tag} /></li>)}
+    </ul>
+  </SectionShell>
+
+  <Seam />
+
+  <SectionShell id="tag-posts" pad="p-0">
+    <PostGrid posts={posts} headingLevel="h2" />
+  </SectionShell>
+
+  <Seam />
+  <Footer />
+</Layout>

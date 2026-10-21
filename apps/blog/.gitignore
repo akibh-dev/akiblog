@@ -1,0 +1,7 @@
+# Posts are NOT stored in this repo: scripts/sync-content.ts copies them from
+# the notes repo (../notes locally, a CI checkout in GitHub Actions) on every
+# dev/build run. Committing them would create a second, drifting copy.
+src/content/posts/
+# written by pre-plan24 sync-content versions (a dev:blog started before the
+# update keeps writing it until restarted) — unused, never commit it
+src/content/.source.json

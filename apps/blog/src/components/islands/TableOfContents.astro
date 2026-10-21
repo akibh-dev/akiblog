@@ -1,0 +1,57 @@
+---
+/**
+ * @file islands/TableOfContents.astro
+ * @description Inline "On this page" block above the article, BELOW lg —
+ *              where the sidebar git-tree TOC (layout/TocTree.astro) is not
+ *              shown (phones have no sidebar; the md rail is too narrow
+ *              for nested labels). plan22.
+ *
+ * WHY <details>: closed by default, so the article starts right under the
+ * header on a phone; one tap opens the outline. Works without JS — the
+ * scroll-spy (islands/TocSpy) only adds the active-heading highlight.
+ * Indentation follows the same lane model as the tree (lib/toc.ts), so a
+ * skipped heading level never indents twice.
+ *
+ * Re-themed from the Delta reference (docs/ui-guide §6): canvas inset
+ * panel, mono labels, accent tick on the active item.
+ *
+ * Example: <TableOfContents headings={headings} />
+ */
+import type { MarkdownHeading } from "astro";
+import TocSpy from "./TocSpy.astro";
+import { tocRows } from "../../lib/toc";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const rows = tocRows(Astro.props.headings);
+const indent = ["", "pl-4", "pl-8"];
+---
+
+<details class="group mx-auto mb-10 max-w-[68ch] border border-line bg-canvas lg:hidden">
+  <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between px-4 font-mono text-2xs uppercase tracking-widest text-subtle select-none [&::-webkit-details-marker]:hidden">
+    On this page
+    <span aria-hidden="true" class="text-muted transition-transform group-open:rotate-90">›</span>
+  </summary>
+  <TocSpy>
+    <nav aria-label="On this page" class="border-t border-line-subtle px-3 py-3">
+      <ol class="m-0 flex list-none flex-col gap-0.5 p-0">
+        {
+          rows.map((r) => (
+            <li class={indent[r.lane]}>
+              <a
+                href={`#${r.slug}`}
+                data-toc-link
+                data-lane={r.lane}
+                class="relative block min-h-6 py-1 pl-3 font-mono text-xs leading-snug text-muted transition-colors before:absolute before:top-1/2 before:left-0 before:h-4 before:w-0.5 before:-translate-y-1/2 before:bg-transparent hover:text-default aria-[current=location]:text-accent aria-[current=location]:before:bg-accent"
+              >
+                {r.text}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </TocSpy>
+</details>

@@ -1,29 +1,33 @@
 ---
 /**
- * @file AiBanner.astro
- * @description Persistent top-right corner badge indicating AI-assisted engineering.
+ * @file ui/AiBanner.astro
+ * @description AI-disclosure note under the post header, shown when the
+ *              post's frontmatter says `ai: assisted | generated`
+ *              (legacy `author: gemini` is mapped to `generated` by the
+ *              content schema).
  *
- * POC / Implementation Details:
- * - Positioned permanently at the top-right corner across all pages (public & admin layouts).
- * - Non-dismissible (no close button) with prominent typography and edge status glow.
- * - Why this implementation is best: Clear, unmissable attribution that integrates naturally
- *   into both light and dark theme navigation flows.
+ * WHY: readers deserve to know when a text was machine-written or
+ * machine-assisted — stated plainly, once, at the top, without alarm
+ * colors. Brand wash + left rule (docs/ui-guide §9), Sparkles glyph from
+ * the portfolio icon set, role="note" so screen readers announce it as
+ * an aside rather than part of the article.
+ *
+ * Example: <AiBanner level="generated" />
  */
+import { SparklesIcon } from "../../icons";
+
+interface Props {
+  level: "assisted" | "generated";
+}
+
+const { level } = Astro.props;
+const text =
+  level === "generated"
+    ? "This post was drafted by an AI model and reviewed by the author."
+    : "Parts of this post were written with help from an AI model.";
 ---
 
-<aside
-  id="ai-banner"
-  aria-label="Built with AI badge"
-  class="fixed top-3 right-4 z-50 flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-purple-600/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-purple-500/20 backdrop-blur-xl border border-blue-500/30 dark:border-blue-400/30 shadow-lg text-slate-800 dark:text-slate-100 transition-all duration-300 hover:scale-105"
->
-  <div class="relative flex items-center justify-center">
-    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-  </div>
-
-  <div class="flex items-center gap-2 font-mono text-xs font-bold tracking-tight">
-    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-300">
-      ⚡ BUILT WITH AI
-    </span>
-  </div>
-</aside>
+<p role="note" class="mt-8 flex items-start gap-2.5 border-l-2 border-accent bg-accent-subtle px-4 py-3 font-mono text-2xs leading-relaxed text-subtle">
+  <SparklesIcon class="mt-px size-4 shrink-0 text-accent" />
+  <span><span class="uppercase tracking-wider text-accent">AI {level}</span> — {text}</span>
+</p>
