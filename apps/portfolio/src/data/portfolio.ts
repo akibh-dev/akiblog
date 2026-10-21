@@ -1,6 +1,6 @@
 /**
  * @file apps/portfolio/src/data/portfolio.ts
- * @description Centralized portfolio content model derived from akibh.dev (formerly akib35.dev) and legacy portfolio repository.
+ * @description Centralized portfolio content model derived from akibh.dev and the legacy portfolio repository.
  *
  * POC / Implementation Architecture:
  * - Structured TypeScript objects providing compile-time type safety for all profile data.
@@ -48,7 +48,7 @@ export const portfolioData = {
     location: "Dhaka, Bangladesh",
     timezone: "UTC+6",
     email: "hello@akibh.dev",
-    resumeUrl: "/my-cv.pdf",
+    resumeUrl: "/akib_s_resume.pdf",
     siteUrl: "https://akibh.dev",
     blogUrl: "https://blog.akibh.dev"
   },
@@ -56,7 +56,7 @@ export const portfolioData = {
   socials: [
     { name: "GitHub", handle: "akibh-dev", url: "https://github.com/akibh-dev" },
     { name: "LinkedIn", handle: "akibH", url: "https://linkedin.com/in/akibH" },
-    { name: "X", handle: "mdakibhasan18", url: "https://twitter.com/mdakibhasan18" },
+    { name: "X", handle: "akibhdev", url: "https://x.com/akibhdev" },
     { name: "Facebook", handle: "akib4040", url: "https://facebook.com/akib4040" },
   ],
 

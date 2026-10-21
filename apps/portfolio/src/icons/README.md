@@ -14,7 +14,7 @@ delta.dev-inspired theme in `src/styles/global.css`.
 | Type safety / props | ❌ | ✅ `class`, `title`, any SVG attr |
 
 Use `public/` only for assets that need a stable external URL (favicons, OG
-images, `my-cv.pdf`…). UI icons belong in components.
+images, `akib_s_resume.pdf`…). UI icons belong in components.
 
 ## Design contract
 

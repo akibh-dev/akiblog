@@ -58,7 +58,7 @@ export default defineConfig({
     // rehypeHeadingIds runs FIRST so the anchor plugin can read the ids.
     processor: unified({
       remarkPlugins: [remarkStripTitle, remarkCodeLang, remarkAlerts],
-      rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks(['blog.akibh.dev', 'blog.akib35.dev'])],
+      rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks(['blog.akibh.dev'])],
     }),
     // Shiki dual themes (light-plus / one-dark-pro, from docs/ui-guide). With
     // defaultColor:false every token carries BOTH colors as CSS variables

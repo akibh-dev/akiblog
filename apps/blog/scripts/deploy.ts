@@ -13,7 +13,7 @@
  * new note".
  *
  * WHY -R <repo>: this repo's `origin` is the Forgejo instance
- * (git.akib35.dev); GitHub is the push mirror that runs Actions, so `gh`
+ * (the self-hosted Forgejo instance); GitHub is the push mirror that runs Actions, so `gh`
  * can't infer it from the remotes. Override with GH_REPO=owner/name.
  *
  * Flow: warn if ../notes has unpushed commits → `gh workflow run` →

@@ -45,7 +45,7 @@ export default defineConfig({
     csp: {
       directives: [
         "default-src 'self'",
-        "img-src 'self' data: https://blog.akibh.dev https://blog.akib35.dev https://akiblog.pages.dev",
+        "img-src 'self' data: https://blog.akibh.dev https://akiblog.pages.dev",
         "font-src 'self'",
         "connect-src 'self' https://cloudflareinsights.com",
         "frame-src https://challenges.cloudflare.com",
