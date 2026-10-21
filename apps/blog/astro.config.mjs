@@ -73,7 +73,9 @@ export default defineConfig({
   //                               WASM compilation ONLY, not JS eval()
   //   static.cloudflareinsights.com / cloudflareinsights.com
   //                               Cloudflare Web Analytics beacon (edge-injected)
-  //   https://giscus.app          comments script + iframe, only when
+  //   https://giscus.app          comments script + iframe + the small
+  //                               default.css its client.js injects into
+  //                               the page (iframe sizing) — only when
   //                               src/config/giscus.ts is filled in
   // style-src-attr 'unsafe-inline': Shiki emits per-token style="" attributes
   // (the dual-theme CSS variables); attributes can't be hashed one by one.
@@ -93,7 +95,7 @@ export default defineConfig({
         resources: ["'self'", "'wasm-unsafe-eval'", 'https://static.cloudflareinsights.com', ...giscusSrc],
       },
       styleDirective: {
-        resources: ["'self'", { resource: "'unsafe-inline'", kind: 'attribute' }],
+        resources: ["'self'", ...giscusSrc, { resource: "'unsafe-inline'", kind: 'attribute' }],
       },
     },
   },
