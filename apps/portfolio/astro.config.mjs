@@ -35,7 +35,8 @@ export default defineConfig({
   //   challenges.cloudflare.com   Turnstile script + its iframe (contact form)
   //   static.cloudflareinsights.com / cloudflareinsights.com
   //                               Cloudflare Web Analytics beacon (edge-injected)
-  //   picsum.photos               placeholder covers in Writings (until the blog ships)
+  //   blog.akib35.dev / akiblog.pages.dev
+  //                               blog post covers in Writings (lib/blog.ts)
   // style-src-attr 'unsafe-inline': markup uses a few style="" attributes
   // (status-bar font size, SVG strokes); attributes can't be hashed one by one.
   // frame-ancestors is NOT here: browsers ignore it in <meta>; public/_headers
@@ -44,7 +45,7 @@ export default defineConfig({
     csp: {
       directives: [
         "default-src 'self'",
-        "img-src 'self' data: https://picsum.photos https://fastly.picsum.photos",
+        "img-src 'self' data: https://blog.akib35.dev https://akiblog.pages.dev",
         "font-src 'self'",
         "connect-src 'self' https://cloudflareinsights.com",
         "frame-src https://challenges.cloudflare.com",

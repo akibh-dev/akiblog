@@ -27,10 +27,9 @@ export interface BlogPost {
   slug: string;
   url: string;
   /**
-   * Banner image URL, supplied by the blog (blog.akib35.dev) once posts are
-   * fetched from it. Optional: posts without one render the typographic
-   * "document" thumbnail (ui/PostCover.astro) — that is the default.
-   * The picsum.photos URLs below are DUMMIES until the blog feed is wired.
+   * Banner image URL, supplied by the blog's API (a 960×480 WebP rendered
+   * from the post's cover). Optional: posts without one render the
+   * typographic "document" thumbnail (ui/PostCover.astro).
    */
   banner?: string;
 }
@@ -144,37 +143,12 @@ export const portfolioData = {
     }
   ] as Project[],
 
-  blogPosts: [
-    {
-      title: "Deploying High-Performance SSR with Astro on Cloudflare Workers",
-      excerpt: "Deep dive into configuring isolated V8 Workers, binding Cloudflare D1 SQL via Drizzle, and caching static assets at the global edge.",
-      date: "Mar 2026",
-      readingTime: "4 min read",
-      tags: ["Cloudflare", "Astro", "Architecture"],
-      slug: "astro-cloudflare-workers-ssr",
-      url: "https://blog.akib35.dev",
-      banner: "https://picsum.photos/seed/astro-cloudflare-workers-ssr/960/480"
-    },
-    {
-      title: "Zero-Trust Security for Edge Applications: Replacing Monolithic Auth",
-      excerpt: "Why delegating authentication to Cloudflare Access eliminates session database bloat, password reset flows, and credential vulnerabilities.",
-      date: "Feb 2026",
-      readingTime: "6 min read",
-      tags: ["Security", "Zero Trust", "Cloudflare"],
-      slug: "zero-trust-edge-auth",
-      url: "https://blog.akib35.dev",
-      banner: "https://picsum.photos/seed/zero-trust-edge-auth/960/480"
-    },
-    {
-      title: "Algorithmic Problem Solving: Patterns from 200+ Challenges",
-      excerpt: "Core mental frameworks and recurring data structures learned while solving competitive programming problems across LeetCode and Codeforces.",
-      date: "Jan 2026",
-      readingTime: "5 min read",
-      tags: ["Algorithms", "Competitive Programming"],
-      slug: "competitive-programming-patterns",
-      url: "https://blog.akib35.dev"
-    }
-  ] as BlogPost[]
+  /**
+   * Blog posts are NOT authored here: lib/blog.ts fetches them from the
+   * blog's /api/featured at build time (Writings, terminal `blog`,
+   * llms.txt). Empty by default — never ship placeholder posts.
+   */
+  blogPosts: [] as BlogPost[]
 };
 
 /**

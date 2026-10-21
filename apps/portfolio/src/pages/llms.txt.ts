@@ -18,11 +18,13 @@
  */
 import type { APIRoute } from "astro";
 import { portfolioData } from "../data/portfolio";
+import { getBlogPosts } from "../lib/blog";
 
 export const prerender = true;
 
-export const GET: APIRoute = ({ site }) => {
-  const { meta, bio, education, skills, projects, competitiveMetrics, blogPosts, socials } = portfolioData;
+export const GET: APIRoute = async ({ site }) => {
+  const { meta, bio, education, skills, projects, competitiveMetrics, socials } = portfolioData;
+  const blogPosts = await getBlogPosts();
   const origin = (site ?? new URL(meta.siteUrl)).origin;
 
   const lines = [

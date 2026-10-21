@@ -26,10 +26,13 @@ import { buildCommands } from "./commands";
 import { t } from "./dsl";
 import { createRegistry } from "./registry";
 import { renderEntry } from "./render";
-import type { HistoryEntry, OutputLine, Segment } from "./types";
+import type { HistoryEntry, OutputLine, PortfolioData, Segment } from "./types";
 
 export function mountTerminal(root: HTMLElement) {
-  const data = portfolioData;
+  // blog posts are build-time API data, delivered on the element by
+  // Terminal.astro (data-blog-posts); everything else is the static module
+  const blogPosts = JSON.parse(root.dataset.blogPosts ?? "[]") as PortfolioData["blogPosts"];
+  const data: PortfolioData = { ...portfolioData, blogPosts };
   const scroller = root.querySelector<HTMLElement>("[data-scroller]")!;
   const log = root.querySelector<HTMLElement>("[data-log]")!;
   const input = root.querySelector<HTMLInputElement>("[data-input]")!;
