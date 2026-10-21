@@ -3,7 +3,7 @@
 **Updated 2026-10-21. Synced from `apps/portfolio` on the `portfolio` branch,
 commit `091c7cf`** (a11y/SEO pass, 404 page, CSP, React removed).
 
-The blog must look, read and behave like akib35.dev. This directory used to be
+The blog must look, read and behave like akibh.dev. This directory used to be
 a standalone Delta-blog reference with its own hardcoded hex palette. It now
 has two layers:
 
@@ -48,9 +48,9 @@ the `blog` branch.
 |---|---|---|
 | `src/styles/global.css` | `src/styles/global.css` | none. Append blog layers (§7 prose) at the end |
 | `src/lib/theme.ts` | `src/lib/theme.ts` | none |
-| `src/layouts/BaseHead.astro` | `src/layouts/BaseHead.astro` | props for article SEO: `image`, `type: 'article'`, `published`, `modified`, `tags`, `canonical`. JSON-LD `BlogPosting` (+ `Person` @id → `https://akib35.dev/#person`) |
+| `src/layouts/BaseHead.astro` | `src/layouts/BaseHead.astro` | props for article SEO: `image`, `type: 'article'`, `published`, `modified`, `tags`, `canonical`. JSON-LD `BlogPosting` (+ `Person` @id → `https://akibh.dev/#person`) |
 | `src/layouts/Layout.astro` | `src/layouts/Layout.astro` | forward the BaseHead props. The clean-URL `#` script stays (TOC links use it) |
-| `src/pages/404.astro` | `src/pages/404.astro` | **routes list = blog routes** (`/`, the `/#…` sections, `/rss.xml`, each tag, and every post slug, so `/github-cli` suggests `/github-cli-guide/`). Domain text `blog.akib35.dev`. "Read the blog" button → "Portfolio ↗" |
+| `src/pages/404.astro` | `src/pages/404.astro` | **routes list = blog routes** (`/`, the `/#…` sections, `/rss.xml`, each tag, and every post slug, so `/github-cli` suggests `/github-cli-guide/`). Domain text `blog.akibh.dev`. "Read the blog" button → "Portfolio ↗" |
 | `src/components/layout/{ViewportFrame,SiteSidebar,MobileHeader,BrandLogo}.astro` | same | sidebar/mobile menu read **stations from a prop** instead of `data/sections.ts` (§4.2) |
 | `src/components/islands/{ScrollSpy,MobileMenu,ThemeSwitch,CopyButton}.astro` | same | none (all Astro since `091c7cf`) |
 | `src/components/ui/{Seam,Hatch,SectionShell,ScrollRow,PostCover}.astro` | same | PostCover takes `ImageMetadata` → `<Image>` (build-time AVIF/WebP) |
@@ -59,7 +59,7 @@ the `blog` branch.
 | `public/fonts/{iAWriterQuattroV,IBMPlexSerif-Var,Lilex-Regular,square-kufic}.woff2` | `public/fonts/` | none (self-hosted, OFL) |
 | `public/{bg-pattern.svg,bg-pattern-dark.svg,noise.webp,favicon.ico,apple-touch-icon.png}` | `public/` | none |
 | `public/_headers` | `public/_headers` | add `/pagefind/*` cache rule if search ships |
-| `public/robots.txt` | `public/robots.txt` | sitemap URL → `https://blog.akib35.dev/sitemap-index.xml` |
+| `public/robots.txt` | `public/robots.txt` | sitemap URL → `https://blog.akibh.dev/sitemap-index.xml` |
 | `astro.config.mjs` `security.csp` + `sitemap()` | `astro.config.mjs` | CSP additions for giscus (§8) |
 | `public/og.png` | — | blog gets its own default `og.png` (1200×630) for posts without a cover |
 
@@ -150,11 +150,11 @@ body (bg-frame-background + fixed watermark)
 | `02. Search` | `#search` (Pagefind) | `/#search` |
 | `03. Tags` | `#tags` (topic list) | `/#tags` (active on `/tags/<tag>/`) |
 | `04. Posts` | `#posts` (all posts) | `/#posts` (active on post pages) |
-| `05. Portfolio ↗` | `https://akib35.dev` | same |
+| `05. Portfolio ↗` | `https://akibh.dev` | same |
 
 URLs stay clean like the portfolio: section and TOC clicks never write `#…`
 into the address bar (Layout's clean-URL script, plan24). Posts live at the
-root: `blog.akib35.dev/<slug>/`.
+root: `blog.akibh.dev/<slug>/`.
 
 Stations live in `src/data/site.ts`. On `/` they are in-page anchors under
 ScrollSpy, with the hop connector, as in the portfolio. Elsewhere the matching one is
@@ -351,7 +351,7 @@ Keep Cloudflare Web Analytics entries if analytics is enabled on the blog.
 - Frontmatter `featured: true` pins a post. It leads the home **All posts**
   section (★ Featured grid) and is served first by `GET /api/featured?limit=3`
   (`apps/blog/functions/api/featured.ts`, the only server code: a Pages Function
-  reading the build's `/posts.json` via ASSETS, with CORS for akib35.dev).
+  reading the build's `/posts.json` via ASSETS, with CORS for akibh.dev).
 - The non-featured list loads in batches of 6 as the reader scrolls. The batches are
   pre-built static HTML fragments (`/feed/<n>/`), so the cards are the same Astro
   markup. Sub-labels "★ Featured" / "Latest" use a `font-mono text-2xs uppercase

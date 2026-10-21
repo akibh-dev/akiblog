@@ -1,6 +1,6 @@
 /**
  * @file apps/portfolio/src/data/portfolio.ts
- * @description Centralized portfolio content model derived from akibh.dev (formerly akib35.dev) and legacy portfolio repository.
+ * @description Centralized portfolio content model derived from akibh.dev and the legacy portfolio repository.
  *
  * POC / Implementation Architecture:
  * - Structured TypeScript objects providing compile-time type safety for all profile data.

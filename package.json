@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "akiblog monorepo — portfolio (akib35.dev) + static blog (blog.akib35.dev), Astro + Tailwind v4 on Cloudflare Pages",
+  "description": "akiblog monorepo — portfolio (akibh.dev) + static blog (blog.akibh.dev), Astro + Tailwind v4 on Cloudflare Pages",
   "packageManager": "bun@1.4.3",
   "scripts": {
     "dev": "turbo run dev",

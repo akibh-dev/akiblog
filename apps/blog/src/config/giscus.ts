@@ -46,7 +46,7 @@ export interface GiscusConfig {
 
 /* filled 2026-10-21 — ids verified via the GitHub GraphQL API + giscus.app
    (akibh-dev/notes is public, Discussions on, giscus app installed; the
-   repo id survived the akib35 → akibh-dev rename, so it matches the
+   repo id survived the GitHub username rename, so it matches the
    Jekyll site's _includes/giscus.html) */
 export const giscus: GiscusConfig | null = {
   repo: "akibh-dev/notes",

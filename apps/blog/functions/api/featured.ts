@@ -51,12 +51,10 @@ interface Post {
   [key: string]: unknown;
 }
 
-// akibh.dev = the portfolio; akib35.dev kept while the old domain 301s (plan29)
+// akibh.dev = the portfolio
 const ALLOWED_ORIGINS = new Set([
   "https://akibh.dev",
   "https://www.akibh.dev",
-  "https://akib35.dev",
-  "https://www.akib35.dev",
   "http://localhost:4322",
   "http://localhost:4323",
 ]);

@@ -128,8 +128,8 @@ export function rehypeHeadingAnchors() {
     });
 }
 
-/** hosts treated as THIS site (no ↗, same tab): current + the old domain, which 301s here */
-export function rehypeExternalLinks(siteHosts: string[] = ["blog.akibh.dev", "blog.akib35.dev"]) {
+/** hosts treated as THIS site (no ↗, same tab) */
+export function rehypeExternalLinks(siteHosts: string[] = ["blog.akibh.dev"]) {
   return () => (tree: Node) =>
     walk(tree, (node) => {
       if (node.type !== "element" || node.tagName !== "a") return;
