@@ -1,0 +1,109 @@
+---
+/**
+ * @file islands/terminal/Terminal.astro
+ * @description Interactive portfolio shell — pure Astro edition.
+ *
+ * POC / ARCHITECTURE (React → Astro migration, plan 17 Phase 1):
+ * - The frame, boot scrollback and input row render on the SERVER — the
+ *   initial HTML is identical to what the React version SSR'd, with zero
+ *   hydration. The processed <script> below (TS, bundled, deduped per
+ *   Astro's script rules) mounts shell.ts for interactivity.
+ * - Boot segments mirror render.ts's href branch (not just plain spans)
+ *   so a future link in boot text survives SSR; TONE_CLASS/LINK_CLASS are
+ *   imported from render.ts so SSR and client output can never drift.
+ * - The input keeps autocorrect="off" (mobile Safari would otherwise
+ *   "fix" commands) — parity with the React version.
+ * - No client:* directive, no framework runtime, no JSON data island —
+ *   shell.ts imports portfolioData directly (same module as the prop).
+ * - `flush` prop: drops the floating-window frame (border, radius, shadow)
+ *   so the terminal can BE a panel's full content, framed only by the
+ *   section's own hairlines — the Projects-IDE contract (sections/About).
+ *   Default stays the standalone window, so other usages are unchanged.
+ */
+import { bootEntries } from "./boot";
+import { LINK_CLASS, TONE_CLASS } from "./render";
+import type { PortfolioData } from "./types";
+
+interface Props {
+  data: PortfolioData;
+  /** full-bleed mode: no own frame — the host section draws the lines */
+  flush?: boolean;
+}
+const { data, flush = false } = Astro.props;
+
+let n = 0;
+const boot = bootEntries(data, () => ++n);
+---
+
+<div
+  data-terminal
+  class:list={["overflow-hidden bg-surface", !flush && "rounded-md border border-line-subtle shadow-2xs"]}
+>
+  {/* window chrome — macOS traffic lights, decorative by design */}
+  <div class="relative flex items-center border-b border-line-subtle px-4 py-2.5">
+    <span class="flex items-center gap-2" aria-hidden="true">
+      <span class="size-3 rounded-full bg-[#ff5f57] ring-1 ring-black/10"></span>
+      <span class="size-3 rounded-full bg-[#ffbd2e] ring-1 ring-black/10"></span>
+      <span class="size-3 rounded-full bg-[#28c840] ring-1 ring-black/10"></span>
+    </span>
+    <span class="absolute inset-x-0 text-center font-mono text-[9px] text-muted">
+      visitor@akib35: ~
+    </span>
+  </div>
+
+  {/* shell body — click anywhere to focus (wired in shell.ts) */}
+  <div
+    data-scroller
+    class="h-[19rem] cursor-text overflow-y-auto px-4 py-4 font-mono text-xs leading-relaxed md:h-[21rem]"
+  >
+    <div data-log role="log" aria-live="polite" class="whitespace-pre-wrap break-words">
+      {
+        boot.map((entry) => (
+          <div class="flex items-baseline">
+            <span class="min-w-0">
+              {entry.segments.map((s) => {
+                const cls = TONE_CLASS[s.tone ?? "default"];
+                /* mirror renderSegment: href branch, not just spans */
+                return s.href ? (
+                  <a
+                    href={s.href}
+                    {...(!s.href.startsWith("mailto:")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    class={`${cls} ${LINK_CLASS}`}
+                  >
+                    {s.text}
+                  </a>
+                ) : (
+                  <span class={cls}>{s.text}</span>
+                );
+              })}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+
+    {/* input row */}
+    <div class="flex items-baseline">
+      <span class="mr-2 shrink-0 select-none">
+        <span class="text-accent">visitor@akib35</span><span class="text-muted">:~$</span>
+      </span>
+      <input
+        data-input
+        aria-label="Terminal input — type a command, 'help' to begin"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        class="min-w-0 flex-1 bg-transparent text-default caret-accent outline-none"
+      />
+    </div>
+  </div>
+</div>
+
+<script>
+  import { mountTerminal } from "./shell";
+
+  document.querySelectorAll<HTMLElement>("[data-terminal]").forEach(mountTerminal);
+</script>

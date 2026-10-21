@@ -1,0 +1,116 @@
+---
+/**
+ * @file sections/Hero.astro
+ * @description Hero — rotating quote epigraph + identity row (name and
+ *              portrait frame). The interactive shell and the metrics moved
+ *              to sections/About.astro (Hero/About split): the first screen
+ *              is identity only, the second is "talk to me".
+ *
+ * POC / Implementation decisions:
+ *
+ * 1. RANDOM QUOTE (eyebrow slot, replaces "01. Identity"):
+ *    The site is fully static, so a frontmatter-only random pick would be
+ *    frozen at build time. Instead the SSR output renders one quote as the
+ *    no-JS fallback, and a tiny module script (bottom of file) re-picks from
+ *    `heroQuotes` on EVERY page load. `heroQuotes` is a standalone export in
+ *    data/portfolio.ts so this script tree-shakes to a few strings rather
+ *    than shipping the whole dataset to the browser.
+ *
+ * 2. DELTA HERO LAYOUT (full-bleed, pad="p-0", headerless): two columns
+ *    split by ONE vertical hairline, like delta.dev's hero.
+ *    - Left: the quote is the ruled eyebrow (a hairline bleeds in from the
+ *      column edge, another runs out to the divider — delta's "— From the
+ *      creators of Zed —"), then name + one-liner.
+ *    - Right: delta's drafting panel. A framed square crossed by
+ *      full-length construction lines (two horizontal, two vertical,
+ *      absolutely positioned so they always span edge to edge); the top and
+ *      bottom bands carry the brand hatch, and the photo fills the centre
+ *      cell — the spot delta gives its logo. object-cover with a raised
+ *      focal point keeps the face in frame at every column width.
+ *      From md up the panel STRETCHES to the row height (flex-1, no
+ *      aspect lock) so it never leaves a gap under it when the text
+ *      column is taller; all lines/bands are %-based, so they scale.
+ *      Mobile keeps a square.
+ *    - Stacks on mobile (divider becomes a border-t). Top padding trimmed
+ *      vs. the old eyebrow-header version.
+ *
+ * 3. REMOVED per request: status pill and the CTA row (View Projects /
+ *    Get in Touch / CV). `meta.statusText` stays in the data file — it is
+ *    still used by Layout.astro (meta description) and the Terminal.
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import { portfolioData, heroQuotes } from "../../data/portfolio";
+
+const { meta } = portfolioData;
+const [first, ...rest] = meta.name.split(" ");
+
+// Build-time fallback pick — ensures the slot is never empty without JS.
+// The client script below re-randomizes on every page load.
+const fallbackQuote = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
+---
+
+<SectionShell id="home" pad="p-0">
+  <div class="grid md:grid-cols-[minmax(0,1fr)_minmax(0,17rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,21rem)]">
+    {/* ── left: eyebrow quote + identity ── */}
+    <div class="flex flex-col justify-center py-10 md:py-14">
+      <p class="flex items-center gap-4 font-display text-sm leading-relaxed text-subtle italic md:text-base">
+        <span aria-hidden="true" class="h-px w-5 shrink-0 bg-line md:w-8"></span>
+        <span class="min-w-0">
+          <span class="text-accent" aria-hidden="true">&ldquo;</span><span id="hero-quote">{fallbackQuote}</span><span class="text-accent" aria-hidden="true">&rdquo;</span>
+        </span>
+        <span aria-hidden="true" class="h-px min-w-6 flex-1 bg-line"></span>
+      </p>
+
+      <div class="px-5 pt-9 md:px-8 md:pt-11">
+        <h1 class="font-display text-[clamp(2.5rem,6vw+0.5rem,4.5rem)] leading-[1.02] tracking-tight text-default">
+          {first}
+          <br />
+          <span class="text-accent">{rest.join(" ")}</span>
+        </h1>
+        <p class="mt-5 max-w-xl font-display text-[clamp(1.05rem,1.2vw+0.9rem,1.35rem)] leading-relaxed text-subtle">
+          I build resilient systems that live at the edge of the web.
+        </p>
+      </div>
+    </div>
+
+    {/* ── right: drafting panel with photo in the centre cell ── */}
+    <div class="border-t border-line p-2.5 md:flex md:border-t-0 md:border-l">
+      <figure class="relative mx-auto aspect-square max-w-80 border border-line md:aspect-auto md:w-full md:max-w-none md:flex-1">
+        {/* hatched top/bottom bands — their inner edges are the horizontal construction lines */}
+        <span aria-hidden="true" class="hatch absolute inset-x-0 top-0 h-[18%] border-b border-line"></span>
+        <span aria-hidden="true" class="hatch absolute inset-x-0 bottom-0 h-[18%] border-t border-line"></span>
+        {/* photo — fills the centre cell */}
+        <img
+          src="/my-pic.png"
+          alt={`Portrait of ${meta.name}`}
+          width="400"
+          height="416"
+          fetchpriority="high"
+          class="absolute inset-x-[8%] inset-y-[18%] h-[64%] w-[84%] object-cover object-[50%_30%]"
+        />
+        {/* vertical construction lines — drawn last so they cross the bands and the photo edges */}
+        <span aria-hidden="true" class="absolute inset-y-0 left-[8%] border-l border-line"></span>
+        <span aria-hidden="true" class="absolute inset-y-0 right-[8%] border-r border-line"></span>
+      </figure>
+    </div>
+  </div>
+</SectionShell>
+
+<script>
+  /**
+   * Random quote picker — runs on every page load (module script).
+   * Swaps the SSR fallback for a fresh random entry from heroQuotes.
+   */
+  import { heroQuotes } from "../../data/portfolio";
+
+  const el = document.getElementById("hero-quote");
+  if (el && heroQuotes.length > 0) {
+    el.textContent = heroQuotes[Math.floor(Math.random() * heroQuotes.length)];
+  }
+</script>
+
+<style>
+  .hatch {
+    background-image: repeating-linear-gradient(45deg, var(--color-hatch) 0 1px, transparent 1px 6px);
+  }
+</style>

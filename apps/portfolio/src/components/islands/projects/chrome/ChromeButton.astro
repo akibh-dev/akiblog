@@ -1,0 +1,38 @@
+---
+/**
+ * @file islands/projects/chrome/ChromeButton.astro
+ * @description Shared icon button for the editor chrome — Astro port of
+ *              ChromeButton.tsx, markup byte-for-byte.
+ *
+ * POC / STATES: actionless BY DEFAULT; two real states exist for wired
+ * buttons — `disabled` (history arrows: dimmed, non-interactive) and
+ * `pressed` (sidebar toggle: aria-pressed + persistent active fill).
+ * BOX: `h-5 w-5` + leading-none — identical to the status bar's text-item
+ * height, so icons and text sit on one center line in every chrome row.
+ *
+ * WIRING: no on* props in Astro — interactivity comes from controller.ts
+ * via data-* hooks passed through `{...rest}`.
+ */
+interface Props {
+  label: string; // tooltip + accessible name
+  class?: string;
+  disabled?: boolean;
+  pressed?: boolean;
+  [key: string]: unknown; // data-* hooks forwarded to the button
+}
+const { label, class: className = "", disabled = false, pressed, ...rest } = Astro.props;
+---
+
+<button
+  type="button"
+  title={label}
+  aria-label={label}
+  aria-pressed={pressed}
+  disabled={disabled}
+  class={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm leading-none text-muted outline-none transition-colors hover:bg-control-hover hover:text-default focus-visible:bg-control-hover disabled:pointer-events-none disabled:opacity-40 ${
+    pressed ? "bg-control-hover/60 text-default" : ""
+  } ${className}`}
+  {...rest}
+>
+  <slot />
+</button>

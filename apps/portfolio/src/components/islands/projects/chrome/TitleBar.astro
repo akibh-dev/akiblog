@@ -1,0 +1,26 @@
+---
+/**
+ * @file islands/projects/chrome/TitleBar.astro
+ * @description Window chrome — macOS traffic lights + centered workspace
+ *              title. Astro port of EditorTitleBar.tsx, verbatim.
+ *
+ * WHY: deliberately the same chrome language as the hero Terminal, so
+ * the two "apps" on the page read as windows from the same OS. Purely
+ * decorative; the title text is the only meaningful content.
+ */
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<div class="relative flex h-10 items-center border-b border-line-subtle px-4">
+  <span class="flex items-center gap-2" aria-hidden="true">
+    <span class="size-3 rounded-full bg-[#ff5f57] ring-1 ring-black/10"></span>
+    <span class="size-3 rounded-full bg-[#ffbd2e] ring-1 ring-black/10"></span>
+    <span class="size-3 rounded-full bg-[#28c840] ring-1 ring-black/10"></span>
+  </span>
+  <span class="absolute inset-x-0 text-center font-mono text-[9px] text-muted">
+    {title}
+  </span>
+</div>

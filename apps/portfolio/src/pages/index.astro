@@ -1,47 +1,71 @@
 ---
 /**
- * @file apps/portfolio/src/pages/index.astro
- * @description Standalone one-page portfolio index for Md Akib Hasan.
+ * @file pages/index.astro
+ * @description One-page portfolio — composition ONLY (plan12 contract).
  *
- * POC / Implementation Architecture:
- * - One-page minimalist design inspired directly by Zed.dev.
- * - Composed of 4 cohesive sections:
- *     1) Unconventional top status dock / command navigation
- *     2) About me (identity, CUET degree, 200+ CP benchmarks, technical matrix)
- *     3) Projects (systems, open source, Akiblog, Black Board Go engine)
- *     4) Blogposts (featured edge & architectural writings with deep links to blog.akib35.dev)
- *     5) Generous footer with integrated contact form, copy email, coordinates & network nodes.
- * - Why this implementation is best: Fast static rendering compiles to HTML/CSS with zero runtime JS overhead,
- *   delivering sub-50ms TTFB across Cloudflare's global edge network.
+ * data/sections.ts is the SINGLE nav registry (id / label / number). This
+ * file binds ids → panel components with one static imports block + one
+ * id-keyed record, then maps the registry — so sidebar stations, the
+ * mobile menu and the page itself can never drift apart.
+ *
+ * The "=" SEAMS (ui/Seam.astro — hatched band, border-y) are auto-inserted
+ * BETWEEN panels: none at the top/bottom edge, where the fixed frame's
+ * border-b/t draw the edge lines (delta.dev's own pattern).
+ *
+ * WHY the binding lives here (not in data/sections.ts): Astro's Vite
+ * pipeline compiles `.astro` imports only through a component frontmatter
+ * — a plain .ts module importing ".astro/*.astro" fails the build
+ * ([builtin:vite-transform] Unexpected token, see plan12.md).
+ *
+ * EXTENSIBILITY — adding a section is three additive lines:
+ *   1. src/components/sections/YourThing.astro wrapped in <SectionShell>
+ *   2. one entry appended in data/sections.ts
+ *   3. one import + one record line below
+ * No existing content is edited.
  */
+import Layout from "../layouts/Layout.astro";
+import Seam from "../components/ui/Seam.astro";
+import Hero from "../components/sections/Hero.astro";
+import About from "../components/sections/About.astro";
+import Projects from "../components/sections/Projects.astro";
+import Writings from "../components/sections/Writings.astro";
+import Skills from "../components/sections/Skills.astro";
+import Contact from "../components/sections/Contact.astro";
+import Footer from "../components/sections/Footer.astro";
+import { sections } from "../data/sections";
 
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import About from '../components/About.astro';
-import Projects from '../components/Projects.astro';
-import BlogPosts from '../components/BlogPosts.astro';
-import Footer from '../components/Footer.astro';
-import { portfolioData } from '../data/portfolio';
+/* id → panel binding. All panels are no-prop section components, so
+   `typeof Hero` is the shared signature without importing astro types. */
+const panels: Record<string, typeof Hero> = {
+  home: Hero,
+  about: About,
+  projects: Projects,
+  writings: Writings,
+  skills: Skills,
+  contact: Contact,
+};
 ---
 
-<Layout
-  title={`${portfolioData.meta.name} — Full-Stack Engineer & Systems Builder`}
-  description="Minimalist developer portfolio and engineering showcase by Md Akib Hasan. Full-stack engineering, Go, TypeScript, and edge systems."
->
-  <!-- 1. Unconventional Header Command Bar -->
-  <Header />
-
-  <main class="flex-1">
-    <!-- 2. First Body Section: About Me -->
-    <About />
-
-    <!-- 3. Projects Showcase -->
-    <Projects />
-
-    <!-- 4. Selected Blogposts / Writings -->
-    <BlogPosts />
-  </main>
-
-  <!-- 5. Relatively Big Footer with Contact Inside -->
+<Layout>
+  {
+    sections.map((entry, i) => {
+      const Panel = panels[entry.id];
+      if (!Panel) {
+        throw new Error(
+          `index.astro: no panel bound for section id "${entry.id}" — add one import + one record line (see @file header).`,
+        );
+      }
+      return (
+        <Fragment>
+          {i > 0 && <Seam />}
+          <Panel />
+        </Fragment>
+      );
+    })
+  }
+  {/* site footer — full-bleed Square Kufic panel (sections/Footer.astro).
+      Deliberately OUTSIDE the nav registry: no sidebar station, just the
+      closing band after the last seam. */}
+  <Seam />
   <Footer />
 </Layout>

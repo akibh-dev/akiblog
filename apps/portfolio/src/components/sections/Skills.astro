@@ -1,0 +1,105 @@
+---
+/**
+ * @file sections/Skills.astro
+ * @description Skills as a ruled table — one full-bleed row per category,
+ *              bare icons only (no cards, no keycaps, no captions).
+ *
+ * POC / WHY THIS APPROACH:
+ * 1. NO CARDS — like Contact/Projects, structure is hairlines on one
+ *    surface: headerless SectionShell (pad="p-0"), rows split by divide-y,
+ *    the category column split from the icons by a single border-l. Reads
+ *    as a spec sheet, the way delta lays out its pricing table.
+ * 2. ICONS ONLY — glyphs from src/icons (stroke, currentColor) sit
+ *    directly on the surface with no caption. The name still exists as a
+ *    native tooltip (title) and as sr-only text, so screen readers and
+ *    hover both identify each glyph. Hover tints the glyph with
+ *    the brand colour and lifts it 2px — transform/color only, GPU-cheap,
+ *    disabled under prefers-reduced-motion.
+ * 3. COMPACT — no captions + tight row padding keep each row ~70px.
+ * 4. The skill → icon map lives here, so data/portfolio.ts stays
+ *    .astro-free; unmapped skills fall back to Braces instead of breaking
+ *    the build. Pure static Astro, zero JS (AGENTS.md rule 5).
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import { portfolioData } from "../../data/portfolio";
+import {
+  GoIcon, PythonIcon, TypeScriptIcon, JavaScriptIcon, CppIcon, CIcon, SqlIcon,
+  AstroIcon, ReactIcon, DjangoIcon, NodeJsIcon, FlutterIcon, TailwindIcon,
+  CloudflareIcon, DatabaseIcon, DockerIcon, PostgreSqlIcon, LinuxIcon, GitIcon,
+  ApiIcon, WebSocketIcon, KeyIcon, LayersIcon, TddIcon, BracesIcon,
+} from "../../icons";
+
+const { skills } = portfolioData;
+
+const skillIcons: Record<string, typeof BracesIcon> = {
+  "Go": GoIcon,
+  "Python": PythonIcon,
+  "TypeScript": TypeScriptIcon,
+  "JavaScript": JavaScriptIcon,
+  "C++": CppIcon,
+  "C": CIcon,
+  "SQL": SqlIcon,
+  "Astro": AstroIcon,
+  "React": ReactIcon,
+  "Django": DjangoIcon,
+  "Node.js": NodeJsIcon,
+  "Flutter": FlutterIcon,
+  "Tailwind CSS": TailwindIcon,
+  "Cloudflare Workers": CloudflareIcon,
+  "Cloudflare D1 & R2": DatabaseIcon,
+  "Docker": DockerIcon,
+  "PostgreSQL": PostgreSqlIcon,
+  "Linux": LinuxIcon,
+  "Git / Forgejo": GitIcon,
+  "RESTful APIs": ApiIcon,
+  "WebSockets": WebSocketIcon,
+  "Zero-Trust SSO": KeyIcon,
+  "Clean Architecture": LayersIcon,
+  "TDD": TddIcon,
+};
+---
+
+<SectionShell id="skills" pad="p-0">
+  <div class="px-5 pt-8 pb-8 md:px-8 md:pt-12">
+    <h2 class="font-display text-2xl text-default md:text-3xl">Tools of the trade</h2>
+    <p class="mt-2 font-mono text-xs leading-relaxed text-subtle">The keys I press every day.</p>
+  </div>
+
+  <div class="divide-y divide-line border-t border-line">
+    {
+      skills.map((cat) => (
+        <div class="grid md:grid-cols-[13rem_minmax(0,1fr)]">
+          <h3 class="px-5 pt-5 font-display text-base text-default md:px-8 md:py-5">{cat.category}</h3>
+          <ul class="flex flex-wrap items-center gap-x-7 gap-y-4 px-5 pt-3 pb-5 md:border-l md:border-line md:px-8 md:py-5">
+            {cat.skills.map((skill) => {
+              const Icon = skillIcons[skill] ?? BracesIcon;
+              return (
+                <li class="skill" title={skill}>
+                  <Icon class="skill-icon size-7 text-subtle" />
+                  <span class="sr-only">{skill}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</SectionShell>
+
+<style>
+  .skill {
+    cursor: default;
+  }
+  .skill-icon {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.2s;
+  }
+  .skill:hover .skill-icon {
+    transform: translateY(-2px);
+    color: var(--color-accent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skill-icon { transition: color 0.2s; }
+    .skill:hover .skill-icon { transform: none; }
+  }
+</style>

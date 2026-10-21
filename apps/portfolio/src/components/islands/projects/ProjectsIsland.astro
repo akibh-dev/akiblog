@@ -1,0 +1,113 @@
+---
+/**
+ * @file islands/projects/ProjectsIsland.astro
+ * @description Zed-editor workspace — full chrome, PURE ASTRO edition.
+ *              Replaces ProjectWorkspace.tsx (plan 18).
+ *
+ * POC / FRAME STRUCTURE (user-directed, top to bottom — unchanged):
+ *   TitleBar   — traffic lights + window title
+ *   MenuBar    — zed file edit … help + user avatar menu
+ *   Grid       — left sidebar (project panel) | right section
+ *     Right rows (hidden when no buffer is open): TabBar, Breadcrumbs,
+ *     Preview (README pane or the "no editor" empty state)
+ *   StatusBar  — panel/git/diagnostics left · agent/term/encoding right
+ *
+ * POC / WHY PRE-RENDER + CONTROLLER (the migration's core decision):
+ * the state space is enumerable (N files), so EVERY dynamic surface is
+ * rendered at build time — all tabs, all README panels, all breadcrumb
+ * navs, all minimaps, the empty state — and controller.ts only toggles
+ * hidden / classes / aria-* via the data-* contract (plan 18). No
+ * framework runtime, no hydration, no runtime data, and SSR output is
+ * the exact initial editor state (first file open + focused).
+ *
+ * POC / FULL-BLEED FRAME: the section (Projects.astro) supplies zero
+ * padding and no header, so the editor chrome spans the entire panel —
+ * the island itself carries NO outer padding and NO window border of
+ * its own (a rounded border here would double up against the channel's
+ * border-x side lines). The section's own panel lines + the Seam bands
+ * become the IDE window's outer frame.
+ *
+ * STATE MODEL (mirrors a real editor — controller.ts):
+ * openTabs (open buffers, append on open, × removes) · activeTab ·
+ * bounded history deque (8) · sidebar visibility (panel stays MOUNTED) ·
+ * folder collapse cascade · tree tablist + avatar menu ARIA.
+ */
+import { FileTextIcon } from "../../../icons";
+import { toProjectFile, type ProjectItem } from "./types";
+import TitleBar from "./chrome/TitleBar.astro";
+import MenuBar from "./chrome/MenuBar.astro";
+import TabBar from "./chrome/TabBar.astro";
+import Breadcrumbs from "./chrome/Breadcrumbs.astro";
+import StatusBar from "./chrome/StatusBar.astro";
+import ProjectPanel from "./chrome/ProjectPanel.astro";
+import ReadmePanel from "./chrome/ReadmePanel.astro";
+import Minimap from "./chrome/Minimap.astro";
+
+interface Props {
+  projects: ProjectItem[];
+  repoUrl?: string;
+}
+const { projects, repoUrl } = Astro.props;
+
+const files = projects.map(toProjectFile);
+const firstFile = files[0];
+---
+
+{
+  files.length > 0 && (
+    <div data-projects-island>
+      <div>
+        <TitleBar title="akib35 — projects (read-only)" />
+        <MenuBar />
+
+        <div
+          data-grid
+          class="grid h-[34rem] md:h-[38rem] grid-rows-[auto_minmax(0,1fr)] lg:grid-cols-[14rem_minmax(0,1fr)] lg:grid-rows-none"
+        >
+          <ProjectPanel files={files} repoUrl={repoUrl} />
+
+          {/* right section — tab bar + breadcrumbs are fixed rows INSIDE
+              the editor column; both hidden when no buffer is open */}
+          <div class="flex min-h-0 min-w-0 flex-col">
+            <TabBar files={files} />
+            <Breadcrumbs files={files} />
+
+            {/* relative wrapper: minimap overlays the scroll container
+                so it stays pinned to the right edge while scrolling */}
+            <div class="relative min-h-0 flex-1">
+              <div
+                data-preview-scroll
+                class="zed-scroll h-full overflow-y-auto bg-canvas"
+              >
+                {/* Zed's "no editor" pane — controller shows it when the
+                    last buffer closes */}
+                <div
+                  data-empty
+                  hidden
+                  class="flex h-full flex-col items-center justify-center gap-2 px-6 text-center"
+                >
+                  <FileTextIcon class="size-8 text-muted/40" />
+                  <p class="font-mono text-xs text-muted">No file open</p>
+                  <p class="font-mono text-2xs text-muted">
+                    Select a file from the project panel
+                  </p>
+                </div>
+
+                {files.map((f, i) => <ReadmePanel project={f} hidden={i !== 0} />)}
+              </div>
+              {files.map((f, i) => <Minimap file={f} hidden={i !== 0} />)}
+            </div>
+          </div>
+        </div>
+
+        <StatusBar file={firstFile} />
+      </div>
+    </div>
+  )
+}
+
+<script>
+  import { mountProjectsIsland } from "./controller";
+
+  document.querySelectorAll<HTMLElement>("[data-projects-island]").forEach(mountProjectsIsland);
+</script>

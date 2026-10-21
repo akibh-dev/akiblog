@@ -1,0 +1,88 @@
+---
+/**
+ * @file sections/Writings.astro
+ * @description "From the blog" — delta.dev's blog teaser, adapted to a
+ *              single-author blog. Full-bleed panel: header row, then a
+ *              column grid split by hairlines (no cards).
+ *
+ * POC / WHY THIS APPROACH:
+ * 1. FULL BLEED, LINES NOT BOXES — headerless SectionShell with pad="p-0"
+ *    (the Projects/Contact contract). Columns are separated by border-l and
+ *    the grid by one border-t, so the posts read as one ruled sheet that
+ *    runs edge-to-edge between the channel lines, exactly like delta.
+ * 2. COVERS — ui/PostCover.astro shows the post's banner (from the blog)
+ *    inside delta's proof-sheet frame; posts WITHOUT a banner get the
+ *    default typographic "document" thumbnail, so mixed rows stay aligned.
+ * 3. NO AUTHOR BYLINE — every post is mine, so a name/avatar on each column
+ *    is noise. That slot carries information instead:
+ *      • topic eyebrow (tags) above the title — what it's about at a glance
+ *      • reading-time meter (filled ticks, 1 tick ≈ 1 min) + date below —
+ *        how long it'll take, visible before clicking.
+ * 4. "View all posts" uses the site-wide default button (global.css
+ *    `btn`). The RSS feed link lives in the sidebar's social row.
+ * 5. Pure static Astro, zero client JS (AGENTS.md rule 5).
+ */
+import SectionShell from "../ui/SectionShell.astro";
+import PostCover from "../ui/PostCover.astro";
+import { portfolioData } from "../../data/portfolio";
+
+const { blogPosts, meta } = portfolioData;
+
+/** "4 min read" → 4; meter shows up to METER_MAX ticks. */
+const METER_MAX = 8;
+const minutes = (s: string) => Math.min(METER_MAX, parseInt(s, 10) || 1);
+---
+
+<SectionShell id="writings" pad="p-0">
+  {/* header row — title/subtitle left, CTAs right */}
+  <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5 px-5 pt-8 pb-8 md:px-8 md:pt-12">
+    <div>
+      <h2 class="font-display text-2xl text-default md:text-3xl">From the blog</h2>
+      <p class="mt-2 max-w-lg font-mono text-xs leading-relaxed text-subtle">
+        Field notes on edge infrastructure, security, and solving hard problems.
+      </p>
+    </div>
+    <a href={meta.blogUrl} target="_blank" rel="noopener noreferrer" class="btn inline-flex items-center px-4 py-2 font-mono text-2xs uppercase tracking-wider">
+      View all posts
+    </a>
+  </div>
+
+  <ul class="grid border-t border-line lg:grid-cols-3">
+    {
+      blogPosts.map((post, i) => {
+        const mins = minutes(post.readingTime);
+        return (
+          <li class:list={["flex", i > 0 && "border-t border-line lg:border-t-0 lg:border-l"]}>
+            <a href={post.url} target="_blank" rel="noopener noreferrer" class="group flex w-full flex-col">
+              <div class="border-b border-line p-2">
+                <PostCover title={post.title} slug={post.slug} banner={post.banner} />
+              </div>
+
+              <div class="flex flex-1 flex-col px-5 pt-6 pb-5 md:px-8">
+                <p class="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted">
+                  {post.tags.slice(0, 2).join(" / ")}
+                </p>
+                <h3 class="font-display text-lg leading-snug text-balance text-default transition-colors group-hover:text-accent">
+                  {post.title}
+                </h3>
+                <p class="mt-2 line-clamp-2 font-mono text-xs leading-relaxed text-subtle">{post.excerpt}</p>
+
+                <div class="mt-auto flex items-center justify-between gap-3 pt-6 font-mono text-2xs text-muted">
+                  <span class="flex items-center gap-2" title={post.readingTime}>
+                    <span class="flex gap-0.5" aria-hidden="true">
+                      {Array.from({ length: METER_MAX }, (_, t) => (
+                        <span class:list={["h-2.5 w-1", t < mins ? "bg-accent" : "bg-line-subtle"]} />
+                      ))}
+                    </span>
+                    {post.readingTime}
+                  </span>
+                  <time>{post.date}</time>
+                </div>
+              </div>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</SectionShell>
