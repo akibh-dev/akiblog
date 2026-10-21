@@ -1,0 +1,81 @@
+---
+/**
+ * @file sections/PostGrid.astro
+ * @description Ruled grid of PostCards — the portfolio Writings grid
+ *              (`ul.grid border-t lg:grid-cols-3`, columns split by
+ *              hairlines) generalised to any number of posts, and to posts
+ *              appended later by the lazy loader (islands/LoadMore).
+ *
+ * WHY THE BORDER MATH: the portfolio grid has exactly 3 posts (one row),
+ * so `lg:border-l` on every item after the first was enough. With N posts
+ * the grid wraps, so lines are drawn per cell from its POSITION:
+ *   - every cell: border-b (row separator; the grid's border-t is the top
+ *     rule); the last row drops it so it doesn't double the seam below
+ *   - md (2 cols): border-l on the 2nd cell of each row
+ *   - lg (3 cols): border-l on cells that aren't first in their row
+ * Pure nth-child CSS, so cards appended by LoadMore re-flow the lines
+ * automatically (the old "last row" stops being last, and so on).
+ *
+ * WHY GLOBAL CSS (not Astro-scoped): scoped rules only match elements
+ * rendered by THIS component instance's hash. Appended batches come from
+ * /feed/<n>/ fragment pages — scoping would leave their cells unruled.
+ * The `.post-grid` class is the namespace instead.
+ *
+ * MODES
+ *   <PostGrid posts={…} />                 the <ul> + items
+ *   <PostGrid posts={…} id="feed" />       same, with an id for LoadMore
+ *   <PostGrid posts={…} itemsOnly />       just the <li>s (fragment pages)
+ */
+import PostCard from "../ui/PostCard.astro";
+import type { Post } from "../../lib/posts";
+
+interface Props {
+  posts: Post[];
+  headingLevel?: "h2" | "h3";
+  id?: string;
+  itemsOnly?: boolean;
+}
+
+const { posts, headingLevel, id, itemsOnly = false } = Astro.props;
+---
+
+{
+  itemsOnly ? (
+    posts.map((post) => (
+      <li class="flex border-b border-line">
+        <PostCard post={post} headingLevel={headingLevel} />
+      </li>
+    ))
+  ) : (
+    <ul id={id} class="post-grid grid border-t border-line md:grid-cols-2 lg:grid-cols-3">
+      {posts.map((post) => (
+        <li class="flex border-b border-line">
+          <PostCard post={post} headingLevel={headingLevel} />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style is:global>
+  @media (min-width: 48rem) and (max-width: 63.999rem) {
+    .post-grid > li:nth-child(2n) {
+      border-left: 1px solid var(--ui-border);
+    }
+    .post-grid > li:nth-last-child(2):nth-child(odd) {
+      border-bottom: 0;
+    }
+  }
+  @media (min-width: 64rem) {
+    .post-grid > li:not(:nth-child(3n + 1)) {
+      border-left: 1px solid var(--ui-border);
+    }
+    .post-grid > li:nth-last-child(-n + 3):nth-child(3n + 1),
+    .post-grid > li:nth-last-child(-n + 3):nth-child(3n + 1) ~ li {
+      border-bottom: 0;
+    }
+  }
+  .post-grid > li:last-child {
+    border-bottom: 0;
+  }
+</style>

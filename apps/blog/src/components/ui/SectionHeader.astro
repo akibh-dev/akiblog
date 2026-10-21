@@ -1,0 +1,39 @@
+---
+/**
+ * @file ui/SectionHeader.astro
+ * @description Section header row: serif title + one-line mono description
+ *              on the left, an optional slot (count, CTA) on the right.
+ *
+ * The portfolio's Writings header ("From the blog" + "Field notes on …",
+ * apps/portfolio/src/components/sections/Writings.astro @ 091c7cf),
+ * extracted so every home section (Search, Tags, Posts) shares the same
+ * rhythm. No "NN. Label" eyebrow: the title says what the section is, and
+ * the sidebar stations already number the page.
+ *
+ * Padding is part of the header so it works in full-bleed (pad="p-0")
+ * panels whose content (grids, lists) runs edge to edge below it.
+ *
+ * Example:
+ *   <SectionHeader title="Tags" description="Browse posts by topic.">
+ *     <span slot="aside">9 tags</span>
+ *   </SectionHeader>
+ */
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 px-5 pt-8 pb-8 md:px-8 md:pt-12">
+  <div>
+    <h2 class="font-display text-2xl text-default md:text-3xl">{title}</h2>
+    {description && <p class="mt-2 max-w-lg font-mono text-xs leading-relaxed text-subtle">{description}</p>}
+  </div>
+  {Astro.slots.has("aside") && (
+    <div class="font-mono text-2xs uppercase tracking-wider text-muted">
+      <slot name="aside" />
+    </div>
+  )}
+</div>

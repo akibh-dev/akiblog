@@ -1,0 +1,117 @@
+/**
+ * @file public/giscus/dark.css
+ * @description giscus comments theme (dark) matching akiblog's tokens.
+ *              Loaded INSIDE the giscus iframe: islands/Comments.astro passes
+ *              this file's absolute URL as the giscus `theme`, and swaps
+ *              light.css ⇄ dark.css when the site's theme toggle flips.
+ *
+ * WHY THIS SHAPE
+ * - @import giscus's own "dark" theme first, then override only the
+ *   variables that define surfaces, text, borders, accent and buttons —
+ *   every other primer variable (syntax colors, states) stays coherent.
+ * - Values are the blog's tokens (src/styles/global.css) RESOLVED to rgb in
+ *   a real browser — the iframe can't read our CSS variables, and the
+ *   tokens are oklch()/color-mix() chains. Re-resolve if the palette changes.
+ *   --primary-default / --bg-default are "r, g, b" triplets (giscus uses
+ *   them inside rgba()).
+ * - Fonts: relative URLs resolve against THIS stylesheet, so the same file
+ *   works from localhost and from blog.akib35.dev. /fonts/* is served with
+ *   Access-Control-Allow-Origin: * (public/_headers), required for
+ *   cross-origin font loads.
+ * - Square-ish corners (2px) like the rest of the site.
+ */
+@import url("https://giscus.app/themes/dark.css");
+
+@font-face {
+  font-family: "iA Writer Quattro S";
+  src: url("../fonts/iAWriterQuattroV.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Lilex";
+  src: url("../fonts/Lilex-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+main {
+  --primary-default: 227, 114, 97;
+  --bg-default: 17, 19, 22;
+
+  --color-canvas-default: rgb(28 31 35);
+  --color-canvas-overlay: rgb(28 31 35);
+  --color-canvas-inset: rgb(17 19 22);
+  --color-canvas-subtle: rgb(17 19 22);
+
+  --color-fg-default: rgb(238 236 236);
+  --color-fg-muted: rgb(182 177 183);
+  --color-fg-subtle: rgb(160 156 165);
+
+  --color-border-default: rgb(68 73 81);
+  --color-border-muted: rgb(52 56 63);
+  --color-neutral-muted: rgb(52 56 63);
+
+  --color-accent-fg: rgb(227 114 97);
+  --color-accent-emphasis: rgb(190 60 38);
+  --color-accent-muted: rgb(227 114 97 / 0.4);
+  --color-accent-subtle: rgb(227 114 97 / 0.1);
+
+  /* secondary button = the site's .btn: hairline border, raised face */
+  --color-btn-text: rgb(238 236 236);
+  --color-btn-bg: rgb(47 50 55);
+  --color-btn-border: rgb(68 73 81);
+  --color-btn-shadow: 0 1px 0 rgb(68 73 81);
+  --color-btn-inset-shadow: none;
+  --color-btn-hover-bg: rgb(227 114 97 / 0.1);
+  --color-btn-hover-border: rgb(227 114 97 / 0.75);
+  --color-btn-active-bg: rgb(227 114 97 / 0.16);
+  --color-btn-active-border: rgb(227 114 97);
+  --color-btn-selected-bg: rgb(227 114 97 / 0.12);
+
+  /* primary button = the site's .btn-primary: solid brand face, white text */
+  --color-btn-primary-text: #fff;
+  --color-btn-primary-bg: rgb(190 60 38);
+  --color-btn-primary-border: rgb(168 52 33);
+  --color-btn-primary-shadow: 0 1px 0 rgb(168 52 33);
+  --color-btn-primary-inset-shadow: none;
+  --color-btn-primary-hover-bg: rgb(168 52 33);
+  --color-btn-primary-hover-border: rgb(168 52 33);
+  --color-btn-primary-selected-bg: rgb(168 52 33);
+  --color-btn-primary-disabled-text: rgb(255 255 255 / 0.8);
+  --color-btn-primary-disabled-bg: rgb(190 60 38 / 0.6);
+  --color-btn-primary-disabled-border: rgb(190 60 38 / 0.6);
+
+  --color-action-list-item-default-hover-bg: rgb(57 58 64);
+  --color-segmented-control-bg: rgb(17 19 22);
+  --color-segmented-control-button-bg: rgb(28 31 35);
+  --color-segmented-control-button-selected-border: rgb(68 73 81);
+  --color-social-reaction-bg-hover: rgb(57 58 64);
+  --color-social-reaction-bg-reacted-hover: rgb(227 114 97 / 0.16);
+
+  font-family: "iA Writer Quattro S", ui-sans-serif, system-ui, sans-serif;
+}
+
+main code,
+main pre,
+main .gsc-comment-box-tabs,
+main .gsc-header,
+main .gsc-reactions-count {
+  font-family: "Lilex", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+main .rounded-md,
+main .gsc-comment-box,
+main .gsc-comment > div,
+main .btn,
+main .gsc-reply-box button {
+  border-radius: 2px;
+}
+
+main a,
+main .link-primary {
+  color: rgb(227 114 97);
+}
+main a:hover {
+  color: rgb(220 90 70);
+}

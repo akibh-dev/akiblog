@@ -1,71 +1,64 @@
 ---
-// PostCard.astro - Clean Post Card Presentation Component
-import type { PostWithMeta } from '../../lib/services/posts';
-import TagBadge from './TagBadge.astro';
+/**
+ * @file ui/PostCard.astro
+ * @description One post column — the portfolio's Writings column
+ *              (apps/portfolio/src/components/sections/Writings.astro
+ *              @ 091c7cf), extracted as a reusable card for PostGrid.
+ *
+ * POC / WHY THIS SHAPE (verbatim from Writings, docs/ui-guide §9):
+ * 1. LINES, NOT BOXES — the card draws no border of its own; PostGrid
+ *    separates columns with hairlines, so a row reads as one ruled sheet.
+ * 2. COVER — ui/PostCover in its proof-sheet frame; posts without a cover
+ *    get the typographic "document" thumbnail, so mixed rows stay aligned.
+ * 3. NO AUTHOR BYLINE (single-author blog) — that slot carries the topic
+ *    eyebrow (type + first tags) and a reading-time meter (1 tick ≈ 1 min,
+ *    8 max) + date, so length is visible before clicking.
+ * 4. Whole card is one link (one tab stop, big target); title is the
+ *    accessible name, the cover is decorative (alt="").
+ * 5. `headingLevel` keeps the outline valid wherever the grid is placed.
+ *
+ * Example: <PostCard post={post} />
+ */
+import PostCover from "./PostCover.astro";
+import { formatDate, postUrl, readingMinutes, type Post } from "../../lib/posts";
 
 interface Props {
-  post: PostWithMeta;
+  post: Post;
+  headingLevel?: "h2" | "h3";
 }
 
-const { post } = Astro.props;
+const { post, headingLevel: H = "h3" } = Astro.props;
+const { title, description, tags, type, date, cover, draft } = post.data;
 
-const dateFormatted = post.publishedAt
-  ? new Date(post.publishedAt).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    })
-  : new Date(post.createdAt).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+const METER_MAX = 8;
+const mins = readingMinutes(post.body);
 ---
 
-<article class="group relative flex flex-col bg-white dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800/80 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg transition-all duration-300">
-  {post.coverImage && (
-    <div class="aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-      <img
-        src={post.coverImage}
-        alt={post.title}
-        loading="lazy"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-    </div>
-  )}
+<a href={postUrl(post)} class="group flex w-full flex-col">
+  <div class="border-b border-line p-2">
+    <PostCover title={title} slug={post.id} banner={cover} />
+  </div>
 
-  <div class="flex-1 p-6 flex flex-col justify-between">
-    <div>
-      {post.tags && post.tags.length > 0 && (
-        <div class="flex flex-wrap gap-1.5 mb-3">
-          {post.tags.slice(0, 3).map((tag) => (
-            <TagBadge tag={tag} size="sm" />
+  <div class="flex flex-1 flex-col px-5 pt-6 pb-5 md:px-8">
+    <p class="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted">
+      {draft && <span class="mr-1 text-accent">draft ·</span>}
+      {[type, ...tags.slice(0, 2)].join(" / ")}
+    </p>
+    <H class="font-display text-lg leading-snug text-balance text-default transition-colors group-hover:text-accent">
+      {title}
+    </H>
+    <p class="mt-2 line-clamp-2 font-mono text-xs leading-relaxed text-subtle">{description}</p>
+
+    <div class="mt-auto flex items-center justify-between gap-3 pt-6 font-mono text-2xs text-muted">
+      <span class="flex items-center gap-2" title={`${mins} min read`}>
+        <span class="flex gap-0.5" aria-hidden="true">
+          {Array.from({ length: METER_MAX }, (_, t) => (
+            <span class:list={["h-2.5 w-1", t < mins ? "bg-accent" : "bg-line-subtle"]} />
           ))}
-        </div>
-      )}
-
-      <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
-        <a href={`/posts/${post.slug}`} class="focus:outline-none">
-          <span class="absolute inset-0" aria-hidden="true" />
-          {post.title}
-        </a>
-      </h2>
-
-      {post.excerpt && (
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
-          {post.excerpt}
-        </p>
-      )}
-    </div>
-
-    <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-      <time datetime={new Date(post.publishedAt || post.createdAt).toISOString()}>{dateFormatted}</time>
-      <div class="flex items-center gap-1.5">
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>{post.readingTime}</span>
-      </div>
+        </span>
+        {mins} min read
+      </span>
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
     </div>
   </div>
-</article>
+</a>

@@ -1,0 +1,33 @@
+---
+/**
+ * @file islands/SearchShortcut.astro
+ * @description Global keyboard shortcut to search: `/`, ⌘K or Ctrl+K.
+ *              On the home page it scrolls to the #search section and
+ *              focuses the box; on any other page it goes to /#search
+ *              (where the box focuses itself on arrival). Rendered once by
+ *              Layout.
+ *
+ * WHY NO MODAL: the home #search section already IS the full search UI
+ * with shareable ?q= URLs; a second modal copy would double the code for
+ * the same job.
+ *
+ * Ignored while typing in an input/textarea/contenteditable (so "/" can
+ * still be typed), and with other modifiers (Ctrl+Shift+K etc. stay
+ * browser shortcuts). ~15 lines, CSP-hashed bundled module.
+ */
+---
+
+<script>
+  document.addEventListener("keydown", (e) => {
+    const t = e.target as HTMLElement;
+    if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    const slash = e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey;
+    const k = e.key.toLowerCase() === "k" && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey;
+    if (!slash && !k) return;
+    e.preventDefault();
+    const box = document.querySelector<HTMLInputElement>("blog-search input");
+    if (!box) return location.assign("/#search");
+    document.getElementById("search")?.scrollIntoView({ block: "start" });
+    box.focus({ preventScroll: true });
+  });
+</script>

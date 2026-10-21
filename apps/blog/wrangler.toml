@@ -1,0 +1,22 @@
+# ==============================================================================
+# akiblog — Cloudflare Pages configuration (wrangler.toml)
+#
+# POC / Implementation Architecture:
+# - Cloudflare Pages project "akiblog" (plan21 §4: `blog.pages.dev` is taken
+#   globally, and the name matches the brand → akiblog.pages.dev previews).
+#   `pages_build_output_dir` marks this as a Pages config, making this file
+#   the source of truth for the project's settings.
+# - Static site + ONE Pages Function: functions/api/featured.ts
+#   (GET /api/featured for the portfolio, plan26). Pages auto-generates
+#   _routes.json so only /api/* invokes it; everything else is free static.
+#   No bindings to declare — the Function only uses the built-in ASSETS
+#   binding. `wrangler pages deploy dist`, run from apps/blog, uploads dist/
+#   AND compiles functions/ (see .github/workflows/blog-deploy.yml).
+# - Custom domain blog.akib35.dev is attached in the dashboard
+#   (Pages → akiblog → Custom domains) AFTER detaching it from the old
+#   `blog` Worker — plan21 §4 cutover order.
+# ==============================================================================
+
+name = "akiblog"
+compatibility_date = "2026-03-13"
+pages_build_output_dir = "dist"

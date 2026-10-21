@@ -1,50 +1,745 @@
+/**
+ * @file apps/portfolio/src/styles/global.css
+ * @description Delta.dev-accurate design system built on Tailwind CSS v4 primitives.
+ *
+ * WHY THIS APPROACH (vs hardcoded hex + arbitrary values):
+ * 1. `@theme` registers design tokens as first-class Tailwind utilities
+ *    (bg-canvas, text-default, border-subtle…) — the same pattern delta.dev
+ *    uses for its `zds-*` classes. One token change re-skins everything.
+ * 2. `color-mix()` derives whole color scales from 3 base OKLCH colors —
+ *    exactly how delta.dev generates its palette (verified from their CSS).
+ * 3. `@custom-variant dark` scopes dark mode to a `.dark` class so the
+ *    anti-flash script + <theme-switch> element stay in full control.
+ * 4. Site geometry mirrors delta.dev's real layout contract
+ *    (--site-inset / --site-max-width / --site-columns / rail height),
+ *    including env(safe-area-inset-*) for notched devices.
+ */
+
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@layer base {
+/* ---------------------------------------------------------------------------
+ * 1. Primitive palette — three OKLCH seeds, everything else is derived
+ * ------------------------------------------------------------------------- */
+:root {
+  --delta-brand: oklch(59% 0.185 32);   /* signature orange-red */
+  --delta-cream: oklch(60% 0.1 75);     /* warm light seed      */
+  --delta-neutral: oklch(53% 0.02 259); /* cool gray seed       */
+
+  --delta-brand-500: var(--delta-brand);
+  --delta-brand-600: color-mix(in oklch, var(--delta-brand), black 8%);
+  --delta-cream-50: color-mix(in oklch, var(--delta-cream), white 95%);
+  --delta-cream-100: color-mix(in oklch, var(--delta-cream), white 85%);
+  --delta-neutral-100: color-mix(in oklch, var(--delta-neutral), white 82%);
+  --delta-neutral-300: color-mix(in oklch, var(--delta-neutral), white 50%);
+  --delta-neutral-500: var(--delta-neutral);
+  --delta-neutral-700: color-mix(in oklch, var(--delta-neutral), black 24%);
+  --delta-neutral-800: color-mix(in oklch, var(--delta-neutral), black 36%);
+  --delta-neutral-900: color-mix(in oklch, var(--delta-neutral), black 46%);
+  --delta-neutral-950: color-mix(in oklch, var(--delta-neutral), black 55%);
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. Semantic layer (light) — overridden in .dark
+ *
+ * CONTRAST CONTRACT (WCAG AA 4.5:1 for the site's 9–12px mono text; values
+ * found by sweeping each mix % in-browser and taking the smallest that
+ * passes, so the palette moves as little as possible):
+ *   text-muted  ≥4.6 on surface, canvas and surface-strong (both themes)
+ *   text-accent ≥4.6 on surface, canvas and the accent-subtle wash
+ *   white       ≥4.6 on accent-fill (btn-primary)
+ * ------------------------------------------------------------------------- */
+:root {
+  --ui-canvas: var(--delta-cream-100);
+  --ui-surface: var(--delta-cream-50);
+  --ui-surface-strong: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+  --ui-control-hover: var(--delta-neutral-100);
+  --ui-frame: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+
+  --ui-text: var(--delta-neutral-950);
+  --ui-text-subtle: var(--delta-neutral-700);
+  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), black 4%);
+
+  --ui-border: var(--delta-neutral-300);
+  --ui-border-subtle: color-mix(in oklch, var(--delta-neutral-800), transparent 82%);
+
+  --ui-accent: color-mix(in oklch, var(--delta-brand), black 10%);
+  --ui-accent-hover: color-mix(in oklch, var(--delta-brand), black 18%);
+  --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 90%);
+  --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 86%);
+
+  /* SOLID brand faces that carry white text (btn-primary). Separate from
+     --ui-accent because text-red and fill-red pull opposite ways: dark
+     mode needs a LIGHTER red for text on dark surfaces but a DARKER red
+     behind white text. Same in both themes (≥4.6:1 vs white). */
+  --ui-accent-fill: var(--delta-brand-600);
+  --ui-accent-fill-hover: color-mix(in oklch, var(--delta-brand), black 16%);
+}
+
+/* DARK LADDER — one cool-neutral lightness ramp, no brand tint:
+ *   canvas (~L19) < surface (~L24) < surface-strong (~L31) < control-hover
+ *   < border-subtle (~L34) < border (~L40).
+ * Why: the old canvas (brand + 88% black ≈ L7, reddish) turned every
+ * inset (Zed editor pane, active tab, commit nodes, theme pill) into a
+ * near-black hole, and border/border-subtle sat within ~3-10 L of the
+ * surface, so the sidebar git tree, section hairlines and IDE splits
+ * vanished. Light mode keeps the same ORDER (canvas a step below
+ * surface, hairlines clearly above), so components need no dark: rules. */
+.dark {
+  --ui-canvas: color-mix(in oklch, var(--delta-neutral-950), black 22%);
+  --ui-surface: var(--delta-neutral-950);
+  --ui-surface-strong: color-mix(in oklch, var(--delta-neutral-900), white 4%);
+  --ui-control-hover: color-mix(in oklch, var(--delta-neutral-900), white 9%);
+  --ui-frame: color-mix(in oklch, var(--delta-neutral), black 90%);
+
+  --ui-text: color-mix(in oklch, var(--delta-neutral), white 88%);
+  --ui-text-subtle: var(--delta-neutral-300);
+  --ui-text-muted: color-mix(in oklch, var(--delta-neutral), white 36%);
+
+  --ui-border: var(--delta-neutral-700);
+  --ui-border-subtle: var(--delta-neutral-800);
+
+  --ui-accent: color-mix(in oklch, var(--delta-brand), white 22%);
+  --ui-accent-hover: color-mix(in oklch, var(--delta-brand), white 10%);
+  --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 84%);
+  --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 90%);
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. Site geometry — delta.dev's REAL chrome contract (plan13.md, verbatim
+ *    from their live CSS; the old --site-column-gap/--site-accent-line
+ *    "channel" tokens were inventions and are gone).
+ *
+ *    ONE full background (--site-frame-background) carries independent chrome:
+ *      • 2-track grid: [sidebar 1fr | content 4fr] — no gap track.
+ *      • --site-section-inset → panels are inset from the column edge; the
+ *        margin strips stay raw frame background and the "=" Seams hatch
+ *        across them.
+ *      • --site-rail-height → the 6px SEGMENTED rail ([3/8 brand, 2/8 gray,
+ *        3/8 --delta-blue]) fixed atop the content track in the chrome
+ *        layer; sections scroll beneath it (main pt-rail + md:border-r).
+ * ------------------------------------------------------------------------- */
+:root {
+  --delta-blue: #346dae;  /* delta's rail tail color, verbatim */
+
+  --site-inset: 1rem;
+  --site-inset-inline: var(--site-inset);
+  --site-inset-top: max(var(--site-inset), env(safe-area-inset-top));
+  --site-inset-bottom: max(var(--site-inset), env(safe-area-inset-bottom));
+  --site-inset-left: max(var(--site-inset-inline), env(safe-area-inset-left));
+  --site-inset-right: max(var(--site-inset-inline), env(safe-area-inset-right));
+
+  --site-max-width: 75rem;
+  --site-page-left: max(var(--site-inset-left), (100% - var(--site-max-width)) / 2);
+  --site-page-right: max(var(--site-inset-right), (100% - var(--site-max-width)) / 2);
+
+  --site-header-height: 3.5rem;  /* mobile top bar        */
+  --site-header-gap: 1rem;
+  --site-rail-height: 0.375rem;  /* thin rail under frame */
+  --site-columns: minmax(0, 1fr);
+  --site-main-column: 1;
+  --site-section-inset: 0rem;   /* mobile: no panel inset (delta verbatim) */
+
+  /* one-paint chrome background (delta verbatim, incl. fallback + forced colors) */
+  --site-frame-background: var(--delta-cream-100);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in srgb, var(--delta-cream-100) 40%, white);
+  }
+
+  --site-frame-top: calc(var(--site-inset-top) + var(--site-header-height) + var(--site-header-gap));
+  --site-content-top: calc(var(--site-frame-top) + var(--site-rail-height));
+  --site-content-bottom: calc(var(--site-inset-bottom) + 1px);
+}
+
+@media (min-width: 48rem) {
   :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f8fafc;
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --border-color: #e2e8f0;
+    --site-inset-inline: 0rem;
+    /* delta verbatim: straight 2-track [sidebar | content] — no gap track */
+    --site-columns: minmax(0, 1fr) minmax(0, 4fr);
+    --site-main-column: 2;
+    --site-section-inset: 1rem;
+    --site-header-height: 0rem;
+    --site-header-gap: 0rem;
   }
+}
 
-  .dark {
-    --bg-primary: #090d16;
-    --bg-secondary: #0f172a;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --border-color: #1e293b;
+/* dark + forced-colors variants of the chrome background (delta verbatim) */
+.dark {
+  --site-frame-background: var(--delta-neutral);
+  @supports (color: color-mix(in lab, red, red)) {
+    --site-frame-background: color-mix(in oklch, var(--delta-neutral), black 90%);
   }
+}
+@media (forced-colors: active) {
+  :root, .dark {
+    --site-frame-background: Canvas;
+  }
+}
 
+/* ---------------------------------------------------------------------------
+ * 4. Tailwind v4 theme — tokens become utilities (bg-canvas, text-default…)
+ *    `inline` keeps the var() reference so .dark overrides propagate.
+ * ------------------------------------------------------------------------- */
+@theme inline {
+  --color-canvas: var(--ui-canvas);
+  --color-surface: var(--ui-surface);
+  --color-surface-strong: var(--ui-surface-strong);
+  --color-control-hover: var(--ui-control-hover);
+  --color-frame: var(--ui-frame);
+  --color-frame-background: var(--site-frame-background);
+  --color-delta-blue: var(--delta-blue);
+
+  --color-default: var(--ui-text);
+  --color-subtle: var(--ui-text-subtle);
+  --color-muted: var(--ui-text-muted);
+
+  --color-line: var(--ui-border);
+  --color-line-subtle: var(--ui-border-subtle);
+
+  --color-accent: var(--ui-accent);
+  --color-accent-hover: var(--ui-accent-hover);
+  --color-accent-subtle: var(--ui-accent-subtle);
+  --color-hatch: var(--ui-hatch);
+
+  --font-display: "IBM Plex Serif", Georgia, serif;
+  --font-body: "iA Writer Quattro S", "iA Writer Quattro V", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Lilex", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* delta.dev's compact label size (not in Tailwind's default scale) */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * 5. Base
+ * ------------------------------------------------------------------------- */
+@layer base {
   html {
     scroll-behavior: smooth;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* offset anchored sections below the fixed frame (delta.dev trick) */
+    scroll-padding-block: var(--site-content-top) var(--site-content-bottom);
+    font-family: var(--font-body);
+    background: var(--site-frame-background);
+    color: var(--ui-text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ONE unified brand background (public/bg-pattern*.svg — circled-A +
+     name micro-tile, rotated -45°): body and the fixed chrome cells
+     (ViewportFrame's top/bottom rails + side gutters) share the SAME
+     viewport-anchored layer via background-attachment: fixed, so the
+     watermark is pixel-continuous across every chrome area — the old
+     per-cell 45° hatch is gone. The SVG's internal <pattern> tiles at
+     absolute units (identical scale everywhere); attachment:fixed aligns
+     the origin and keeps the watermark still while content scrolls.
+     Sections stay opaque bg-surface on top. iOS Safari degrades to
+     element-local attachment — same scale, possible phase shift. */
+  body,
+  .chrome-bg {
+    background-color: var(--site-frame-background);
+    background-image: url("/bg-pattern.svg");
+    background-attachment: fixed;
+  }
+
+  .dark body,
+  .dark .chrome-bg {
+    background-image: url("/bg-pattern-dark.svg");
   }
 
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    min-height: 100dvh;
+    line-height: 1.6;
+  }
+
+  ::selection {
+    background: var(--ui-accent-subtle);
+    color: var(--ui-accent);
+  }
+
+  /* Page scrollbar in the brand red (--ui-accent, theme-aware). Two
+     mechanisms because browsers split: the standard `scrollbar-color`
+     on the root covers Firefox; the ::-webkit-* rules keep the slim
+     6px rounded thumb in Chromium/Safari. Only the ROOT gets
+     scrollbar-color — in Chromium it overrides ::-webkit-* on the same
+     element, which would drop the 6px width elsewhere. Inner scrollers
+     (Zed IDE) keep their own `zed-scroll` neutral thumb. */
+  html {
+    scrollbar-color: var(--ui-accent) transparent;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--ui-accent); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ui-accent-hover); }
+}
+
+/* ---------------------------------------------------------------------------
+ * 6. Motion — scroll-driven, zero-JS, progressively enhanced
+ * ------------------------------------------------------------------------- */
+
+/* Sections fade/slide in as they enter the viewport (Chromium/Safari 18+).
+   Wrapped in @supports so unsupported browsers simply see static content. */
+@keyframes section-enter {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal-on-scroll {
+    animation: section-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
   }
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal-on-scroll { animation: none !important; }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* ---------------------------------------------------------------------------
+ * 7. Utilities
+ * ------------------------------------------------------------------------- */
+/* `@utility` (not plain .classes) so breakpoint variants work —
+   e.g. `max-lg:no-scrollbar lg:zed-scroll` in the Zed workspace tree. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
 }
-::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 9999px;
+
+/* IDE-frame scrollbar (projects Zed workspace): thicker (10px) and
+   rectangular — the rounded 6px site scrollbar stays for the rest of the
+   page. The thumb is TRANSPARENT until the container scrolls: the
+   useScrollbarVisibility hook sets `data-scrolling` during scroll, and
+   only then does the thumb paint (mirrors Zed/macOS overlay scrollbars). */
+@utility zed-scroll {
+  scrollbar-width: thin; /* Firefox ≈ 11px; colors below */
+  scrollbar-color: transparent transparent;
+
+  &::-webkit-scrollbar { width: 10px; height: 10px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: transparent; border-radius: 0; }
+
+  &[data-scrolling] { scrollbar-color: var(--ui-border) transparent; }
+  &[data-scrolling]::-webkit-scrollbar-thumb { background: var(--ui-border); }
+  &[data-scrolling]::-webkit-scrollbar-thumb:hover { background: var(--ui-text-muted); }
 }
-.dark ::-webkit-scrollbar-thumb {
-  background-color: #334155;
+
+/* ---------------------------------------------------------------------------
+ * DEFAULT BUTTON BEHAVIOUR — one look for every secondary button
+ * (sidebar stations, "View all posts", Copy…).
+ *
+ *   static : hairline border on a light face + 1px bottom "lip" shadow
+ *   hover  : border turns brand, face gets a LOW-OPACITY brand wash
+ *            (--ui-accent-subtle) and a soft 3px brand halo ring outside
+ *            the border — the "drawn rectangle" now also glows faintly.
+ *
+ * WHY @utility (not a component class): variants compose, so the hover
+ * look can be triggered from a parent too — `group-hover:btn-hover` on
+ * the sidebar label, plain `btn` on standalone buttons. Colors come only
+ * from theme tokens, so dark mode needs no extra rules. Box-shadow ring
+ * (not outline/border) so the halo never shifts layout.
+ * ------------------------------------------------------------------------- */
+@utility btn-hover {
+  border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+  background-color: var(--ui-accent-subtle);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  color: var(--ui-text);
+}
+
+/* SECONDARY button (Copy, View all posts…).
+   cursor: pointer is explicit because Tailwind v4's preflight resets
+   <button> to `cursor: default` — links got the hand cursor from the UA,
+   real <button>s didn't (the "hover feels dead" bug on Copy/Send). */
+@utility btn {
+  cursor: pointer;
+  border: 1px solid var(--ui-border);
+  background-color: var(--ui-surface-strong);
+  box-shadow: 0 1px 0 var(--ui-border);
+  color: var(--ui-text);
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s, color 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
+    background-color: var(--ui-accent-subtle);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 82%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+/* PRIMARY button (Send Message — one per view). Solid brand face with a
+   darker 1px lip; hover deepens the face and adds the SAME soft brand halo
+   as the secondary hover, so both tiers share one interaction language. */
+@utility btn-primary {
+  cursor: pointer;
+  border: 1px solid var(--ui-accent-fill-hover);
+  background-color: var(--ui-accent-fill);
+  box-shadow: 0 1px 0 var(--ui-accent-fill-hover);
+  color: white;
+  transition: background-color 0.15s, box-shadow 0.15s;
+  &:hover:not(:disabled),
+  &:focus-visible {
+    outline: none;
+    background-color: var(--ui-accent-fill-hover);
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--ui-accent), transparent 75%);
+  }
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+}
+
+/* Sidebar station styling (commit node + terracotta pill) lives in
+   layout/SiteSidebar.astro markup via group-aria-[current=true]:* —
+   aria-current is set by the <scroll-spy> custom element. */
+
+/* ===========================================================================
+ * 8. BLOG — article typography (.prose), code frames, callouts.
+ *
+ * Everything above this line is copied from apps/portfolio @ 091c7cf — keep
+ * it in sync. This section is blog-only (docs/ui-guide/README.md §7).
+ *
+ * WHY HANDWRITTEN (not @tailwindcss/typography): the plugin ships its own
+ * gray scale and dark-mode inversion (`prose-invert`), which would fight
+ * the portfolio's dark ladder. Here every color is a theme token, so dark
+ * mode needs zero extra rules — except Shiki's per-token colors and the
+ * callout accents, the only semantic colors on the site.
+ *
+ * Lives in @layer components so utilities on individual elements still win.
+ * ------------------------------------------------------------------------- */
+:root {
+  --callout-note: var(--ui-accent);
+  --callout-tip: #1a7f37;
+  --callout-important: #2c5f9e; /* brand blue tuned to ≥4.5:1 (the 404's gutter blue) */
+  --callout-warning: #9a6700;
+  --callout-caution: #cf222e;
+}
+.dark {
+  --callout-tip: #3fb950;
+  --callout-important: #6f9fdc;
+  --callout-warning: #d29922;
+  --callout-caution: #f85149;
+}
+
+@layer components {
+  .prose {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--ui-text);
+    overflow-wrap: break-word;
+  }
+  .prose > :first-child { margin-top: 0; }
+  .prose :where(p, ul, ol, table, figure, .callout, details) { margin-block: 0 1.25rem; }
+
+  /* headings — Plex Serif, balanced, land below the fixed frame */
+  .prose :where(h2, h3, h4) {
+    position: relative;
+    scroll-margin-top: calc(var(--site-content-top) + 1rem);
+    color: var(--ui-text);
+    text-wrap: balance;
+  }
+  .prose h2 {
+    margin: 3.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--ui-border-subtle);
+    font-family: var(--font-display);
+    font-size: 1.625rem;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+  .prose h3 {
+    margin: 2.5rem 0 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.3125rem;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+  }
+  .prose h4 {
+    margin: 2rem 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    line-height: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ui-accent);
+  }
+  /* "#" self-link — text-less <a> (lib/markdown.ts), glyph via ::before */
+  .prose .heading-anchor {
+    margin-left: 0.4em;
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    color: var(--ui-text-muted);
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .prose .heading-anchor::before { content: "#"; }
+  .prose :where(h2, h3, h4):hover .heading-anchor,
+  .prose .heading-anchor:focus-visible { opacity: 1; }
+  .prose .heading-anchor:hover { color: var(--ui-accent); }
+
+  /* links */
+  .prose a:not(.heading-anchor) {
+    color: var(--ui-accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, var(--ui-accent), transparent 65%);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s;
+  }
+  .prose a:not(.heading-anchor):hover { text-decoration-color: var(--ui-accent); }
+  .prose a.external::after {
+    content: "↗";
+    margin-left: 0.1em;
+    font-size: 0.8em;
+    color: var(--ui-text-muted);
+  }
+
+  .prose strong { font-weight: 650; color: var(--ui-text); }
+
+  /* lists */
+  .prose :where(ul, ol) { padding-left: 1.4rem; }
+  .prose ul { list-style: square; }
+  .prose ol { list-style: decimal; }
+  .prose li { margin-block: 0.35rem; padding-left: 0.25rem; }
+  .prose ul > li::marker { color: var(--ui-accent); }
+  .prose ol > li::marker { font-family: var(--font-mono); font-size: 0.85em; color: var(--ui-text-muted); }
+  .prose li > :where(ul, ol) { margin-block: 0.35rem 0; }
+  .prose .contains-task-list { list-style: none; padding-left: 0.25rem; }
+  .prose .task-list-item input { margin-right: 0.5rem; accent-color: var(--ui-accent); }
+
+  /* inline code + kbd */
+  .prose :not(pre) > code {
+    padding: 0.1rem 0.375rem;
+    border: 1px solid var(--ui-border-subtle);
+    border-radius: 2px;
+    background: var(--ui-canvas);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+  .prose kbd {
+    display: inline-block;
+    padding: 0 0.375rem;
+    border: 1px solid var(--ui-border);
+    border-radius: 3px;
+    background: var(--ui-surface-strong);
+    box-shadow: 0 1px 0 var(--ui-border);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    line-height: 1.25rem;
+  }
+
+  /* quotes */
+  .prose blockquote {
+    margin: 0 0 1.25rem;
+    padding-left: 1.25rem;
+    border-left: 2px solid var(--ui-border);
+    font-style: italic;
+    color: var(--ui-text-subtle);
+  }
+  .prose blockquote > :last-child { margin-bottom: 0; }
+
+  /* callouts — GitHub alerts (lib/markdown.ts remarkAlerts) */
+  .prose .callout {
+    --c: var(--callout-note);
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--ui-border-subtle);
+    border-left: 3px solid var(--c);
+    background: var(--ui-canvas);
+    font-size: 0.97rem;
+  }
+  .prose .callout-tip { --c: var(--callout-tip); }
+  .prose .callout-important { --c: var(--callout-important); }
+  .prose .callout-warning { --c: var(--callout-warning); }
+  .prose .callout-caution { --c: var(--callout-caution); }
+  .prose .callout > :last-child { margin-bottom: 0; }
+  .prose .callout-title {
+    margin-bottom: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    line-height: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--c);
+  }
+
+  /* rule — the Seam look: hairlines top/bottom, watermark through a gap */
+  .prose hr {
+    height: 1rem;
+    margin: 3rem 0;
+    border: 0;
+    border-block: 1px solid var(--ui-border);
+    background: transparent;
+  }
+
+  /* images — proof-sheet frame like PostCover */
+  .prose img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+    padding: 0.5rem;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-canvas);
+  }
+  .prose p:has(> img:only-child) { margin-block: 2rem; }
+
+  /* tables — mono, ruled, striped (Delta), scroll inside on narrow screens */
+  .prose table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    border-block: 1px solid var(--ui-border);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+  .prose :where(th, td) { padding: 0.55rem 0.9rem; text-align: left; vertical-align: top; }
+  .prose th {
+    border-bottom: 1px solid var(--ui-border);
+    font-size: var(--text-2xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ui-text-muted);
+  }
+  .prose td { border-bottom: 1px solid var(--ui-border-subtle); }
+  .prose tbody tr:nth-child(even) { background: var(--ui-canvas); }
+  .prose tbody tr:last-child td { border-bottom: 0; }
+
+  /* footnotes (GFM) */
+  .prose .footnotes {
+    margin-top: 3.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--ui-border-subtle);
+    font-size: 0.875rem;
+    color: var(--ui-text-subtle);
+  }
+  .prose .footnotes h2 {
+    margin: 0 0 0.75rem;
+    padding: 0;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ui-text-muted);
+  }
+  .prose sup a { font-family: var(--font-mono); font-size: 0.75em; text-decoration: none; }
+
+  /* ── code frame (lib/markdown.ts shikiCodeFrame) ──────────────────────── */
+  .prose figure.code-block {
+    margin: 1.75rem 0;
+    border: 1px solid var(--ui-border);
+    background: var(--ui-canvas);
+  }
+  .prose .code-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.25rem;
+    padding: 0 0.375rem 0 0.875rem;
+    border-bottom: 1px solid var(--ui-border);
+    background: var(--ui-surface-strong);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    line-height: 1rem;
+  }
+  .prose .code-lang { text-transform: uppercase; letter-spacing: 0.08em; color: var(--ui-text-muted); }
+  .prose .code-file { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ui-text-subtle); }
+  .prose .code-copy {
+    margin-left: auto;
+    min-height: 1.5rem;
+    padding: 0 0.625rem;
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+  }
+  .prose .code-copy[data-ok="true"] { color: var(--ui-accent); }
+  .prose pre {
+    margin: 0;
+    padding: 1rem 1.125rem;
+    overflow-x: auto;
+    background: transparent !important; /* Shiki theme bg → our canvas */
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    tab-size: 2;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-border) transparent;
+  }
+  .prose pre:focus-visible { outline: 2px solid var(--ui-accent); outline-offset: -2px; }
+  .prose pre code { font: inherit; }
+
+  /* code + tables bleed to the panel edge on phones (more room per line) */
+  @media (max-width: 47.999rem) {
+    .prose figure.code-block { margin-inline: -1.25rem; border-inline: 0; }
+  }
+}
+
+/* Shiki dual themes (astro.config defaultColor:false): each token carries
+   --shiki-light / --shiki-dark; pick one per theme. Outside @layer so the
+   inline-var color always applies. */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+}
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark);
+}
+
+/* ===========================================================================
+ * 9. BLOG — page transitions (plan23)
+ *
+ * Cross-document View Transitions: when a link goes home ⇄ post (or any
+ * page → page), the browser snapshots both pages and animates between
+ * them. Pure CSS: no router, no JS, nothing for the CSP to hash; pages
+ * still fully load (custom elements, scroll-spy start fresh). Browsers
+ * without support (Firefox today) just navigate normally.
+ *
+ * What moves:
+ *   sidebar-nav   the stations ⇄ "On this page" tree swap (SiteSidebar):
+ *                 the old list lifts up and fades, the new one rises in a
+ *                 beat later, so the rail reads as "the tree re-grows".
+ *   root          everything else (main column) cross-fades quickly; the
+ *                 fixed frame, brand and utility zone are pixel-identical
+ *                 on both pages, so they appear perfectly still.
+ * The group's own morph is disabled (the two lists have different
+ * heights; morphing would squash them). Reduced motion → no transition.
+ * ------------------------------------------------------------------------- */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+.sidebar-nav {
+  view-transition-name: sidebar-nav;
+}
+
+::view-transition-group(sidebar-nav) {
+  animation: none;
+}
+::view-transition-old(sidebar-nav) {
+  animation: nav-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+}
+::view-transition-new(sidebar-nav) {
+  animation: nav-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+@keyframes nav-out {
+  to { opacity: 0; transform: translateY(-0.75rem); filter: blur(2px); }
+}
+@keyframes nav-in {
+  from { opacity: 0; transform: translateY(1rem); }
 }

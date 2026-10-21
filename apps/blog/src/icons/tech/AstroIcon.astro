@@ -1,0 +1,13 @@
+---
+/**
+ * Icon: Astro — "A" frame with orbital swoosh (named AstroIcon.astro to
+ * avoid shadowing the global `Astro` object on import).
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <path d="M12 3.2 L5.2 20.8 M12 3.2 L18.8 20.8" />
+  <path d="M7.4 15.2 C9.8 13.6 14.2 13.6 16.6 15.2" />
+</IconBase>

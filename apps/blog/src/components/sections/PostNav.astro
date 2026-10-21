@@ -1,0 +1,57 @@
+---
+/**
+ * @file sections/PostNav.astro
+ * @description Older / newer post links at the end of an article — a
+ *              two-column ruled row (replaces the Delta reference
+ *              MorePosts list; docs/ui-guide §6).
+ *
+ * WHY two plain cells (not cards): the reader has just finished a post;
+ * the next action is "keep reading", so the titles are the content —
+ * same Plex Serif title + mono eyebrow language as PostCard, split by one
+ * hairline. A missing side leaves an empty cell so the newer post always
+ * sits on the right (direction stays meaningful). rel=prev/next helps
+ * crawlers walk the archive.
+ *
+ * Example: <PostNav prev={olderPost} next={newerPost} />
+ */
+import { formatDate, postUrl, type Post } from "../../lib/posts";
+
+interface Props {
+  prev?: Post;
+  next?: Post;
+}
+
+const { prev, next } = Astro.props;
+const cells = [
+  { post: prev, label: "← Older", rel: "prev", align: "text-left" },
+  { post: next, label: "Newer →", rel: "next", align: "md:text-right" },
+];
+---
+
+<nav aria-label="More posts" class="grid md:grid-cols-2">
+  {
+    cells.map(({ post, label, rel, align }, i) =>
+      post ? (
+        <a
+          href={postUrl(post)}
+          rel={rel}
+          class:list={[
+            "group block px-5 py-8 transition-colors hover:bg-control-hover md:px-8",
+            align,
+            i === 1 && "border-t border-line md:border-t-0 md:border-l",
+          ]}
+        >
+          <span class="font-mono text-2xs uppercase tracking-widest text-muted">{label}</span>
+          <span class="mt-2 block font-display text-lg leading-snug text-balance text-default transition-colors group-hover:text-accent">
+            {post.data.title}
+          </span>
+          <time datetime={post.data.date.toISOString()} class="mt-2 block font-mono text-2xs text-muted">
+            {formatDate(post.data.date)}
+          </time>
+        </a>
+      ) : (
+        <div aria-hidden="true" class:list={["hidden md:block", i === 1 && "md:border-l md:border-line"]} />
+      ),
+    )
+  }
+</nav>

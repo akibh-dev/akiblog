@@ -1,0 +1,271 @@
+---
+/**
+ * @file islands/Search.astro
+ * @description Full-text search over all posts — a <blog-search> custom
+ *              element on top of the Pagefind JS API (plan21 §2). Lives in
+ *              the home page's #search section (plan23); `/?q=…` pre-fills,
+ *              scrolls to the section and survives reloads, so searches
+ *              are shareable links.
+ *
+ * WHY THE PAGEFIND *API* (not Pagefind's default UI): the default UI
+ * injects its own inline styles (blocked by our hash-based CSP) and its
+ * own look. With the API, results are plain markup in this file, styled
+ * with the portfolio tokens — they read like PostCards: mono eyebrow,
+ * Plex Serif title, excerpt with matches in the brand wash.
+ *
+ * HOW IT WORKS
+ * - Index: `pagefind --site dist` after `astro build` writes /pagefind/.
+ *   The module is imported lazily on first focus/typing (no cost for
+ *   visitors who never search). The URL is built at runtime so Vite
+ *   doesn't try to bundle a file that only exists after the build.
+ * - Pagefind's core is WebAssembly → CSP has 'wasm-unsafe-eval'
+ *   (astro.config), which allows WASM compilation only, not eval().
+ * - Query: debounced 150ms; tag filter chips come from the index itself
+ *   (pagefind.filters()), so they always match what was indexed.
+ * - Each result links to the best sub-result (the heading section with
+ *   the most matches) when there is one — Pagefind returns heading-
+ *   anchored hits, which land on the right #section of long posts.
+ * - Excerpts are Pagefind's HTML (content escaped, only <mark> added), so
+ *   innerHTML is safe for them; everything else uses textContent.
+ *
+ * FOCUS: the box sits on the home page, so it must NOT grab focus on a
+ * normal visit (that would hijack keyboard users and scroll position). It
+ * focuses only when the visitor came to search: `?q=`, `/#search` (read
+ * from <html data-arrived-hash> — the URL itself is cleaned), or the
+ * global shortcut (islands/SearchShortcut).
+ *
+ * NO-JS: the <form> GETs /?q=… — without JS the section explains that
+ * search needs JavaScript and links to tags, so it never dead-ends.
+ * DEV: `astro dev` has no index → a notice to use `bun run preview:blog`.
+ *
+ * a11y: labelled input, results count in an aria-live region, ↑/↓ move
+ * between results, Enter follows (native link), Esc clears.
+ *
+ * Example: <Search />
+ */
+---
+
+<blog-search class="block">
+  <form role="search" action="/" method="get" class="flex items-stretch border border-line bg-canvas focus-within:border-accent">
+    <label for="search-q" class="sr-only">Search posts</label>
+    <span aria-hidden="true" class="flex items-center pl-4 font-mono text-sm text-muted">/</span>
+    <input
+      id="search-q"
+      name="q"
+      type="search"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Search posts — e.g. playwright, render tree, gh auth"
+      class="min-h-12 w-full bg-transparent px-3 font-mono text-sm text-default outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:appearance-none"
+    />
+    <button type="submit" class="btn m-1.5 rounded-sm px-4 font-mono text-2xs uppercase tracking-wider">Search</button>
+  </form>
+
+  <div data-filters class="mt-4 flex flex-wrap gap-2" hidden></div>
+
+  <p data-status aria-live="polite" class="mt-6 font-mono text-2xs uppercase tracking-wider text-muted">
+    <noscript>Search needs JavaScript. Browse by <a href="/tags/" class="text-accent underline">tag</a> instead.</noscript>
+  </p>
+
+  <ol data-results class="mt-4 list-none border-t border-line p-0" hidden></ol>
+</blog-search>
+
+<script>
+  type SubResult = { title: string; url: string; excerpt: string; locations?: number[] };
+  type ResultData = {
+    url: string;
+    excerpt: string;
+    meta: Record<string, string>;
+    filters: Record<string, string[]>;
+    sub_results?: SubResult[];
+  };
+  type Pagefind = {
+    options(o: Record<string, unknown>): Promise<void>;
+    filters(): Promise<Record<string, Record<string, number>>>;
+    debouncedSearch(
+      q: string,
+      opts?: { filters?: Record<string, string[]> },
+      ms?: number,
+    ): Promise<{ results: { id: string; data(): Promise<ResultData> }[] } | null>;
+  };
+
+  const MAX_RESULTS = 20;
+
+  class BlogSearch extends HTMLElement {
+    private pf?: Promise<Pagefind | null>;
+    private input!: HTMLInputElement;
+    private status!: HTMLElement;
+    private list!: HTMLOListElement;
+    private filterBox!: HTMLElement;
+    private activeTag: string | null = null;
+
+    connectedCallback() {
+      this.input = this.querySelector("input")!;
+      this.status = this.querySelector("[data-status]")!;
+      this.list = this.querySelector("[data-results]")!;
+      this.filterBox = this.querySelector("[data-filters]")!;
+
+      const params = new URLSearchParams(location.search);
+      this.input.value = params.get("q") ?? "";
+      this.activeTag = params.get("tag");
+
+      this.querySelector("form")!.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.run();
+      });
+      this.input.addEventListener("input", () => this.run());
+      this.input.addEventListener("focus", () => this.load(), { once: true });
+      this.addEventListener("keydown", this.onKey);
+
+      // Layout's clean-URL script strips the hash on arrival but records it
+      // (and may run before or after this module — check both)
+      const hash = document.documentElement.dataset.arrivedHash ?? decodeURIComponent(location.hash.slice(1));
+      const arrived = Boolean(this.input.value || this.activeTag) || hash === "search";
+      if (this.input.value || this.activeTag) {
+        this.run();
+        // came from a shared /?q= link: bring the section into view
+        document.getElementById("search")?.scrollIntoView({ block: "start" });
+      }
+      if (arrived) this.input.focus({ preventScroll: true });
+    }
+
+    private load(): Promise<Pagefind | null> {
+      this.pf ??= (async () => {
+        try {
+          const url = new URL("/pagefind/pagefind.js", location.origin).href;
+          const pf = (await import(/* @vite-ignore */ url)) as Pagefind;
+          await pf.options({ excerptLength: 24 });
+          this.renderFilters(await pf.filters());
+          return pf;
+        } catch {
+          this.status.textContent = import.meta.env.DEV
+            ? "No search index in dev — run `bun run preview:blog` to test search."
+            : "Search is unavailable right now.";
+          return null;
+        }
+      })();
+      return this.pf;
+    }
+
+    private renderFilters(all: Record<string, Record<string, number>>) {
+      const tags = Object.entries(all.tag ?? {}).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+      if (tags.length === 0) return;
+      this.filterBox.replaceChildren(
+        ...tags.map(([tag, count]) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className =
+            "inline-flex min-h-7 cursor-pointer items-center gap-1.5 rounded-sm border border-line-subtle bg-surface px-2.5 py-1 font-mono text-2xs text-subtle transition-colors hover:border-accent hover:text-default aria-pressed:border-accent aria-pressed:text-accent";
+          b.setAttribute("aria-pressed", String(tag === this.activeTag));
+          b.append(Object.assign(document.createElement("span"), { textContent: "#", className: "text-muted" }), tag);
+          b.append(Object.assign(document.createElement("span"), { textContent: String(count), className: "text-muted" }));
+          b.addEventListener("click", () => {
+            this.activeTag = this.activeTag === tag ? null : tag;
+            this.filterBox.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b && this.activeTag === tag)));
+            this.run();
+          });
+          return b;
+        }),
+      );
+      this.filterBox.hidden = false;
+    }
+
+    private async run() {
+      const q = this.input.value.trim();
+      const url = new URL(location.href);
+      q ? url.searchParams.set("q", q) : url.searchParams.delete("q");
+      this.activeTag ? url.searchParams.set("tag", this.activeTag) : url.searchParams.delete("tag");
+      history.replaceState(null, "", url);
+
+      const pf = await this.load();
+      if (!pf) return;
+      if (!q && !this.activeTag) {
+        this.list.hidden = true;
+        this.status.textContent = "";
+        return;
+      }
+      // a filter with no query lists every post carrying that tag
+      const res = await pf.debouncedSearch(q || null!, this.activeTag ? { filters: { tag: [this.activeTag] } } : {}, 150);
+      if (!res) return; // superseded by a newer keystroke
+      const data = await Promise.all(res.results.slice(0, MAX_RESULTS).map((r) => r.data()));
+      this.render(data, res.results.length, q);
+    }
+
+    private render(items: ResultData[], total: number, q: string) {
+      const scope = this.activeTag ? ` in #${this.activeTag}` : "";
+      this.status.textContent =
+        total === 0 ? `No results for “${q}”${scope}` : `${total} ${total === 1 ? "result" : "results"}${q ? ` for “${q}”` : ""}${scope}`;
+      this.list.replaceChildren(...items.map((d) => this.item(d)));
+      this.list.hidden = items.length === 0;
+    }
+
+    private item(d: ResultData): HTMLLIElement {
+      // the heading section with the most matches (ties → earliest); a
+      // sub-result whose url equals the page url is the untitled intro
+      const best =
+        (d.sub_results ?? [])
+          .filter((s) => s.url !== d.url)
+          .reduce<SubResult | null>((a, s) => ((s.locations?.length ?? 0) > (a?.locations?.length ?? 0) ? s : a), null);
+      const li = document.createElement("li");
+      li.className = "border-b border-line";
+      const a = document.createElement("a");
+      a.href = best?.url ?? d.url;
+      a.className = "group block px-1 py-5 outline-none transition-colors hover:bg-control-hover focus-visible:bg-control-hover md:px-3";
+
+      const eyebrow = document.createElement("p");
+      eyebrow.className = "font-mono text-[10px] uppercase tracking-widest text-muted";
+      eyebrow.textContent = [d.filters.type?.[0], ...(d.filters.tag ?? []).slice(0, 3)].filter(Boolean).join(" / ");
+
+      const title = document.createElement("p");
+      title.className = "mt-1.5 font-display text-lg leading-snug text-default transition-colors group-hover:text-accent group-focus-visible:text-accent";
+      title.textContent = d.meta.title ?? d.url;
+      if (best) {
+        const sec = document.createElement("span");
+        sec.className = "font-mono text-xs text-muted";
+        sec.textContent = `  › ${best.title}`;
+        title.append(sec);
+      }
+
+      const excerpt = document.createElement("p");
+      excerpt.className = "search-excerpt mt-2 font-mono text-xs leading-relaxed text-subtle";
+      excerpt.innerHTML = best?.excerpt ?? d.excerpt; // Pagefind-escaped HTML, only <mark> added
+
+      a.append(eyebrow, title, excerpt);
+      if (d.meta.date) {
+        const t = document.createElement("p");
+        t.className = "mt-2 font-mono text-2xs text-muted";
+        t.textContent = d.meta.date;
+        a.append(t);
+      }
+      li.append(a);
+      return li;
+    }
+
+    private onKey = (e: KeyboardEvent) => {
+      const links = [...this.list.querySelectorAll<HTMLAnchorElement>("a")];
+      const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === "ArrowDown" && links.length) {
+        e.preventDefault();
+        links[Math.min(i + 1, links.length - 1)].focus();
+      } else if (e.key === "ArrowUp" && links.length) {
+        e.preventDefault();
+        if (i <= 0) this.input.focus();
+        else links[i - 1].focus();
+      } else if (e.key === "Escape" && document.activeElement === this.input && this.input.value) {
+        this.input.value = "";
+        this.run();
+      }
+    };
+  }
+
+  if (!customElements.get("blog-search")) customElements.define("blog-search", BlogSearch);
+</script>
+
+<style is:global>
+  /* Pagefind wraps matches in <mark>: brand wash, not the UA yellow */
+  .search-excerpt mark {
+    background: var(--ui-accent-subtle);
+    color: var(--ui-accent);
+    padding: 0 0.1em;
+  }
+</style>

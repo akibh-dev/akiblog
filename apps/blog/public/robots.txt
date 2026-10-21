@@ -1,6 +1,44 @@
+# robots.txt — https://blog.akib35.dev  (copied from apps/portfolio @ 091c7cf; same policy)
+#
+# POLICY (why it looks like this):
+# - Search engines: fully allowed. A blog exists to be found.
+# - AI *search / answer* agents (fetch a page when a person asks about it):
+#   allowed, so "how do I …?" in ChatGPT / Claude / Perplexity can cite
+#   this site.
+# - AI *training* crawlers (bulk-collect content for model training):
+#   disallowed. They gain nothing for the visitor and can't link back.
+# - Content-Signal (Cloudflare's Content Signals Policy) is NOT used as a
+#   directive: Lighthouse/Google flag it as an unknown robots.txt rule
+#   (SEO audit fails). Our preference, for reference:
+#   Content-Signal: search=yes, ai-input=yes, ai-train=no
+# - Search UI (/search/) is a page, not a crawl trap: it has no results without JS.
+#
+# robots.txt is a request, not an enforcement. Hard blocking lives in the
+# Cloudflare dashboard (Security → Bots → "Block AI bots").
+
+# ── AI training crawlers: no ───────────────────────────────────────────
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: meta-externalagent
+User-agent: Amazonbot
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: omgili
+User-agent: Timpibot
+Disallow: /
+
+# ── everyone else (search engines, AI search/answer agents such as
+#    OAI-SearchBot, ChatGPT-User, Claude-SearchBot, Claude-User,
+#    PerplexityBot): yes ──────────────────────────────────────────────────
 User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /pagefind/
+Disallow: /feed/
 Disallow: /api/
 
-Sitemap: https://blog.akib35.me/rss.xml
+Sitemap: https://blog.akib35.dev/sitemap-index.xml

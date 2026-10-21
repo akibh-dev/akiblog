@@ -1,0 +1,145 @@
+---
+/**
+ * @file layout/TocTree.astro
+ * @description The post's table of contents drawn AS the sidebar's git
+ *              tree (plan22): h2 = commits on the trunk, h3 = commits on a
+ *              branch forked from their h2, h4 = a branch off the h3.
+ *              Branches fork and merge with the same 45° diagonals, 1.2px
+ *              strokes and 7px hollow commit nodes as the portfolio's
+ *              decorative tree, so the TOC reads as that tree come alive.
+ *
+ * GEOMETRY (px, SVG user units = CSS px, x measured from the nav's left):
+ *   lane x     X(L) = 3.5 + 16·L        (lane 0 = the existing trunk at 3.5)
+ *   node       center y = T = 15        (pt 7 + half of the 16px first line)
+ *   fork       top band 0→T:   M X(L-1) 0 L X(L) T     (dx 16, dy 15 ≈ 45°)
+ *   merge      bottom band 16: M X(k) 0 L X(k-1) 16    (dx 16, dy 16 = 45°)
+ *   row        pt 7 + label + pb 8 → ≥ 31, so T + merge band always fit
+ * Lane spacing is 16 (not the decorative tree's 25) so three lanes plus a
+ * label fit the narrow lg sidebar column.
+ *
+ * WHY PER-ROW SEGMENTS (not one SVG for the whole tree): labels wrap, so
+ * row heights are only known after layout. Each row draws just its own
+ * pieces from lib/toc.ts's lane numbers — verticals are CSS boxes
+ * (top/bottom insets stretch with the row), diagonals are fixed-size SVGs
+ * pinned to the row's top (fork) or bottom (merge) band. Nothing is
+ * measured in JS, and it survives font loading, zoom and resize.
+ *
+ * WHY LANE 0 IS NEVER DRAWN HERE: the sidebar's single trunk <line> already
+ * paints x=3.5 top to bottom. Painting it again would double the alpha of
+ * the semi-transparent --ui-border-subtle in light mode — the exact
+ * double-paint bug SiteSidebar's header documents. Diagonals only TOUCH
+ * the trunk at their end point.
+ *
+ * STATES (from islands/TocSpy): aria-current="location" → filled accent
+ * node (scaled 1.4×, like the active station) + accent label;
+ * data-trail on its ancestors → accent-outlined node + stronger label,
+ * so the path from trunk to the commit you're reading lights up.
+ *
+ * HEADER: "On this page" is a fixed heading rendered by SiteSidebar ABOVE
+ * the rail's scroll area (plan24), so this component starts straight
+ * with the first commit — the trunk begins at its node.
+ *
+ * Example: <TocTree headings={headings} />
+ */
+import type { MarkdownHeading } from "astro";
+import TocSpy from "../islands/TocSpy.astro";
+import { tocRows } from "../../lib/toc";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const rows = tocRows(Astro.props.headings);
+
+const LANE = 16;
+const T = 15; // node center y
+const BAND = 16; // merge band height
+const X = (lane: number) => 3.5 + LANE * lane;
+
+/** vertical segment of lane `k`; insets in px from the row's top/bottom */
+const vline = (k: number, top: number, bottom: number) => `left:${X(k) - 0.6}px;top:${top}px;bottom:${bottom}px`;
+/** vertical segment of lane `k` from the row's top down to the node */
+const vstub = (k: number) => `left:${X(k) - 0.6}px;top:0;height:${T}px`;
+
+const segments = rows.map(({ lane, prevLane, nextLane }) => {
+  const verticals: string[] = [];
+  const merges: number[] = []; // lanes that end here, each merging into k-1
+  // ancestor lanes passing beside this row (lane 0 = trunk, drawn elsewhere)
+  for (let k = 1; k < lane; k++) {
+    if (nextLane >= k) verticals.push(vline(k, 0, 0));
+    else {
+      verticals.push(vline(k, 0, BAND));
+      merges.push(k);
+    }
+  }
+  let fork = false;
+  if (lane >= 1) {
+    // into the node: continue the lane, or fork out of the parent lane
+    if (prevLane >= lane) verticals.push(vstub(lane));
+    else fork = true;
+    // out of the node: continue to the next row, or run down and merge
+    if (nextLane >= lane) verticals.push(vline(lane, T, 0));
+    else {
+      verticals.push(vline(lane, T, BAND));
+      merges.push(lane);
+    }
+  }
+  return { verticals, merges, fork };
+});
+---
+
+<TocSpy>
+  <div role="presentation">
+    <nav aria-label="On this page">
+      <ol class="m-0 list-none p-0">
+        {
+          rows.map((row, i) => {
+            const { verticals, merges, fork } = segments[i];
+            return (
+              <li>
+                <a
+                  href={`#${row.slug}`}
+                  data-toc-link
+                  data-lane={row.lane}
+                  title={row.text}
+                  class:list={[
+                    "group relative block pt-[7px] pr-1 pb-2 font-mono text-xs leading-4 text-muted transition-colors",
+                    "hover:text-default data-trail:text-subtle aria-[current=location]:text-accent",
+                    row.lane === 0 && "text-subtle",
+                  ]}
+                  style={`padding-left:${X(row.lane) + 15.5}px`}
+                >
+                  {/* branch lines — decorative, painted under the node */}
+                  <span aria-hidden="true">
+                    {verticals.map((style) => (
+                      <span class="absolute w-[1.2px] bg-line-subtle" style={style} />
+                    ))}
+                    {fork && (
+                      <svg class="pointer-events-none absolute inset-x-0 top-0 overflow-visible" height={T} width="100%">
+                        <path d={`M${X(row.lane - 1)} 0 L${X(row.lane)} ${T}`} style="stroke: var(--ui-border-subtle); stroke-width: 1.2; fill: none; stroke-linecap: round" />
+                      </svg>
+                    )}
+                    {merges.length > 0 && (
+                      <svg class="pointer-events-none absolute inset-x-0 bottom-0 overflow-visible" height={BAND} width="100%">
+                        {merges.map((k) => (
+                          <path d={`M${X(k)} 0 L${X(k - 1)} ${BAND}`} style="stroke: var(--ui-border-subtle); stroke-width: 1.2; fill: none; stroke-linecap: round" />
+                        ))}
+                      </svg>
+                    )}
+                  </span>
+                  {/* commit node — same 7px hollow circle as the stations */}
+                  <span
+                    aria-hidden="true"
+                    class="absolute size-[7px] rounded-full border border-line bg-canvas transition-[transform,background-color,border-color] duration-200 group-hover:border-accent group-data-trail:border-accent group-aria-[current=location]:scale-[1.4] group-aria-[current=location]:border-accent group-aria-[current=location]:bg-accent motion-reduce:transition-none"
+                    style={`left:${X(row.lane) - 3.5}px;top:${T - 3.5}px`}
+                  />
+                  <span class="line-clamp-2">{row.text}</span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </nav>
+  </div>
+</TocSpy>

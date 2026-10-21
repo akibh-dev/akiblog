@@ -1,0 +1,45 @@
+---
+/**
+ * @file pages/feed/[page].astro
+ * @description One lazy-load batch of the home page's post list, as a bare
+ *              HTML FRAGMENT (`partial = true`: no <html>/<head>/layout) —
+ *              /feed/2/, /feed/3/, … built at build time (plan26).
+ *
+ * WHY PRE-RENDERED FRAGMENTS (not JSON + client templating): the cards are
+ * Astro components (PostCover's optimized <Image>, the reading meter…).
+ * Rendering them here, at build time, reuses that exact markup and the
+ * images Astro already generated; the client only fetches and appends —
+ * no card template duplicated in JS, nothing to keep in sync. The output is
+ * still 100% static and deterministic (same notes commit → same files).
+ *
+ * Batch 1 is NOT a fragment: it is in the home page HTML itself (first
+ * paint, crawlers, no-JS). Each fragment carries `data-next` so LoadMore
+ * knows the following URL without a manifest; the last one omits it.
+ *
+ * Kept out of search results and indexes: no data-pagefind-body (Pagefind
+ * skips it), excluded from the sitemap (astro.config) and robots.txt.
+ */
+import PostGrid from "../../components/sections/PostGrid.astro";
+import { getPosts, homeFeed, type Post } from "../../lib/posts";
+
+export const partial = true;
+
+export async function getStaticPaths() {
+  const { later } = homeFeed(await getPosts());
+  return later.map((posts, i) => ({
+    params: { page: String(i + 2) },
+    props: { posts, next: i + 1 < later.length ? `/feed/${i + 3}/` : undefined },
+  }));
+}
+
+interface Props {
+  posts: Post[];
+  next?: string;
+}
+
+const { posts, next } = Astro.props;
+---
+
+<template data-feed-batch data-next={next}>
+  <PostGrid posts={posts} itemsOnly />
+</template>

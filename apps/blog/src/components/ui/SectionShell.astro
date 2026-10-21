@@ -1,0 +1,63 @@
+---
+/**
+ * @file ui/SectionShell.astro
+ * @description A FLUSH PANEL of the content channel: continuous side
+ *              lines (border-x, inset --site-section-inset from the column
+ *              edge), NO top/bottom borders — the horizontal rhythm comes
+ *              from the <Seam/> bands index.astro inserts BETWEEN panels
+ *              (the "=" gaps). Numbered eyebrow header + consistent
+ *              content padding inside.
+ *
+ * WHY panels stay bg-canvas: structure reads through lines + hatch on ONE
+ * background (delta.dev), not stacked cards. The old per-section <Hatch>
+ * band and border-b are gone: the seam replaces both — it is the hatch
+ * AND the border-y in one band.
+ *
+ * WHY reveal-on-scroll moved to the inner content div: the animation
+ * translates its element — applied to the <section> it would drag the
+ * continuous side lines 1.5rem out of alignment with the seams during
+ * entry. Animating only the content keeps the channel lines still.
+ *
+ * Slots:
+ * - default: section content.
+ * - header (optional): overrides the default "NN. Label" eyebrow —
+ *   used by Hero to render its rotating quote in that slot.
+ *
+ * HEADERLESS MODE: omit index+label (and the header slot) and no header
+ * renders at all — pair with pad="p-0" for full-bleed sections whose
+ * content IS the header (e.g. the Projects IDE window).
+ */
+
+interface Props {
+  id: string;
+  index?: string; // "01", "02"…
+  label?: string;
+  class?: string;
+  pad?: string;
+}
+
+const { id, index, label, class: className = "", pad = "px-5 md:px-8 py-14 md:py-20" } = Astro.props;
+const hasHeader = Astro.slots.has("header") || Boolean(index && label);
+---
+
+<section id={id} data-spy-section class:list={["relative mx-(--site-section-inset) overflow-clip border-x border-line bg-surface", className]}>
+  <div class:list={["reveal-on-scroll", pad]}>
+    {
+      hasHeader && (
+        <header class="mb-10 flex items-center gap-3">
+          {
+            Astro.slots.has("header") ? (
+              <slot name="header" />
+            ) : (
+              <>
+                <span class="font-mono text-2xs uppercase tracking-widest text-accent">{index}. {label}</span>
+                <span class="h-px w-16 bg-line"></span>
+              </>
+            )
+          }
+        </header>
+      )
+    }
+    <slot />
+  </div>
+</section>
