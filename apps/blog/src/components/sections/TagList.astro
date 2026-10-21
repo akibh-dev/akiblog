@@ -1,0 +1,62 @@
+---
+/**
+ * @file sections/TagList.astro
+ * @description Ruled list of all tags with counts — the home page's #tags
+ *              section (plan23; was the standalone /tags/ page).
+ *
+ * WHY A LIST (not a cloud): font-size clouds are hard to scan and fail
+ * contrast at the small end. A ruled, count-sorted list reads like the
+ * rest of the site (hairlines, mono meta, serif names) and doubles as an
+ * index of the whole blog — each row shows the newest post under the tag.
+ *
+ * Lines: border-t on the list, border-b per row, border-l on the right
+ * column (md). The last row(s) drop border-b so they don't double the
+ * seam line below the panel.
+ *
+ * Example: <TagList tags={tagIndex(posts)} />
+ */
+import { formatDate, type Post } from "../../lib/posts";
+
+interface Props {
+  tags: { tag: string; posts: Post[] }[];
+}
+
+const { tags } = Astro.props;
+---
+
+<ul class="tag-list grid border-t border-line md:grid-cols-2">
+  {
+    tags.map(({ tag, posts }) => (
+      <li class="border-b border-line">
+        <a href={`/tags/${tag}/`} class="group flex h-full flex-col gap-2 px-5 py-6 transition-colors hover:bg-control-hover md:px-8">
+          <span class="flex items-baseline justify-between gap-4">
+            <span class="font-display text-xl text-default transition-colors group-hover:text-accent">
+              <span aria-hidden="true" class="text-muted">#</span>
+              {tag}
+            </span>
+            <span class="font-mono text-2xs uppercase tracking-wider text-muted">
+              {posts.length} {posts.length === 1 ? "post" : "posts"}
+            </span>
+          </span>
+          <span class="line-clamp-1 font-mono text-xs text-subtle">
+            {posts[0].data.title} · {formatDate(posts[0].data.date)}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  @media (min-width: 48rem) {
+    .tag-list > li:nth-child(2n) {
+      border-left: 1px solid var(--ui-border);
+    }
+    .tag-list > li:nth-last-child(2):nth-child(odd) {
+      border-bottom: 0;
+    }
+  }
+  .tag-list > li:last-child {
+    border-bottom: 0;
+  }
+</style>

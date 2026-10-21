@@ -1,0 +1,377 @@
+/* ==========================================================================
+   Delta Blog Reference System - Markdown Content & Prose Styles
+   Extracted & tailored from https://delta.dev/blog/planning-together-in-delta
+   ========================================================================== */
+
+:root {
+  --ui-font-display: 'IBM Plex Serif', Georgia, serif;
+  --ui-font-interface: 'Lilex', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ui-accent: var(--delta-brand, #d5462b);
+  --ui-accent-subtle: rgba(213, 70, 43, 0.08);
+  --ui-text: var(--delta-text, #201e13);
+  --ui-text-subtle: var(--delta-text-muted, #5e6066);
+  --ui-text-placeholder: #8b8e96;
+  --ui-border-subtle: var(--delta-border-subtle, #eae9e4);
+  --ui-border-strong: var(--delta-border, #dfdfe0);
+  --ui-border-stronger: #c5c7cb;
+  --ui-background-canvas: var(--delta-canvas, #fbfaf7);
+  --ui-background-subtle: var(--delta-surface, #f3f1ea);
+  --ui-background-strong: var(--delta-code-bg, #f8f6f0);
+  --ui-control-background: #ffffff;
+  --ui-control-background-active: rgba(0, 0, 0, 0.04);
+  --ui-control-border: #dfdfe0;
+  --ui-focus-ring: rgba(213, 70, 43, 0.4);
+  --ui-success: #1a7f37;
+  --ui-success-subtle: rgba(46, 160, 67, 0.1);
+  --ui-warning: #9a6700;
+  --ui-warning-subtle: rgba(212, 167, 44, 0.12);
+  --ui-warning-text-subtle: #634300;
+  --ui-error: #cf222e;
+  --ui-error-subtle: rgba(248, 81, 73, 0.1);
+
+  /* TOC dimensions */
+  --site-content-top: 1.5rem;
+  --site-content-height: calc(100vh - 3rem);
+}
+
+.dark {
+  --ui-accent: var(--delta-brand, #e05238);
+  --ui-accent-subtle: rgba(224, 82, 56, 0.12);
+  --ui-text: var(--delta-text, #eceae5);
+  --ui-text-subtle: var(--delta-text-muted, #9ba0aa);
+  --ui-text-placeholder: #686c75;
+  --ui-border-subtle: var(--delta-border-subtle, #202329);
+  --ui-border-strong: var(--delta-border, #292c32);
+  --ui-border-stronger: #3d424b;
+  --ui-background-canvas: var(--delta-canvas, #14171a);
+  --ui-background-subtle: var(--delta-surface, #1a1e22);
+  --ui-background-strong: var(--delta-code-bg, #101316);
+  --ui-control-background: #1e2227;
+  --ui-control-background-active: rgba(255, 255, 255, 0.06);
+  --ui-control-border: #292c32;
+  --ui-focus-ring: rgba(224, 82, 56, 0.5);
+  --ui-success: #3fb950;
+  --ui-success-subtle: rgba(63, 185, 80, 0.12);
+  --ui-warning: #d29922;
+  --ui-warning-subtle: rgba(210, 153, 34, 0.15);
+  --ui-warning-text-subtle: #e3b341;
+  --ui-error: #f85149;
+  --ui-error-subtle: rgba(248, 81, 73, 0.15);
+}
+
+/* ==========================================================================
+   Article Container Typography
+   ========================================================================== */
+.markdown-content {
+  --markdown-block-gap: 1.5rem;
+  --markdown-code-background: var(--ui-background-strong);
+  color: var(--ui-text-subtle);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.markdown-content > * + * {
+  margin-block-start: var(--markdown-block-gap);
+}
+
+.markdown-content > :not(h1, h2, h3, h4, h5, h6) + :is(h1, h2, h3, h4, h5, h6) {
+  margin-block-start: 3rem;
+}
+
+/* Headings */
+.markdown-content :is(h1, h2, h3, h4, h5, h6) {
+  border-block-end: 1px solid var(--ui-border-subtle);
+  color: var(--ui-text);
+  font-family: var(--ui-font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  padding-block-end: 0.875rem;
+  line-height: 1.2;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-content h1 { font-size: 2.125rem; }
+.markdown-content h2 { font-size: 1.5rem; }
+.markdown-content h3 { font-size: 1.25rem; }
+.markdown-content h4 { font-size: 1.125rem; }
+.markdown-content :is(h5, h6) { font-size: 1rem; }
+.markdown-content h6 {
+  color: var(--ui-text-subtle);
+  font-family: var(--ui-font-interface);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.markdown-content a.heading-link {
+  color: inherit;
+  text-underline-offset: 0.15em;
+  text-decoration: none;
+}
+
+.markdown-content a.heading-link:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--ui-border-strong);
+}
+
+/* Paragraphs & Text */
+.markdown-content :is(p, li, dd) {
+  overflow-wrap: break-word;
+}
+
+.markdown-content :is(strong, b) {
+  font-weight: 600;
+  color: var(--ui-text);
+}
+
+/* Hyperlinks */
+.markdown-content :is(a) {
+  color: var(--ui-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklch, var(--ui-accent), transparent 45%);
+  text-underline-offset: 0.18em;
+  transition: all 0.15s ease;
+}
+
+.markdown-content :is(a):hover {
+  text-decoration-color: currentColor;
+}
+
+/* Lists */
+.markdown-content :is(ul, ol) {
+  padding-inline-start: 1.5rem;
+}
+
+.markdown-content ul {
+  list-style-type: square;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content li {
+  padding-inline-start: 0.25rem;
+}
+
+.markdown-content li + li {
+  margin-block-start: 0.375rem;
+}
+
+.markdown-content li::marker {
+  color: var(--ui-text-placeholder);
+  font-family: var(--ui-font-interface);
+  font-size: 0.875em;
+}
+
+.markdown-content li > :is(ul, ol) {
+  margin-block: 0.5rem 0.75rem;
+}
+
+.markdown-content li > * + * {
+  margin-block-start: 0.75rem;
+}
+
+/* Inline Code */
+.markdown-content :not(pre) > code {
+  background-color: var(--ui-control-background-active);
+  border: 1px solid var(--ui-border-subtle);
+  border-radius: 2px;
+  box-decoration-break: clone;
+  color: var(--ui-text);
+  font-family: var(--ui-font-interface);
+  margin-inline: 0.05em;
+  padding: 0.125rem 0.375rem;
+  font-size: 0.875em;
+}
+
+/* Code Blocks */
+.markdown-content pre {
+  border: 1px solid var(--ui-border-subtle);
+  border-radius: 2px;
+  font-family: var(--ui-font-interface);
+  scrollbar-color: var(--ui-border-stronger) transparent;
+  tab-size: 2;
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  overflow-x: auto;
+  background-color: var(--markdown-code-background) !important;
+  color: var(--ui-text) !important;
+}
+
+.markdown-content pre code {
+  color: inherit;
+  font: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  background-color: var(--ui-accent-subtle);
+  border-inline-start: 3px solid var(--ui-accent);
+  color: var(--ui-text-subtle);
+  padding: 1rem 1.25rem;
+  border-radius: 0 2px 2px 0;
+}
+
+.markdown-content blockquote > * + * {
+  margin-block-start: 0.75rem;
+}
+
+.markdown-content blockquote blockquote {
+  border-color: var(--ui-border-stronger);
+  background-color: transparent;
+}
+
+/* Markdown Alerts (GitHub & Delta syntax) */
+.markdown-content .markdown-alert {
+  --markdown-callout-accent: var(--ui-accent);
+  --markdown-callout-background: var(--ui-accent-subtle);
+  --markdown-callout-text: var(--ui-text-subtle);
+  background-color: var(--markdown-callout-background);
+  border-inline-start: 3px solid var(--markdown-callout-accent);
+  color: var(--markdown-callout-text);
+  padding: 1.125rem 1.25rem 1.25rem;
+  border-radius: 0 2px 2px 0;
+}
+
+.markdown-content .markdown-alert-tip {
+  --markdown-callout-accent: var(--ui-success);
+  --markdown-callout-background: var(--ui-success-subtle);
+}
+
+.markdown-content .markdown-alert-warning,
+.markdown-content .markdown-alert-important {
+  --markdown-callout-accent: var(--ui-warning);
+  --markdown-callout-background: var(--ui-warning-subtle);
+}
+
+.markdown-content .markdown-alert-caution {
+  --markdown-callout-accent: var(--ui-error);
+  --markdown-callout-background: var(--ui-error-subtle);
+}
+
+.markdown-content .markdown-alert > * + * {
+  margin-block-start: 0.75rem;
+}
+
+.markdown-content .markdown-alert-title {
+  color: var(--markdown-callout-accent);
+  font-family: var(--ui-font-interface);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  line-height: 1;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Tables */
+.markdown-content .table-scroll {
+  border: 1px solid var(--ui-border-subtle);
+  scrollbar-color: var(--ui-border-stronger) transparent;
+  border-radius: 2px;
+  overflow-x: auto;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  inline-size: 100%;
+  font-size: 0.875rem;
+}
+
+.markdown-content thead {
+  border-block-end: 1px solid var(--ui-border-subtle);
+}
+
+.markdown-content tr:nth-child(odd) {
+  background-color: var(--ui-background-canvas);
+}
+
+.markdown-content tr:nth-child(2n) {
+  background-color: var(--ui-background-subtle);
+}
+
+.markdown-content :is(th, td) {
+  text-align: start;
+  white-space: nowrap;
+  padding: 0.625rem 0.875rem;
+}
+
+.markdown-content th {
+  color: var(--ui-text);
+  font-weight: 600;
+  font-family: var(--ui-font-interface);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Figures, Images & Captions */
+.markdown-content :is(img, picture, video, canvas, svg, iframe) {
+  block-size: auto;
+  max-inline-size: 100%;
+}
+
+.markdown-content :is(p, figure) > img,
+.markdown-content figure > :is(picture, video, canvas, iframe) {
+  border: 1px solid var(--ui-border-strong);
+  border-radius: 2px;
+}
+
+.markdown-content p > img:only-child {
+  display: block;
+}
+
+.markdown-content figure > * + * {
+  margin-block-start: 0.75rem;
+}
+
+.markdown-content figcaption {
+  color: var(--ui-text-subtle);
+  font-family: var(--ui-font-interface);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Dividers */
+.markdown-content hr {
+  border: 0;
+  border-block-start: 1px solid var(--ui-border-strong);
+  margin-block: 3rem;
+}
+
+/* Keyboard keys */
+.markdown-content kbd {
+  background-color: var(--ui-control-background);
+  border: 1px solid var(--ui-control-border);
+  box-shadow: inset 0 -1px 0 var(--ui-control-border);
+  color: var(--ui-text);
+  font-family: var(--ui-font-interface);
+  padding: 0.125rem 0.35rem;
+  font-size: 0.75em;
+  border-radius: 2px;
+}
+
+/* Footnotes */
+.markdown-content [data-footnotes] {
+  border-block-start: 1px solid var(--ui-border-subtle);
+  color: var(--ui-text-subtle);
+  padding-block-start: 1.5rem;
+  font-size: 0.8125rem;
+}
+
+.markdown-content [data-footnotes]:before {
+  color: var(--ui-text);
+  content: "Notes";
+  font-family: var(--ui-font-interface);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-block-end: 0.75rem;
+  font-size: 0.6875rem;
+  display: block;
+}

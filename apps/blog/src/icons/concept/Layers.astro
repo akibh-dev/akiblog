@@ -1,0 +1,14 @@
+---
+/**
+ * Icon: Layers — Clean Architecture: concentric "onion" rings + core dot.
+ * Theme-aware via currentColor (see IconBase.astro).
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <circle cx="12" cy="12" r="9.2" />
+  <circle cx="12" cy="12" r="6" />
+  <circle cx="12" cy="12" r="2.9" />
+  <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+</IconBase>

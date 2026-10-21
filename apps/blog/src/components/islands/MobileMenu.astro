@@ -1,0 +1,192 @@
+---
+/**
+ * @file islands/MobileMenu.astro
+ * @description Mobile navigation sheet — PURE ASTRO, native <dialog>.
+ *
+ * Copied from apps/portfolio/src/components/islands/MobileMenu.astro @ 091c7cf.
+ * Keep in sync. BLOG ADAPTATION: stations from data/site.ts — on the home
+ * one-pager they're #section anchors under ScrollSpy (portfolio verbatim),
+ * elsewhere /#section links marked at build time; brand = site.name; the
+ * resume row became the RSS row.
+ *              Replaces MobileMenu.tsx (Base UI Dialog) per plan 17 §3
+ *              Phase 5 ("MobileMenu via <dialog>").
+ *
+ * WHY NATIVE <dialog> + showModal() (POC / rationale):
+ * 1. Everything Base UI gave us is now built into the platform: top-layer
+ *    rendering (no portal, no z-index fights with the fixed site frame),
+ *    focus moved in and trapped, Esc closes, the rest of the page becomes
+ *    inert, and focus returns to the trigger on close. Zero JS shipped
+ *    for any of that; the script below only opens, closes and handles
+ *    clicks on the backdrop.
+ * 2. It fixes the old React drawer's mobile bugs: Base UI's scroll lock
+ *    shifted the page under the popup, so on phones the sheet opened
+ *    partly above the viewport (01. Home cut off) and the blurred
+ *    backdrop stopped short of the bottom. A top-layer dialog is
+ *    positioned against the viewport itself, and scroll is locked with
+ *    one `html:has(dialog[open])` rule — the page never moves.
+ * 3. The sheet REPLACES the header while open (same inset, same height
+ *    brand row) and carries its own Close button, so the trigger and the
+ *    close control sit at the same spot — thumbs don't travel.
+ * 4. Links sit inside <scroll-spy> (islands/ScrollSpy.astro), so the
+ *    section currently on screen is marked aria-current and styled as
+ *    the active station — same rule as the desktop sidebar, no new JS.
+ * 5. Resume + socials are only in the desktop sidebar, which is hidden
+ *    below md. They're repeated here so mobile visitors can reach them.
+ * 6. Theme switch is the shared ThemeSwitch.astro element (same one as
+ *    the sidebar; all instances stay in sync).
+ *
+ * POC:
+ *   <MobileMenu />  — drop into MobileHeader; renders trigger + dialog.
+ */
+import { site, stations, isActive, stationHref } from "../../data/site";
+import ScrollSpy from "./ScrollSpy.astro";
+import ThemeSwitch from "./ThemeSwitch.astro";
+import BrandLogo from "../layout/BrandLogo.astro";
+import { GitHubIcon, LinkedInIcon, XIcon, RssIcon } from "../../icons";
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
+const pathname = Astro.url.pathname;
+const onHome = pathname === "/";
+const Spy = onHome ? ScrollSpy : Fragment;
+
+const SOCIAL_ICONS: Record<string, AstroComponentFactory> = {
+  GitHub: GitHubIcon,
+  LinkedIn: LinkedInIcon,
+  X: XIcon,
+};
+const links = site.socials.map((s) => ({ name: s.name, url: s.url, Icon: SOCIAL_ICONS[s.name] }));
+---
+
+<mobile-menu class="contents">
+  <button
+    type="button"
+    data-menu-open
+    aria-haspopup="dialog"
+    aria-controls="mobile-menu"
+    aria-expanded="false"
+    class="btn rounded-md px-3 py-1.5 font-mono text-2xs text-subtle"
+  >
+    Menu
+  </button>
+
+  <dialog
+    id="mobile-menu"
+    aria-label={`${site.name} — navigation`}
+    class="mobile-sheet fixed inset-x-3 top-[var(--site-inset-top)] m-0 max-h-[calc(100dvh-var(--site-inset-top)-var(--site-inset-bottom))] w-auto max-w-none overflow-y-auto rounded-md border border-line bg-surface p-0 text-default shadow-lg"
+  >
+    {/* brand row — mirrors the header so the sheet reads as "header, expanded" */}
+    <div class="flex h-[3.5rem] items-center justify-between border-b border-line-subtle px-3">
+      <a href={onHome ? "#home" : "/"} data-menu-close class="flex items-center gap-2">
+        <BrandLogo class="size-7" />
+        <span class="font-mono text-sm font-medium text-default">{site.name}</span>
+      </a>
+      <button type="button" data-menu-close class="btn rounded-md px-3 py-1.5 font-mono text-2xs text-subtle">
+        Close
+      </button>
+    </div>
+
+    <nav aria-label="Site">
+      <Spy>
+        <ul class="p-2">
+          {
+            stations.map((s) => (
+              <li>
+                <a
+                  href={stationHref(s, onHome)}
+                  aria-current={!onHome && isActive(s, pathname) ? "true" : undefined}
+                  {...(s.external ? { target: "_blank", rel: "noopener" } : {})}
+                  data-menu-close
+                  class="group flex min-h-11 items-center gap-3 rounded-md border border-transparent px-4 py-2.5 font-mono text-sm text-default transition-colors outline-none hover:bg-control-hover focus-visible:bg-control-hover aria-[current=true]:border-accent aria-[current=true]:text-accent"
+                >
+                  {s.label}{s.external && <span aria-hidden="true">↗</span>}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </Spy>
+    </nav>
+
+    {/* RSS + socials — the desktop sidebar's utility zone, mobile edition */}
+    <div class="flex items-center justify-between gap-2 border-t border-line-subtle px-4 py-3">
+      <a
+        href="/rss.xml"
+        class="group flex min-h-11 items-center gap-2 font-mono text-2xs uppercase tracking-wider text-subtle transition-colors hover:text-accent"
+      >
+        <RssIcon class="size-4 text-muted transition-colors group-hover:text-accent" />
+        RSS feed
+      </a>
+      <div class="flex items-center gap-1">
+        {
+          links.map(({ name, url, Icon }) => (
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={name}
+              aria-label={name}
+              class="flex size-11 items-center justify-center rounded-md text-muted transition-colors hover:text-accent"
+            >
+              {Icon && <Icon class="size-5" />}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="border-t border-line-subtle p-3">
+      <ThemeSwitch />
+    </div>
+  </dialog>
+</mobile-menu>
+
+<style is:global>
+  /* page never scrolls behind the open sheet (replaces Base UI scroll lock) */
+  html:has(#mobile-menu[open]) {
+    overflow: hidden;
+  }
+  /* ::backdrop doesn't reliably inherit theme vars → fixed scrim color */
+  .mobile-sheet::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(4px);
+  }
+  /* drop-in: fade + slight slide; skipped under reduced motion */
+  @media (prefers-reduced-motion: no-preference) {
+    .mobile-sheet[open] {
+      animation: mobile-sheet-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes mobile-sheet-in {
+      from { opacity: 0; transform: translateY(-0.5rem); }
+    }
+  }
+</style>
+
+<script>
+  class MobileMenu extends HTMLElement {
+    connectedCallback() {
+      const dialog = this.querySelector<HTMLDialogElement>("dialog");
+      const trigger = this.querySelector<HTMLButtonElement>("[data-menu-open]");
+      if (!dialog || !trigger) return;
+
+      trigger.addEventListener("click", () => {
+        dialog.showModal();
+        trigger.setAttribute("aria-expanded", "true");
+      });
+      dialog.addEventListener("close", () => trigger.setAttribute("aria-expanded", "false"));
+
+      dialog.addEventListener("click", (e) => {
+        // a click whose target is the <dialog> itself landed on ::backdrop
+        if (e.target === dialog) return dialog.close();
+        // nav links + Close: close first; the link's default jump follows
+        if ((e.target as Element).closest("[data-menu-close]")) dialog.close();
+      });
+
+      // leaving mobile width with the sheet open (rotate / resize) → close
+      matchMedia("(min-width: 48rem)").addEventListener("change", (m) => {
+        if (m.matches && dialog.open) dialog.close();
+      });
+    }
+  }
+
+  customElements.define("mobile-menu", MobileMenu);
+</script>

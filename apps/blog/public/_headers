@@ -1,0 +1,47 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+# Copied from apps/portfolio/public/_headers @ 091c7cf. Blog additions: /pagefind/*, /rss.xml.
+#
+# WHY:
+# - /_astro/* files are content-hashed by Astro (name changes whenever the
+#   bytes change), and /fonts/* never change → cache for a year, immutable.
+#   Fixes Lighthouse "Use efficient cache lifetimes" for same-origin assets.
+# - Everything else (HTML, robots, llms.txt, CV) keeps Pages' default
+#   revalidation so a deploy shows up immediately.
+# - Security headers (Lighthouse best practices / securityheaders.com):
+#   nosniff, strict referrer, no framing, minimal permissions. HSTS is set
+#   at the zone level by Cloudflare (SSL/TLS → Edge Certificates).
+#   No CSP yet: Turnstile + Cloudflare Web Analytics + inline theme script
+#   need a hash/nonce-based policy — see the follow-up list.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# Pagefind index: filenames are only partly hashed and every deploy replaces
+# the index, so a short cache (not immutable). plan21 §2.
+/pagefind/*
+  Cache-Control: public, max-age=3600
+
+/rss.xml
+  Content-Type: application/rss+xml; charset=utf-8
+
+# giscus themes (public/giscus/*.css) are fetched by the giscus iframe
+# (origin https://giscus.app). Short cache: re-resolved tokens ship at once.
+/giscus/*
+  Access-Control-Allow-Origin: https://giscus.app
+  Cache-Control: public, max-age=3600
+
+# Post list for the portfolio's Writings section (pages/posts.json.ts):
+# readable cross-origin, but only by the portfolio.
+/posts.json
+  Access-Control-Allow-Origin: https://akib35.dev
+  Cache-Control: public, max-age=300

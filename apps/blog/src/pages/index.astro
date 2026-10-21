@@ -1,115 +1,129 @@
 ---
-export const prerender = false;
+/**
+ * @file pages/index.astro
+ * @description Blog home — a ONE-PAGER like the portfolio (plan23):
+ *              its sections ARE the sidebar stations (data/site.ts),
+ *              marked by ScrollSpy as you scroll.
+ *
+ *   #home    Panel   intro: wordmark h1, tagline, tag row (no eyebrow)
+ *   Seam
+ *   #search  Panel   SectionHeader + full-text search (Pagefind island)
+ *   Seam
+ *   #tags    Panel   SectionHeader + ruled topic list with counts
+ *   Seam
+ *   #posts   Panel   SectionHeader, then FEATURED grid (frontmatter
+ *                    `featured: true`, newest first), then every other post
+ *                    newest first: the first batch in this HTML, the rest
+ *                    lazy-loaded from /feed/<n>/ as the reader scrolls
+ *                    (islands/LoadMore, plan26)
+ *
+ * HEADERS (plan25): portfolio Writings style — serif title + one short
+ * mono line (ui/SectionHeader). No "NN. Label" eyebrows: the title names
+ * the section and the sidebar stations already give the page order.
+ *   Seam
+ *   Footer   Square Kufic band (portfolio footer)
+ *
+ * ORDER (plan24): search right under the intro — the fastest way to a
+ * known post — then topics, then the full archive, which is the longest
+ * panel and therefore last. Every panel is one station, so ScrollSpy
+ * always has exactly one section to mark.
+ *
+ * Other pages (posts, /tags/<tag>/) are "blog pages": separate routes,
+ * stations link back here (/#tags …). Old /tags/ and /search/ URLs
+ * redirect to these sections (public/_redirects). The URL stays clean
+ * (no #section) — Layout's clean-URL script, as on the portfolio.
+ */
+import Layout from "../layouts/Layout.astro";
+import SectionShell from "../components/ui/SectionShell.astro";
+import Seam from "../components/ui/Seam.astro";
+import Footer from "../components/sections/Footer.astro";
+import PostGrid from "../components/sections/PostGrid.astro";
+import TagList from "../components/sections/TagList.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+import TagPill from "../components/ui/TagPill.astro";
+import Search from "../components/islands/Search.astro";
+import { getPosts, homeFeed, tagIndex } from "../lib/posts";
+import LoadMore from "../components/islands/LoadMore.astro";
+import { site } from "../data/site";
 
-import Layout from '../layouts/Layout.astro';
-import FeaturedPostCard from '../components/ui/FeaturedPostCard.astro';
-import PostCard from '../components/ui/PostCard.astro';
-import TagFilter from '../components/ui/TagFilter.astro';
-import SearchBar from '../components/ui/SearchBar.astro';
-import EmptyState from '../components/ui/EmptyState.astro';
-import Pagination from '../components/ui/Pagination.astro';
-
-import { getDb } from '../lib/db';
-import { getPublishedPosts } from '../lib/services/posts';
-import { getAllTags } from '../lib/services/tags';
-
-const url = new URL(Astro.request.url);
-const search = url.searchParams.get('q') || undefined;
-const tagSlug = url.searchParams.get('tag') || undefined;
-const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
-const limit = 9;
-const offset = (page - 1) * limit;
-
-let posts: any[] = [];
-let total = 0;
-let allTags: any[] = [];
-
-try {
-  const db = getDb(Astro.locals);
-  const result = await getPublishedPosts(db, { search, tagSlug, limit, offset });
-  posts = result.posts;
-  total = result.total;
-  allTags = await getAllTags(db);
-} catch (error) {
-  console.error('Error fetching blog data:', error);
-}
-
-const totalPages = Math.ceil(total / limit);
-
-// If first page and no search/tag filter, pick first as featured
-const isDefaultView = !search && !tagSlug && page === 1;
-const featuredPost = isDefaultView && posts.length > 0 ? posts[0] : null;
-const feedPosts = featuredPost ? posts.slice(1) : posts;
+const posts = await getPosts();
+const tags = tagIndex(posts);
+const feed = homeFeed(posts);
 ---
 
-<Layout
-  title="Blog — Engineering Notes & Technical Writing"
-  description="A focused log of software architecture, edge systems, web performance, and developer experience."
->
-  <!-- Hero Section -->
-  <section class="py-6 sm:py-10">
-    <div class="max-w-3xl">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 mb-4">
-        <span>Software Engineering & Architecture</span>
-      </div>
-      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
-        notes.from.akib
-      </h1>
-      <p class="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-        Deep dives into distributed edge architecture, serverless databases, clean systems design, and modern web application development.
-      </p>
-    </div>
-
-    <!-- Search & Filter Controls -->
-    <div class="mt-8 space-y-4">
-      <SearchBar initialValue={search} />
-      <TagFilter tags={allTags} activeSlug={tagSlug} />
-    </div>
-  </section>
-
-  <!-- Content Section -->
-  <section class="py-6 space-y-12">
-    {/* Featured Post (Only on default first page) */}
-    {featuredPost && (
-      <div>
-        <FeaturedPostCard post={featuredPost} />
-      </div>
-    )}
-
-    {/* Post Grid */}
-    {feedPosts.length > 0 ? (
-      <div>
-        {featuredPost && (
-          <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-            Recent Articles
-          </h2>
-        )}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {feedPosts.map((post) => (
-            <PostCard post={post} />
+<Layout>
+  <SectionShell id="home">
+    <h1 class="font-display text-[clamp(2.5rem,5vw+1rem,4.5rem)] leading-[1.02] tracking-tight text-default">
+      {site.name}<span class="text-accent">.</span>
+    </h1>
+    <p class="mt-4 max-w-xl font-mono text-xs leading-relaxed text-subtle md:text-sm">{site.tagline}</p>
+    {
+      tags.length > 0 && (
+        <ul class="mt-8 flex flex-wrap gap-2" aria-label="Tags">
+          {tags.map(({ tag, posts }) => (
+            <li>
+              <TagPill tag={tag} count={posts.length} />
+            </li>
           ))}
-        </div>
-      </div>
-    ) : (
-      !featuredPost && (
-        <EmptyState
-          title="No articles found"
-          description={
-            search
-              ? `No articles matched your search for "${search}".`
-              : 'There are no published articles yet.'
-          }
-          actionHref="/"
-          actionText="Clear Search"
-        />
+        </ul>
       )
-    )}
+    }
+  </SectionShell>
 
-    {/* Pagination */}
-    <Pagination
-      currentPage={page}
-      totalPages={totalPages}
-      baseUrl={url.toString()}
-    />
-  </section>
+  <Seam />
+
+  <SectionShell id="search" pad="p-0">
+    <SectionHeader title="Search" description="Find any post by what's inside it — commands, errors, ideas." />
+    <div class="px-5 pb-12 md:px-8 md:pb-16">
+      <Search />
+    </div>
+  </SectionShell>
+
+  <Seam />
+
+  <SectionShell id="tags" pad="p-0">
+    <SectionHeader title="Tags" description="Browse the notes by topic.">
+      <span slot="aside">{tags.length} {tags.length === 1 ? "tag" : "tags"}</span>
+    </SectionHeader>
+    <TagList tags={tags} />
+  </SectionShell>
+
+  <Seam />
+
+  <SectionShell id="posts" pad="p-0">
+    <SectionHeader title="All posts" description="Pinned picks first, then everything else, newest first.">
+      <span slot="aside">{posts.length} {posts.length === 1 ? "post" : "posts"}</span>
+    </SectionHeader>
+    {
+      posts.length === 0 && (
+        <p class="border-t border-line px-5 py-14 font-mono text-xs text-muted md:px-8">
+          No posts yet — add one to the notes repo under <code>content/&lt;year&gt;/&lt;slug&gt;/index.md</code>.
+        </p>
+      )
+    }
+    {
+      feed.featured.length > 0 && (
+        <>
+          <p class="flex items-center gap-2 border-t border-line px-5 py-3 font-mono text-2xs uppercase tracking-widest text-accent md:px-8">
+            <span aria-hidden="true">★</span> Featured
+          </p>
+          <PostGrid posts={feed.featured} />
+        </>
+      )
+    }
+    {
+      feed.first.length > 0 && (
+        <>
+          {feed.featured.length > 0 && (
+            <p class="border-t border-line px-5 py-3 font-mono text-2xs uppercase tracking-widest text-muted md:px-8">Latest</p>
+          )}
+          <PostGrid posts={feed.first} id="feed" />
+          {feed.later.length > 0 && <LoadMore grid="feed" next="/feed/2/" />}
+        </>
+      )
+    }
+  </SectionShell>
+
+  <Seam />
+  <Footer />
 </Layout>

@@ -1,0 +1,23 @@
+---
+/**
+ * @file layout/MobileHeader.astro
+ * @description Mobile top bar (below md); navigation lives in the
+ *              MobileMenu island (pure Astro, native <dialog> — focus trap,
+ *              Esc, backdrop dismiss come from the platform).
+ *
+ * Copied from apps/portfolio @ 091c7cf. Keep in sync. BLOG ADAPTATION:
+ * brand = site.name, links to "/".
+ */
+import { site } from "../../data/site";
+import MobileMenu from "../islands/MobileMenu.astro";
+import BrandLogo from "./BrandLogo.astro";
+---
+
+<header class="fixed inset-x-0 top-[var(--site-inset-top)] z-40 mx-3 flex h-[var(--site-header-height)] items-center justify-between rounded-md border border-line-subtle bg-surface px-3 md:hidden">
+  <a href="/" class="flex items-center gap-2">
+    <BrandLogo class="size-7" />
+    <span class="font-mono text-sm font-medium text-default">{site.name}</span>
+  </a>
+
+  <MobileMenu />
+</header>

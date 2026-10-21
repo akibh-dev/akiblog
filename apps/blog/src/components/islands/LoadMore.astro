@@ -1,0 +1,138 @@
+---
+/**
+ * @file islands/LoadMore.astro
+ * @description Infinite-scroll loader for the home page's post list
+ *              (plan26). Appends the pre-built /feed/<n>/ fragments to the
+ *              grid as the reader approaches its end.
+ *
+ * HOW
+ * - A sentinel under the grid is watched by an IntersectionObserver with a
+ *   generous rootMargin (800px), so the next batch is fetched BEFORE the
+ *   reader reaches the end — no visible "loading" stall on normal scroll.
+ * - The fragment (pages/feed/[page].astro) is a <template data-feed-batch>
+ *   holding ready-made <li> cards + `data-next` (the following batch URL).
+ *   It's parsed inertly in a <template> (scripts don't run, images don't
+ *   load until adopted) and its <li>s are appended to the grid; PostGrid's
+ *   global nth-child rules re-rule the lines automatically.
+ * - Card images are <Image loading="lazy">, so appended covers still only
+ *   download when they scroll into view — two levels of laziness.
+ * - After each batch the sentinel is measured on the next frame: an
+ *   IntersectionObserver only reports CHANGES, so a sentinel that is still
+ *   in range (tall screens, short batches) would otherwise stall the feed.
+ * - One request at a time; stops when a batch has no data-next. On a
+ *   failed fetch the button stays, so the reader can retry.
+ *
+ * a11y: a real <button> ("Load older posts") does the same thing — the
+ * keyboard / no-IntersectionObserver path, and the retry path. The count
+ * of newly added posts is announced via an aria-live region. Focus is not
+ * moved (auto-loading must not yank a screen-reader user around).
+ *
+ * NO-JS: the button is hidden by default and revealed by the script;
+ * without JS a short note points to tags + RSS, where every post is listed.
+ *
+ * Example: <LoadMore grid="feed" next="/feed/2/" />
+ */
+interface Props {
+  /** id of the <ul class="post-grid"> to append to */
+  grid: string;
+  /** URL of the first fragment (/feed/2/) */
+  next: string;
+}
+
+const { grid, next } = Astro.props;
+---
+
+<load-more data-grid={grid} data-next={next} class="block border-t border-line">
+  <div data-sentinel aria-hidden="true" class="h-px"></div>
+  <div class="flex flex-col items-center gap-3 px-5 py-10">
+    <button type="button" hidden class="btn rounded-sm px-5 py-2.5 font-mono text-2xs uppercase tracking-wider">
+      Load older posts
+    </button>
+    <p data-status aria-live="polite" class="font-mono text-2xs uppercase tracking-wider text-muted"></p>
+    <noscript>
+      <p class="font-mono text-2xs text-muted">
+        Older posts: browse by <a href="/#tags" class="text-accent underline">tag</a> or the
+        <a href="/rss.xml" class="text-accent underline">RSS feed</a>.
+      </p>
+    </noscript>
+  </div>
+</load-more>
+
+<script>
+  const LOOKAHEAD = 800; // px below the viewport at which the next batch starts loading
+
+  class LoadMore extends HTMLElement {
+    private next: string | null = null;
+    private busy = false;
+    private io?: IntersectionObserver;
+    private button!: HTMLButtonElement;
+    private status!: HTMLElement;
+    private grid!: HTMLElement;
+
+    connectedCallback() {
+      this.grid = document.getElementById(this.dataset.grid ?? "")!;
+      this.next = this.dataset.next ?? null;
+      this.button = this.querySelector("button")!;
+      this.status = this.querySelector("[data-status]")!;
+      if (!this.grid || !this.next) return this.done();
+
+      this.button.hidden = false;
+      this.button.addEventListener("click", () => this.load());
+
+      if ("IntersectionObserver" in window) {
+        this.io = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && this.load(), {
+          rootMargin: `0px 0px ${LOOKAHEAD}px 0px`,
+        });
+        this.io.observe(this.querySelector("[data-sentinel]")!);
+      }
+    }
+
+    disconnectedCallback() {
+      this.io?.disconnect();
+    }
+
+    private async load() {
+      if (this.busy || !this.next) return;
+      this.busy = true;
+      this.button.disabled = true;
+      this.status.textContent = "Loading…";
+      try {
+        const res = await fetch(this.next, { headers: { Accept: "text/html" } });
+        if (!res.ok) throw new Error(String(res.status));
+        const shell = document.createElement("template");
+        shell.innerHTML = await res.text(); // our own build output, parsed inertly
+        const batch = shell.content.querySelector<HTMLTemplateElement>("template[data-feed-batch]");
+        if (!batch) throw new Error("bad fragment");
+        const items = [...batch.content.children];
+        this.grid.append(...items);
+        this.next = batch.dataset.next ?? null;
+        this.status.textContent = `${items.length} more ${items.length === 1 ? "post" : "posts"} loaded`;
+        if (!this.next) return this.done();
+        // IntersectionObserver only fires on CHANGES: if the sentinel is
+        // still within range after this batch (tall screen, short batch),
+        // it would never fire again. So measure it ourselves once layout
+        // has settled (next frame) and keep going while it's in range.
+        requestAnimationFrame(() => this.inRange() && this.load());
+      } catch {
+        this.status.textContent = "Couldn't load more posts — try again.";
+      } finally {
+        this.busy = false;
+        this.button.disabled = false;
+      }
+    }
+
+    /** sentinel within the same 800px look-ahead the observer uses */
+    private inRange(): boolean {
+      const r = this.querySelector("[data-sentinel]")!.getBoundingClientRect();
+      return r.top < innerHeight + LOOKAHEAD && r.bottom > 0;
+    }
+
+    /** nothing left: drop the loader so the grid ends cleanly on the seam */
+    private done() {
+      this.io?.disconnect();
+      this.hidden = true;
+    }
+  }
+
+  if (!customElements.get("load-more")) customElements.define("load-more", LoadMore);
+</script>

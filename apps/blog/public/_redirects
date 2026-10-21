@@ -1,0 +1,22 @@
+# Cloudflare Pages redirects (https://developers.cloudflare.com/pages/configuration/redirects/)
+#
+# Posts live at the root: blog.akib35.dev/<slug>/ (plan24). Every older URL
+# shape for a post 301s there — 301 = permanent, so search engines move
+# the ranking. One placeholder rule per shape covers every post because the
+# folder name IS the slug (content.config.ts generateId); a post that
+# overrides `slug:` falls through to the 404, whose "did you mean" matcher
+# still suggests it.
+#   /posts/<slug>/              the blog's first URL scheme (plan19)
+#   /content/<year>/<slug>/     the notes repo's Jekyll/GitHub Pages layout
+/posts/:slug/                /:slug/  301
+/posts/:slug                 /:slug/  301
+/content/:year/:slug/        /:slug/  301
+/content/:year/:slug         /:slug/  301
+/notes/content/:year/:slug/  /:slug/  301
+/notes/content/:year/:slug   /:slug/  301
+
+# The tags index and search are home-page sections (plan23).
+/tags/   /#tags    301
+/tags    /#tags    301
+/search/ /#search  301
+/search  /#search  301

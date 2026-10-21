@@ -1,21 +1,25 @@
-/// <reference path="../.astro/types.d.ts" />
+/**
+ * @file src/env.d.ts
+ * @description Astro client type references.
+ *
+ * WHY THIS FILE EXISTS: plain `tsc --noEmit` cannot resolve `.astro`
+ * imports without it (e.g. src/icons/index.ts re-exporting every icon
+ * component). `astro/client` provides the `declare module "*.astro"`
+ * shim plus types for Astro.locals / import.meta.env. This is the
+ * standard Astro scaffold file — tsconfig's `include: src/**` picks it
+ * up automatically; zero runtime effect.
+ */
 /// <reference types="astro/client" />
 
-type D1Database = import('@cloudflare/workers-types').D1Database;
-type R2Bucket = import('@cloudflare/workers-types').R2Bucket;
-
-type Env = {
-  DB: D1Database;
-  BUCKET?: R2Bucket;
-  SITE_URL?: string;
-  DEV_MODE?: string;
-  CLOUDFLARE_TEAM_DOMAIN?: string;
-  CLOUDFLARE_ACCESS_AUD?: string;
-  R2_PUBLIC_DOMAIN?: string;
-};
-
-type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
-
-declare namespace App {
-  interface Locals extends Runtime {}
+/**
+ * Plain-tsc shim for `.astro` imports (e.g. src/icons/index.ts).
+ * Astro 7 type-checks .astro via its language server (`astro check`), so
+ * `astro/client` no longer declares the module — without this shim plain
+ * `tsc --noEmit` reports TS2307 on every `.astro` import. Same shape the
+ * language server injects: default export is the component factory.
+ */
+declare module "*.astro" {
+  import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+  const component: AstroComponentFactory;
+  export default component;
 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "Developer-focused blog monorepo powered by Astro v5, Cloudflare D1/R2, and Drizzle ORM",
+  "description": "akiblog monorepo — portfolio (akib35.dev) + static blog (blog.akib35.dev), Astro + Tailwind v4 on Cloudflare Pages",
   "packageManager": "bun@1.4.3",
   "scripts": {
     "dev": "turbo run dev",
@@ -12,14 +12,10 @@
     "build": "turbo run build",
     "build:blog": "bun --filter blog build",
     "build:portfolio": "bun --filter portfolio build",
-    "preview:portfolio": "bun --filter portfolio preview",
-    "ship": "node scripts/ship.js",
-    "pack:dist": "node scripts/ship.js",
     "preview:blog": "bun --filter blog preview",
-    "test": "bun --filter blog test",
-    "db:generate": "bun --filter @repo/db db:generate",
-    "db:migrate:local": "bun --filter blog db:migrate:local",
-    "db:seed:local": "bun --filter blog db:seed:local"
+    "preview:portfolio": "bun --filter portfolio preview",
+    "deploy:blog": "bun apps/blog/scripts/deploy.ts",
+    "preview:blog:pages": "bun --filter blog preview:pages"
   },
   "devDependencies": {
     "turbo": "^2.4.4"

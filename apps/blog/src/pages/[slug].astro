@@ -1,0 +1,125 @@
+---
+/**
+ * @file pages/[slug].astro
+ * @description One post — composition (docs/ui-guide §5 "Post page"):
+ *
+ *   Panel        PostHeader (eyebrow · h1 · description · meta) + AiBanner
+ *   Panel (p-0)  cover in the PostCover proof frame
+ *   Seam
+ *   Panel        article.prose  (TOC = the sidebar's git tree on lg+,
+ *                                an inline <details> above the article below lg)
+ *   Seam
+ *   Panel (p-0)  PostNav (older / newer)
+ *   Seam
+ *   Panel        Comments (giscus) — only once src/config/giscus.ts is set
+ *   Seam         and the post doesn't say `comments: false`
+ *   Footer
+ *
+ * URL CONTRACT (plan24): /<id>/ — the slug right after the domain, since
+ * the blog has no other content pages. id = frontmatter slug ?? folder name
+ * (content.config.ts generateId) — the year folder is not in the URL.
+ *
+ * OG IMAGE: the cover is rendered to a 1200×630 JPEG via getImage() at
+ * build — social scrapers don't reliably accept AVIF/WebP (plan19 §2.1).
+ * Posts without a cover fall back to /og.png in BaseHead.
+ */
+import { getImage } from "astro:assets";
+import { render } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import SectionShell from "../components/ui/SectionShell.astro";
+import Seam from "../components/ui/Seam.astro";
+import Footer from "../components/sections/Footer.astro";
+import PostCover from "../components/ui/PostCover.astro";
+import PostHeader from "../components/sections/PostHeader.astro";
+import PostNav from "../components/sections/PostNav.astro";
+import TableOfContents from "../components/islands/TableOfContents.astro";
+import CopyCode from "../components/islands/CopyCode.astro";
+import Comments from "../components/islands/Comments.astro";
+import SectionHeader from "../components/ui/SectionHeader.astro";
+import { giscus } from "../config/giscus";
+import { getPosts, neighbours, type Post } from "../lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, ...neighbours(posts, post.id) } }));
+}
+
+interface Props {
+  post: Post;
+  prev?: Post;
+  next?: Post;
+}
+
+const { post, prev, next } = Astro.props;
+const { Content, headings } = await render(post);
+const d = post.data;
+
+const og = d.cover ? await getImage({ src: d.cover, width: 1200, height: 630, fit: "cover", format: "jpeg", quality: 82 }) : undefined;
+const tocHeadings = d.toc ? headings.filter((h) => h.depth >= 2 && h.depth <= 4) : [];
+const hasToc = tocHeadings.length > 1;
+const hasComments = giscus !== null && d.comments;
+---
+
+<Layout
+  title={d.title}
+  description={d.description}
+  image={og?.src}
+  imageAlt={d.coverAlt}
+  canonical={d.canonical}
+  keywords={d.keywords}
+  article={{ published: d.date, modified: d.updated, tags: d.tags }}
+  noindex={d.draft}
+  toc={hasToc ? tocHeadings : undefined}
+>
+  <SectionShell id="post-header">
+    <PostHeader post={post} />
+  </SectionShell>
+
+  {
+    d.cover && (
+      <SectionShell id="post-cover" pad="p-0" class="border-t">
+        <div class="p-2">
+          <PostCover title={d.title} slug={post.id} banner={d.cover} eager />
+        </div>
+      </SectionShell>
+    )
+  }
+
+  <Seam />
+
+  <SectionShell id="post-body" pad="px-5 py-12 md:px-8 md:py-16">
+    {hasToc && <TableOfContents headings={tocHeadings} />}
+    <article class="prose mx-auto max-w-[68ch]" data-pagefind-body>
+      <Content />
+    </article>
+  </SectionShell>
+
+  {
+    (prev || next) && (
+      <>
+        <Seam />
+        <SectionShell id="post-nav" pad="p-0">
+          <PostNav prev={prev} next={next} />
+        </SectionShell>
+      </>
+    )
+  }
+
+  {
+    hasComments && (
+      <>
+        <Seam />
+        <SectionShell id="comments" pad="p-0">
+          <SectionHeader title="Comments" description="Questions, corrections and notes — via GitHub Discussions." />
+          <div class="px-5 pb-12 md:px-8 md:pb-16">
+            <Comments term={post.id} />
+          </div>
+        </SectionShell>
+      </>
+    )
+  }
+
+  <Seam />
+  <Footer />
+  <CopyCode />
+</Layout>
