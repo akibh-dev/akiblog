@@ -87,7 +87,7 @@ export async function renderOgCard({ title, eyebrow, meta }: OgCard): Promise<Bu
   const titleImg = await text(`<span foreground="${C.text}">${esc(t)}</span>`, SERIF, `${SERIF_FAMILY} ${size}`, W - PAD * 2, Math.round(size * 0.12));
   const eyebrowImg = eyebrow ? await text(`<span foreground="${C.accent}" letter_spacing="2400">${esc(eyebrow.toUpperCase())}</span>`, MONO, `${MONO_FAMILY} 20`, W - PAD * 2) : null;
   const brandImg = await text(`<span foreground="${C.text}">akiblog</span>`, SERIF, `${SERIF_FAMILY} 36`, 400);
-  const hostImg = await text(`<span foreground="${C.muted}">blog.akib35.dev</span>`, MONO, `${MONO_FAMILY} 18`, 400);
+  const hostImg = await text(`<span foreground="${C.muted}">blog.akibh.dev</span>`, MONO, `${MONO_FAMILY} 18`, 400);
   const metaImg = meta ? await text(`<span foreground="${C.muted}">${esc(meta)}</span>`, MONO, `${MONO_FAMILY} 18`, 600) : null;
 
   // vertical rhythm: eyebrow + title block centered in the space above the footer

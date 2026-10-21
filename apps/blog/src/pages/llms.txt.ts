@@ -2,7 +2,7 @@
  * @file pages/llms.txt.ts
  * @description /llms.txt — the blog's summary for LLM answer engines, in
  *              the llmstxt.org format (H1, blockquote summary, H2 link
- *              lists). The portfolio has the same file (akib35.dev/llms.txt)
+ *              lists). The portfolio has the same file (akibh.dev/llms.txt)
  *              and links here.
  *
  * WHY: AI search/answer agents (ChatGPT search, Claude, Perplexity) fetch a

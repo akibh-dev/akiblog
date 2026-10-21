@@ -1,4 +1,4 @@
-# robots.txt — https://blog.akib35.dev  (copied from apps/portfolio @ 091c7cf; same policy)
+# robots.txt — https://blog.akibh.dev  (copied from apps/portfolio @ 091c7cf; same policy)
 #
 # POLICY (why it looks like this):
 # - Search engines: fully allowed. A blog exists to be found.
@@ -42,4 +42,4 @@ Disallow: /pagefind/
 Disallow: /feed/
 Disallow: /api/
 
-Sitemap: https://blog.akib35.dev/sitemap-index.xml
+Sitemap: https://blog.akibh.dev/sitemap-index.xml

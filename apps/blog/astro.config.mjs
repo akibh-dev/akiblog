@@ -1,6 +1,6 @@
 /**
  * @file apps/blog/astro.config.mjs
- * @description Astro configuration for akiblog (blog.akib35.dev).
+ * @description Astro configuration for akiblog (blog.akibh.dev).
  *
  * POC / Implementation Architecture (plan19–21):
  * - `output: 'static'` — every page is pre-rendered; Cloudflare Pages serves
@@ -42,7 +42,7 @@ const giscusSrc = giscus ? ['https://giscus.app'] : [];
 
 export default defineConfig({
   output: 'static',
-  site: 'https://blog.akib35.dev',
+  site: 'https://blog.akibh.dev',
   // trailing slashes everywhere: /posts/<slug>/ is the URL contract (plan19 §3),
   // and Pages serves folder/index.html at exactly that path
   trailingSlash: 'always',
@@ -58,7 +58,7 @@ export default defineConfig({
     // rehypeHeadingIds runs FIRST so the anchor plugin can read the ids.
     processor: unified({
       remarkPlugins: [remarkStripTitle, remarkCodeLang, remarkAlerts],
-      rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks('blog.akib35.dev')],
+      rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks(['blog.akibh.dev', 'blog.akib35.dev'])],
     }),
     // Shiki dual themes (light-plus / one-dark-pro, from docs/ui-guide). With
     // defaultColor:false every token carries BOTH colors as CSS variables

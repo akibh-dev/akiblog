@@ -15,7 +15,7 @@
  *   --primary-default / --bg-default are "r, g, b" triplets (giscus uses
  *   them inside rgba()).
  * - Fonts: relative URLs resolve against THIS stylesheet, so the same file
- *   works from localhost and from blog.akib35.dev. /fonts/* is served with
+ *   works from localhost and from blog.akibh.dev. /fonts/* is served with
  *   Access-Control-Allow-Origin: * (public/_headers), required for
  *   cross-origin font loads.
  * - Square-ish corners (2px) like the rest of the site.

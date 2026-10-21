@@ -39,7 +39,7 @@ import { GitHubIcon, DockerIcon, TypeScriptIcon } from "../../icons";
 <GitHubIcon class="size-4 text-subtle transition-colors group-hover:text-accent" />
 
 <!-- standalone link: pass `title` for an accessible label -->
-<a href="https://github.com/akib35" aria-label="GitHub profile">
+<a href="https://github.com/akibh-dev" aria-label="GitHub profile">
   <GitHubIcon class="size-5 text-default" title="GitHub" />
 </a>
 

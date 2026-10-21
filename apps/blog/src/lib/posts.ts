@@ -95,7 +95,7 @@ export function neighbours(posts: Post[], id: string): { prev?: Post; next?: Pos
   return { prev: posts[i + 1], next: i > 0 ? posts[i - 1] : undefined };
 }
 
-/** Post URL = the slug straight after the domain (plan24): blog.akib35.dev/<slug>/ */
+/** Post URL = the slug straight after the domain (plan24): blog.akibh.dev/<slug>/ */
 export const postUrl = (p: Post) => `/${p.id}/`;
 
 /**

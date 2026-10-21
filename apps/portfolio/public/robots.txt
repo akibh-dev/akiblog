@@ -1,9 +1,9 @@
-# robots.txt — https://akib35.dev
+# robots.txt — https://akibh.dev
 #
 # POLICY (why it looks like this):
 # - Search engines: fully allowed. A portfolio exists to be found.
 # - AI *search / answer* agents (fetch a page when a person asks about it):
-#   allowed, so "who is akib35?" in ChatGPT / Claude / Perplexity can cite
+#   allowed, so "who is Akib Hasan?" in ChatGPT / Claude / Perplexity can cite
 #   this site.
 # - AI *training* crawlers (bulk-collect content for model training):
 #   disallowed. They gain nothing for the visitor and can't link back.
@@ -39,4 +39,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://akib35.dev/sitemap-index.xml
+Sitemap: https://akibh.dev/sitemap-index.xml

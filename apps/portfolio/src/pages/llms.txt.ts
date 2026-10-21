@@ -14,7 +14,7 @@
  * instead of parsing the full HTML. Crawl permissions live in
  * public/robots.txt (AI training crawlers are disallowed there).
  *
- * POC: `curl https://akib35.dev/llms.txt`
+ * POC: `curl https://akibh.dev/llms.txt`
  */
 import type { APIRoute } from "astro";
 import { portfolioData } from "../data/portfolio";

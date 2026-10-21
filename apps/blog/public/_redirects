@@ -1,6 +1,6 @@
 # Cloudflare Pages redirects (https://developers.cloudflare.com/pages/configuration/redirects/)
 #
-# Posts live at the root: blog.akib35.dev/<slug>/ (plan24). Every older URL
+# Posts live at the root: blog.akibh.dev/<slug>/ (plan24). Every older URL
 # shape for a post 301s there — 301 = permanent, so search engines move
 # the ranking. One placeholder rule per shape covers every post because the
 # folder name IS the slug (content.config.ts generateId); a post that

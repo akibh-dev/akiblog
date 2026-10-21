@@ -66,5 +66,5 @@
 # Post list for the portfolio's Writings section (pages/posts.json.ts):
 # readable cross-origin, but only by the portfolio.
 /posts.json
-  Access-Control-Allow-Origin: https://akib35.dev
+  Access-Control-Allow-Origin: https://akibh.dev
   Cache-Control: public, max-age=300

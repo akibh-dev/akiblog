@@ -49,7 +49,7 @@ export function renderSegment(s: Segment): HTMLElement {
 
 export function renderPrompt(): HTMLElement {
   const wrap = el("span", "mr-2 shrink-0 select-none");
-  wrap.append(el("span", "text-accent", "visitor@akib35"), el("span", "text-muted", ":~$"));
+  wrap.append(el("span", "text-accent", "visitor@akibh"), el("span", "text-muted", ":~$"));
   return wrap;
 }
 

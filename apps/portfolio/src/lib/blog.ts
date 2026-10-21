@@ -22,9 +22,9 @@
  * removed from data/portfolio.ts on purpose: never ship invented content.
  *
  * HOST: `BLOG_API_URL` env, default https://akiblog.pages.dev — the Pages
- * project's permanent hostname, valid before AND after blog.akib35.dev is
+ * project's permanent hostname, valid before AND after blog.akibh.dev is
  * moved to it. The post `url`s themselves come from the blog
- * (https://blog.akib35.dev/<slug>/).
+ * (https://blog.akibh.dev/<slug>/).
  *
  * POC:
  *   const posts = await getBlogPosts();   // BlogPost[] (data/portfolio.ts)

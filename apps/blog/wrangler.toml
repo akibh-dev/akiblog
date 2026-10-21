@@ -12,7 +12,7 @@
 #   No bindings to declare — the Function only uses the built-in ASSETS
 #   binding. `wrangler pages deploy dist`, run from apps/blog, uploads dist/
 #   AND compiles functions/ (see .github/workflows/blog-deploy.yml).
-# - Custom domain blog.akib35.dev is attached in the dashboard
+# - Custom domain blog.akibh.dev is attached in the dashboard
 #   (Pages → akiblog → Custom domains) AFTER detaching it from the old
 #   `blog` Worker — plan21 §4 cutover order.
 # ==============================================================================

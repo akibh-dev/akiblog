@@ -22,7 +22,7 @@
  * 3. NO SECRETS HERE — validation, the honeypot, the rate limit, Turnstile
  *    Siteverify (secret + hostname check) and sending all live in the mailer.
  * 4. SAME ORIGIN — the form posts to its own host, so there is no CORS, and
- *    the Turnstile token's hostname (akib35.dev) is in the mailer's
+ *    the Turnstile token's hostname (akibh.dev) is in the mailer's
  *    TURNSTILE_HOSTNAMES.
  * 5. FAIL SAFE — if the binding is missing (not configured, or local
  *    `astro dev`), the visitor gets a JSON error they can read, not a crash page.

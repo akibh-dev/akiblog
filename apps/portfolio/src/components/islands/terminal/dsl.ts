@@ -4,7 +4,7 @@
  *
  * Commands read declaratively because of these:
  *   [t("status: ", "muted"), t("online", "success")]
- *   kv("email", link("contact@akib35.me", "mailto:…"))
+ *   kv("email", link("hello@akibh.dev", "mailto:…"))
  */
 
 import type { OutputLine, Segment, Tone } from "./types";
