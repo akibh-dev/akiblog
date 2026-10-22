@@ -108,3 +108,4 @@ export { default as LeetCodeIcon } from "./platform/LeetCode.astro";
 export { default as CodeforcesIcon } from "./platform/Codeforces.astro";
 export { default as HackerRankIcon } from "./platform/HackerRank.astro";
 export { default as AtCoderIcon } from "./platform/AtCoder.astro";
+export { default as TopcoderIcon } from "./platform/Topcoder.astro";

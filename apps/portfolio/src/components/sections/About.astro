@@ -38,7 +38,7 @@
 import SectionShell from "../ui/SectionShell.astro";
 import Terminal from "../islands/terminal/Terminal.astro";
 import { portfolioData } from "../../data/portfolio";
-import { LeetCodeIcon, CodeforcesIcon, HackerRankIcon, AtCoderIcon, GradCapIcon, NetworkIcon } from "../../icons";
+import { LeetCodeIcon, CodeforcesIcon, HackerRankIcon, AtCoderIcon, TopcoderIcon, GradCapIcon, NetworkIcon } from "../../icons";
 
 const { meta, competitiveMetrics, education } = portfolioData;
 
@@ -47,6 +47,7 @@ const platformIcons: Record<string, typeof GradCapIcon> = {
   Codeforces: CodeforcesIcon,
   HackerRank: HackerRankIcon,
   AtCoder: AtCoderIcon,
+  Topcoder: TopcoderIcon,
 };
 
 interface Tile {
