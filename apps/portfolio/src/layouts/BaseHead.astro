@@ -63,7 +63,7 @@ interface Props {
   noindex?: boolean;
 }
 
-const { meta, socials, competitiveMetrics, skills } = portfolioData;
+const { meta, socials, competitiveMetrics, skills, education } = portfolioData;
 const {
   /* searchName first: it's what people type (50 chars, no truncation) */
   title = `${meta.searchName} — ${meta.role}`,
@@ -94,7 +94,7 @@ const jsonLd = {
         "@type": "CollegeOrUniversity",
         name: "Chittagong University of Engineering & Technology",
         alternateName: "CUET",
-        url: "https://www.cuet.ac.bd/",
+        url: education.url,
       },
       knowsAbout: skills.flatMap((g) => g.skills).slice(0, 15),
       email: `mailto:${meta.email}`,

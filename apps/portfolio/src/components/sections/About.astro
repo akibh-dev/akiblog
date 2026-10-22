@@ -31,8 +31,9 @@
  * 3. TILE CONTENT IS REAL DATA — no testimonials exist, so tiles are built
  *    from portfolioData (competitive metrics, education, location) in
  *    delta's tile anatomy: statement on top, round "avatar" (platform
- *    glyph) + italic serif name + mono handle at the bottom. Metric tiles
- *    link to the profile.
+ *    glyph) + italic serif name + mono handle at the bottom. Every tile
+ *    links out: metrics → the platform profile, CUET → cuet.ac.bd,
+ *    location → Google Maps.
  */
 import SectionShell from "../ui/SectionShell.astro";
 import Terminal from "../islands/terminal/Terminal.astro";
@@ -69,12 +70,14 @@ const tiles: Tile[] = [
     name: "CUET",
     handle: education.focus.split(",")[0],
     Icon: GradCapIcon,
+    url: education.url,
   },
   {
     text: `Based in ${meta.location} — ${meta.timezone}, open to remote work.`,
     name: meta.location.split(",")[0],
     handle: meta.timezone,
     Icon: NetworkIcon,
+    url: meta.mapUrl,
   },
 ];
 ---

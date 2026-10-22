@@ -49,6 +49,8 @@ export const portfolioData = {
     role: "Full-Stack Engineer & Systems Builder",
     statusText: "Building distributed edge tools & full-stack applications",
     location: "Dhaka, Bangladesh",
+    /** Google Maps link for the location tile (About) */
+    mapUrl: "https://maps.app.goo.gl/wYNUWe4JeKeXKZ8t5",
     timezone: "UTC+6",
     email: "hello@akibh.dev",
     resumeUrl: "/akib_s_resume.pdf",
@@ -84,6 +86,7 @@ export const portfolioData = {
     degree: "B.Sc. in Computer Science & Engineering",
     institution: "Chittagong University of Engineering and Technology (CUET)",
     year: "2024",
+    url: "https://www.cuet.ac.bd/",
     focus: "Software Engineering, Distributed Systems & Algorithms"
   },
 
