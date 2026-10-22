@@ -13,7 +13,11 @@
  * ELEMENT: a <div role="tabpanel">, not <article> — ARIA forbids the
  * tabpanel role on <article> (axe aria-allowed-role).
  *
- * LAYOUT (unchanged): H1 (site display serif — Zed's markdown preview
+ * HEADINGS: the page has ONE <h1> (the hero name). The README title is an
+ * <h3> under Projects' sr-only <h2>, its sections <h4> — the look is the
+ * same (classes, not tag, set the size); the outline stays valid.
+ *
+ * LAYOUT (unchanged): title (site display serif — Zed's markdown preview
  * swaps buffer font for UI font), shields-style badge row, <hr>, then
  * mono-eyebrow sections (Overview / Highlights / Stack) + links footer.
  */
@@ -40,9 +44,9 @@ const lines = 14 + highlights.length * 2 + project.techStack.length;
   class="outline-none"
 >
   <div class="px-6 py-8 md:px-10 md:py-10 lg:pr-14">
-    <h1 class="font-display text-[clamp(1.4rem,2vw+1rem,1.9rem)] leading-tight text-default">
+    <h3 class="font-display text-[clamp(1.4rem,2vw+1rem,1.9rem)] leading-tight text-default">
       {project.title}
-    </h1>
+    </h3>
 
     {/* shields-style badge row */}
     <div class="mt-4 flex flex-wrap items-center gap-2 font-mono text-2xs">
@@ -70,13 +74,13 @@ const lines = 14 + highlights.length * 2 + project.techStack.length;
     <p class="max-w-2xl text-sm leading-relaxed text-subtle">{project.description}</p>
 
     {/* Highlights */}
-    <h2 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Highlights</h2>
+    <h4 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Highlights</h4>
     <ul class="max-w-2xl list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-subtle marker:text-muted">
       {highlights.map((h) => <li>{h}</li>)}
     </ul>
 
     {/* Stack */}
-    <h2 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Stack</h2>
+    <h4 class="mt-8 mb-3 font-mono text-2xs uppercase tracking-widest text-muted">Stack</h4>
     <ul class="flex flex-wrap gap-2">
       {
         project.techStack.map((t) => (

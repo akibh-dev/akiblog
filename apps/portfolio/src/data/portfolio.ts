@@ -67,13 +67,14 @@ export const portfolioData = {
 
   /* `handle` is the account name ON THAT PLATFORM (shown on the About tiles,
      terminal and llms.txt). It is deliberately NOT meta.handle: only some
-     accounts moved to akibh (LeetCode); the others are still `akib35`, and the
+     accounts moved to akibh (LeetCode, AtCoder); the others are still `akib35`, and the
      shown handle must always match the account the url opens. */
   competitiveMetrics: [
     { platform: "LeetCode", handle: "akibh", stats: "350+ Solved", url: "https://leetcode.com/u/akibh/" },
     { platform: "Codeforces", handle: "akib35", stats: "Pupil", url: "https://codeforces.com/profile/akib35" },
     { platform: "HackerRank", handle: "akib35", stats: "3★ Problem Solving", url: "https://www.hackerrank.com/akib35" },
-    { platform: "AtCoder", handle: "akib35", stats: "Active Contestant", url: "https://atcoder.jp/users/akib35" },
+    { platform: "AtCoder", handle: "akibh", stats: "Active Contestant", url: "https://atcoder.jp/users/akibh" },
+    { platform: "Topcoder", handle: "akib35", stats: "Member", url: "https://profiles.topcoder.com/akib35" },
   ],
 
   bio: [
