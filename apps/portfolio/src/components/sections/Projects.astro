@@ -15,7 +15,11 @@ const repoUrl = socials.find((s) => s.name === "GitHub")?.url;
 
 {/* FULL-BLEED: the IDE window IS the section content — no eyebrow
     header (index/label omitted) and zero padding (pad="p-0"), so the
-    editor chrome spans the whole panel between the channel side lines */}
+    editor chrome spans the whole panel between the channel side lines.
+    The sr-only <h2> keeps the outline intact (h1 name → h2 per section →
+    h3 per project README) for screen readers and crawlers — Bing flagged
+    the old per-README <h1>s as "more than one h1". */}
 <SectionShell id="projects" pad="p-0">
+  <h2 class="sr-only">Projects</h2>
   <ProjectsIsland projects={projects} repoUrl={repoUrl} />
 </SectionShell>
