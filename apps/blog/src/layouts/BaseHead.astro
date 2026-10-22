@@ -75,6 +75,17 @@ const xHandle = site.socials.find((s) => s.name === "X")?.handle;
 const personId = `${site.portfolioUrl}/#person`;
 
 const graph: Record<string, unknown>[] = [
+  // minimal Person so the @id resolves on THIS page too (Google doesn't
+  // fetch akibh.dev to dereference it); the full profile is the portfolio's.
+  // Names mirror the portfolio's Person exactly — one entity, one spelling.
+  {
+    "@type": "Person",
+    "@id": personId,
+    name: site.author.searchName,
+    alternateName: [site.author.name, "Md. Akib Hasan", "Akib", site.author.handle],
+    url: site.portfolioUrl,
+    sameAs: site.socials.map((s) => s.url),
+  },
   {
     "@type": "WebSite",
     "@id": `${origin.origin}/#website`,
@@ -96,7 +107,7 @@ if (article) {
     datePublished: article.published.toISOString(),
     dateModified: (article.modified ?? article.published).toISOString(),
     keywords: (keywords ?? article.tags).join(", "),
-    author: { "@type": "Person", "@id": personId, name: site.author.name, url: site.portfolioUrl },
+    author: { "@type": "Person", "@id": personId, name: site.author.searchName, url: site.portfolioUrl },
     isPartOf: { "@id": `${origin.origin}/#website` },
     inLanguage: "en",
   });

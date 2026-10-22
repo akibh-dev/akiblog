@@ -42,6 +42,9 @@ export interface SkillCategory {
 export const portfolioData = {
   meta: {
     name: "Md Akib Hasan",
+    /** the form people actually search — <title> and schema.org Person.name;
+        `name` stays the full name (H1, description, alternateName) */
+    searchName: "Akib Hasan",
     handle: "akibh",
     role: "Full-Stack Engineer & Systems Builder",
     statusText: "Building distributed edge tools & full-stack applications",
