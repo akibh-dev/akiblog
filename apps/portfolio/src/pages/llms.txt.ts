@@ -53,7 +53,7 @@ export const GET: APIRoute = async ({ site }) => {
     "",
     "## Competitive programming",
     "",
-    ...competitiveMetrics.map((m) => `- [${m.platform}](${m.url}): ${m.stats}`),
+    ...competitiveMetrics.map((m) => `- [${m.platform}](${m.url}): @${m.handle} — ${m.stats}`),
     "",
     "## Writing",
     "",

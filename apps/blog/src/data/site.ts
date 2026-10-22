@@ -49,9 +49,12 @@ export const site = {
   name: "akiblog",
   tagline: "Field notes on edge infrastructure, security, and solving hard problems.",
   description:
-    "akiblog — technical notes and guides by Md Akib Hasan on web platforms, Cloudflare, tooling and software craft.",
+    "akiblog — technical notes and guides by Akib Hasan on web platforms, Cloudflare, tooling and software craft.",
   author: {
     name: "Md Akib Hasan",
+    /** the searched form — schema.org Person.name, SAME value as the
+        portfolio's meta.searchName (both sites describe one Person @id) */
+    searchName: "Akib Hasan",
     handle: "akibh",
     role: "Full-Stack Engineer & Systems Builder",
     email: "hello@akibh.dev",

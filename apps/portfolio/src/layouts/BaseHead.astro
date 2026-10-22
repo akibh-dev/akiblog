@@ -16,8 +16,16 @@
  * - Open Graph + Twitter card: link previews on LinkedIn/X/Slack/Discord.
  *   og:image is a 1200×630 PNG (public/og.png) — the size every network
  *   crops cleanly; absolute URL because crawlers don't resolve relative.
- * - JSON-LD Person + WebSite (schema.org): lets Google build a knowledge
- *   panel for the name and connect the social profiles (sameAs).
+ * - JSON-LD Person + WebSite + ProfilePage (schema.org): lets Google build a
+ *   knowledge panel for the name and connect the profiles (sameAs).
+ *   Person.name = meta.searchName ("Akib Hasan", what people type); the full
+ *   name and variants go in alternateName so every spelling resolves to the
+ *   same entity. sameAs = socials + coding platforms + blog — each of those
+ *   profiles should link back to akibh.dev to confirm the claim.
+ *   ProfilePage marks "/" as a page ABOUT that Person (Google profile-page
+ *   rich result). image = the headshot (a face, not the banner) at a
+ *   build-time JPEG; alumniOf/knowsAbout come from the same data the page
+ *   renders, so the markup never claims what the page doesn't show.
  * - theme-color per scheme: mobile browser chrome matches the site.
  * - `noindex` prop: the 404 asks search engines not to index it.
  *
@@ -44,7 +52,9 @@
  *   <head><BaseHead title="…" description="…" /></head>
  *   <BaseHead title="404 — Not found" noindex />
  */
+import { getImage } from "astro:assets";
 import { portfolioData } from "../data/portfolio";
+import portrait from "../assets/my-pic.png";
 
 interface Props {
   title?: string;
@@ -53,9 +63,10 @@ interface Props {
   noindex?: boolean;
 }
 
-const { meta, socials } = portfolioData;
+const { meta, socials, competitiveMetrics, skills, education } = portfolioData;
 const {
-  title = `${meta.name} — ${meta.role}`,
+  /* searchName first: it's what people type (50 chars, no truncation) */
+  title = `${meta.searchName} — ${meta.role}`,
   description = `Portfolio of ${meta.name} — ${meta.role} in ${meta.location}. ${meta.statusText}.`,
   noindex = false,
 } = Astro.props;
@@ -63,6 +74,8 @@ const {
 const site = Astro.site ?? new URL(meta.siteUrl);
 const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL("/og.png", site).href;
+const headshot = await getImage({ src: portrait, width: 600, format: "jpg" });
+const headshotUrl = new URL(headshot.src, site).href;
 const xHandle = socials.find((s) => s.name === "X")?.handle;
 
 const jsonLd = {
@@ -71,21 +84,39 @@ const jsonLd = {
     {
       "@type": "Person",
       "@id": `${site.origin}/#person`,
-      name: meta.name,
-      alternateName: meta.handle,
+      name: meta.searchName,
+      alternateName: [meta.name, "Md. Akib Hasan", "Akib", meta.handle],
       jobTitle: meta.role,
       url: site.origin,
-      image: new URL("/og.png", site).href,
+      image: headshotUrl,
+      description: `${meta.role} in ${meta.location}. ${meta.statusText}.`,
+      alumniOf: {
+        "@type": "CollegeOrUniversity",
+        name: "Chittagong University of Engineering & Technology",
+        alternateName: "CUET",
+        url: education.url,
+      },
+      knowsAbout: skills.flatMap((g) => g.skills).slice(0, 15),
       email: `mailto:${meta.email}`,
       address: { "@type": "PostalAddress", addressLocality: "Dhaka", addressCountry: "BD" },
-      sameAs: [...socials.map((s) => s.url), meta.blogUrl],
+      sameAs: [...socials.map((s) => s.url), ...competitiveMetrics.map((m) => m.url), meta.blogUrl],
     },
     {
       "@type": "WebSite",
       "@id": `${site.origin}/#website`,
       url: site.origin,
       name: `${meta.handle}.dev`,
+      alternateName: meta.searchName,
       author: { "@id": `${site.origin}/#person` },
+      inLanguage: "en",
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": `${canonical}#profilepage`,
+      url: canonical,
+      name: title,
+      isPartOf: { "@id": `${site.origin}/#website` },
+      mainEntity: { "@id": `${site.origin}/#person` },
       inLanguage: "en",
     },
   ],
