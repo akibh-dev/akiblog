@@ -48,7 +48,7 @@ const about: Command = {
     [t("from database internals to browser pixels.", "subtle")],
     blank(),
     kv("focus", t("edge compute · distributed web · Go · TypeScript")),
-    kv("algorithms", t("200+ problems across LeetCode / Codeforces / AtCoder")),
+    kv("algorithms", t("350+ problems across LeetCode / Codeforces / AtCoder")),
   ],
 };
 
