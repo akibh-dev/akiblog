@@ -60,7 +60,7 @@ const tiles: Tile[] = [
   ...competitiveMetrics.map((m) => ({
     text: `${m.stats} on ${m.platform}.`,
     name: m.platform,
-    handle: `@${meta.handle}`,
+    handle: `@${m.handle}`,
     Icon: platformIcons[m.platform] ?? NetworkIcon,
     url: m.url,
   })),

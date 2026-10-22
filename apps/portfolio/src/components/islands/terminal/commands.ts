@@ -181,7 +181,7 @@ const metrics: Command = {
   aliases: ["stats"],
   description: "competitive programming",
   execute: ({ data }) =>
-    data.competitiveMetrics.map((m) => kv(m.platform.toLowerCase(), link(m.stats, m.url))),
+    data.competitiveMetrics.map((m) => kv(m.platform.toLowerCase(), t(`${m.stats}  `), link(`@${m.handle}`, m.url))),
 };
 
 const location: Command = {

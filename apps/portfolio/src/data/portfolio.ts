@@ -60,11 +60,15 @@ export const portfolioData = {
     { name: "Facebook", handle: "akib4040", url: "https://facebook.com/akib4040" },
   ],
 
+  /* `handle` is the account name ON THAT PLATFORM (shown on the About tiles,
+     terminal and llms.txt). It is deliberately NOT meta.handle: these
+     accounts predate the akibh rename and are still `akib35`, so showing
+     @akibh next to a link to /akib35 would point people at the wrong name. */
   competitiveMetrics: [
-    { platform: "LeetCode", stats: "200+ Solved", url: "https://leetcode.com/akib35" },
-    { platform: "Codeforces", stats: "Pupil", url: "https://codeforces.com/profile/akib35" },
-    { platform: "HackerRank", stats: "3★ Problem Solving", url: "https://www.hackerrank.com/akib35" },
-    { platform: "AtCoder", stats: "Active Contestant", url: "https://atcoder.jp/users/akib35" },
+    { platform: "LeetCode", handle: "akib35", stats: "200+ Solved", url: "https://leetcode.com/akib35" },
+    { platform: "Codeforces", handle: "akib35", stats: "Pupil", url: "https://codeforces.com/profile/akib35" },
+    { platform: "HackerRank", handle: "akib35", stats: "3★ Problem Solving", url: "https://www.hackerrank.com/akib35" },
+    { platform: "AtCoder", handle: "akib35", stats: "Active Contestant", url: "https://atcoder.jp/users/akib35" },
   ],
 
   bio: [
