@@ -72,6 +72,14 @@ jobs:
           path: .notes
           token: ${{ secrets.NOTES_TOKEN || github.token }}
 
+      # Node runs `astro build` (bun only installs/launches it). Astro 7.4.2+
+      # needs Node >=22.23.4, so CI pins the major from .node-version (24 LTS)
+      # instead of trusting the runner image's preinstalled Node.
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+
       - name: Setup bun
         uses: oven-sh/setup-bun@v2
         with:
