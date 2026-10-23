@@ -351,7 +351,11 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
     {/* theme + copyright */}
     <div class="mt-3 pt-2">
       <ThemeSwitch />
-      <p class="mt-4 font-mono text-[9px] text-muted">&#x24B6; {new Date().getFullYear()} {site.author.name}</p>
+      <p class="mt-4 font-mono text-[9px] text-muted">&#x24B6; {new Date().getFullYear()} {site.author.searchName}</p>
+      {/* policy pages live on the portfolio and cover the blog too (plan31) */}
+      <p class="mt-1 font-mono text-[9px] text-muted">
+        <a href={site.legal.privacy} class="underline-offset-2 transition-colors hover:text-accent hover:underline">Privacy</a>{" · "}<a href={site.legal.terms} class="underline-offset-2 transition-colors hover:text-accent hover:underline">Terms</a>
+      </p>
     </div>
   </div>
 </aside>

@@ -38,6 +38,7 @@ import CopyCode from "../components/islands/CopyCode.astro";
 import Comments from "../components/islands/Comments.astro";
 import SectionHeader from "../components/ui/SectionHeader.astro";
 import { giscus } from "../config/giscus";
+import { site } from "../data/site";
 import { getPosts, neighbours, type Post } from "../lib/posts";
 
 export async function getStaticPaths() {
@@ -117,6 +118,12 @@ const hasComments = giscus !== null && d.comments;
           <SectionHeader title="Comments" description="Questions, corrections and notes — via GitHub Discussions." />
           <div class="px-5 pb-12 md:px-8 md:pb-16">
             <Comments term={post.id} />
+            {/* notice at collection (plan31): giscus = GitHub sign-in + public comments */}
+            <p class="mt-4 font-mono text-2xs leading-relaxed text-muted">
+              Commenting signs you in with GitHub through giscus; comments are public in GitHub Discussions.{" "}
+              <a href={site.legal.privacy} class="underline underline-offset-2 transition-colors hover:text-accent">Privacy</a>{" · "}
+              <a href={site.legal.terms} class="underline underline-offset-2 transition-colors hover:text-accent">Terms</a>
+            </p>
           </div>
         </SectionShell>
       </>

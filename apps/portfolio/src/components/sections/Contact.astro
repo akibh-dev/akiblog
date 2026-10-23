@@ -157,6 +157,13 @@ const labelClass =
           nears the viewport (note 8b); it then renders this div itself
           (implicit rendering). min-h reserves the widget's 65px so the
           Send button doesn't jump when it appears. */}
+      {/* notice at collection (plan31): say what happens to the data
+          before it's sent, and link the full policy */}
+      <p class="font-mono text-2xs leading-relaxed text-muted">
+        Your name, email and message are emailed to me and used only to reply. Spam is filtered by Cloudflare
+        Turnstile. <a href="/privacy/" class="underline underline-offset-2 transition-colors hover:text-accent">Privacy policy</a>
+      </p>
+
       <div class="flex flex-col gap-4 pt-1 sm:items-end">
         <div class="cf-turnstile min-h-[65px]" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
         {/* send button — a small state machine (data-state: idle →

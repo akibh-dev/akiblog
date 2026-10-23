@@ -1,0 +1,172 @@
+---
+/**
+ * @file pages/privacy.astro
+ * @description Privacy policy for akibh.dev AND blog.akibh.dev (one person,
+ *              one policy — the blog links here; plan31).
+ *
+ * WHY THIS CONTENT (POC / rule for future edits): every statement below was
+ * checked against the code, not copied from a template —
+ *   contact form  → functions/api/contact.ts → mailer Worker (akibh-dev/mailer):
+ *                   name/email/message are emailed, never stored; the IP is
+ *                   used for an in-memory rate limit + Turnstile `remoteip`
+ *   Turnstile     → Contact.astro (lazy, invisible widget)
+ *   analytics     → Cloudflare Web Analytics beacon (edge-injected, cookieless)
+ *   comments      → apps/blog Comments.astro (giscus → GitHub Discussions,
+ *                   repo akibh-dev/notes), lazy iframe
+ *   storage       → lib/theme.ts (`theme` in localStorage); fonts self-hosted
+ *   search        → Pagefind, runs in the browser
+ * If any of those changes (new analytics, a new form field, a newsletter…),
+ * update this page and `updated` in the same commit.
+ */
+import LegalPage from "../layouts/LegalPage.astro";
+import { portfolioData } from "../data/portfolio";
+
+const { meta } = portfolioData;
+const updated = "2026-10-23";
+---
+
+<LegalPage
+  title="Privacy policy"
+  description={`What data akibh.dev and blog.akibh.dev collect (very little), why, who processes it, and how to get it deleted.`}
+  updated={updated}
+>
+  <p class="summary">
+    <strong>Short version:</strong> I don't use ads, tracking cookies or profiling, and I don't sell or share your data.
+    The contact form emails your message to me; blog comments live publicly on GitHub; Cloudflare hosts and protects
+    both sites and counts page views without cookies.
+  </p>
+
+  <h2>Who I am</h2>
+  <p>
+    These sites — <a href="https://akibh.dev">akibh.dev</a> (portfolio) and{" "}
+    <a href={meta.blogUrl}>blog.akibh.dev</a> (blog) — are run by me, {meta.name}, an individual based in{" "}
+    {meta.location}. For anything about your data, email <a href={`mailto:${meta.email}`}>{meta.email}</a>.
+  </p>
+
+  <h2>The contact form (portfolio)</h2>
+  <ul>
+    <li>
+      <strong>What:</strong> the name, email address and message you type. There is also a hidden anti-spam field
+      that people never fill in.
+    </li>
+    <li>
+      <strong>Why:</strong> so I can read and answer your message. That's the only use — no mailing list, no
+      marketing.
+    </li>
+    <li>
+      <strong>How:</strong> the form is sent to a small Cloudflare Worker that checks it and forwards it as an email,
+      through Cloudflare Email Routing, to my personal inbox (Gmail, by Google). The site keeps{" "}
+      <strong>no database</strong> of messages.
+    </li>
+    <li>
+      <strong>Your IP address</strong> is used for two things: a short rate limit (at most 10 messages a minute,
+      held in memory for about a minute) and the bot check below. It isn't written into the email or stored.
+    </li>
+    <li>
+      <strong>How long:</strong> the email stays in my inbox while we're in touch and for my records. Ask me and I'll
+      delete it.
+    </li>
+  </ul>
+
+  <h3>Bot check: Cloudflare Turnstile</h3>
+  <p>
+    To stop spam, the form uses <a href="https://www.cloudflare.com/application-services/products/turnstile/">Cloudflare Turnstile</a>,
+    which runs invisibly in the background — there is no puzzle to solve. It only loads when you scroll near the
+    form. It looks at technical signals from your browser (not the text you type) to tell people from bots, and
+    Cloudflare says it doesn't use this data for advertising. Details:{" "}
+    <a href="https://www.cloudflare.com/turnstile-privacy-policy/">Turnstile privacy addendum</a>.
+  </p>
+
+  <h2>Comments (blog)</h2>
+  <ul>
+    <li>
+      Comments use <a href="https://giscus.app">giscus</a>, which stores them as{" "}
+      <a href="https://github.com/akibh-dev/notes/discussions">GitHub Discussions</a> in my public{" "}
+      <code>akibh-dev/notes</code> repository.
+    </li>
+    <li>
+      To comment or react you sign in with GitHub and allow the giscus app to post for you. Your comment is then{" "}
+      <strong>public</strong> on GitHub under your GitHub account (username, avatar, text, time). I don't get your
+      email or password.
+    </li>
+    <li>
+      The comments box is loaded from giscus.app only when you scroll near it. If you sign in, giscus keeps a session
+      token in your browser's storage for giscus.app.
+    </li>
+    <li>
+      You can edit or delete your own comments on GitHub at any time. I may hide or delete comments that break the{" "}
+      <a href="/terms/">terms</a>.
+    </li>
+    <li>
+      Their policies: <a href="https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md">giscus privacy policy</a>,{" "}
+      <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub privacy statement</a>.
+    </li>
+  </ul>
+
+  <h2>Analytics</h2>
+  <p>
+    Both sites use <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a> to count visits.
+    It doesn't use cookies or local storage, doesn't fingerprint you, and only gives me totals — page views,
+    referring sites, countries, browsers and page-load speed. I can't see who you are.
+  </p>
+
+  <h2>Hosting and security</h2>
+  <p>
+    Both sites are static pages served by <a href="https://www.cloudflare.com/">Cloudflare</a> (Pages, CDN and
+    security). Like any web host, Cloudflare processes your IP address and basic request details (browser, page,
+    time) to deliver the page and block attacks. Its bot protection may set a strictly necessary security cookie
+    such as <code>__cf_bm</code>. Details: <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare privacy policy</a>.
+  </p>
+
+  <h2>Cookies and browser storage</h2>
+  <ul>
+    <li><strong>I set no cookies.</strong> The only possible cookie is Cloudflare's security cookie above.</li>
+    <li>
+      Both sites remember your light/dark choice in your browser's local storage (key <code>theme</code>). It never
+      leaves your device.
+    </li>
+    <li>Fonts are hosted on these sites themselves, so no font service sees your visit.</li>
+    <li>
+      Blog search runs entirely in your browser (<a href="https://pagefind.app">Pagefind</a>): what you search for is
+      never sent anywhere.
+    </li>
+  </ul>
+  <p>Because nothing here tracks you, there's no cookie banner.</p>
+
+  <h2>Who else sees data</h2>
+  <p>
+    Only the services named above, each for its stated job: Cloudflare (hosting, Turnstile, analytics, email
+    delivery), Google (my email inbox), and GitHub with giscus (comments). Their servers may be outside your
+    country, including in the United States. I don't sell, rent or share data with anyone else, and I'd only hand it
+    over if the law required it.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    Links to GitHub, LinkedIn, X, Facebook, coding-contest sites and others take you to services with their own
+    privacy policies. This policy stops at these two sites.
+  </p>
+
+  <h2>Your choices and rights</h2>
+  <ul>
+    <li>
+      Ask me what I have from you (in practice: your contact emails), to correct it, or to delete it — email{" "}
+      <a href={`mailto:${meta.email}`}>{meta.email}</a> and I'll reply within 30 days.
+    </li>
+    <li>Delete or edit your blog comments yourself on GitHub, or ask me to remove them.</li>
+    <li>
+      Depending on where you live (for example the EU/UK under the GDPR), you may also have the right to object, to
+      restrict processing, and to complain to your data-protection authority. I rely on your request (when you write
+      to me) and on my legitimate interest in running and protecting these sites.
+    </li>
+  </ul>
+
+  <h2>Children</h2>
+  <p>These sites aren't aimed at children under 13, and I don't knowingly collect their data.</p>
+
+  <h2>Changes</h2>
+  <p>
+    If what the sites collect changes, this page changes with it and the date at the top is updated. The current
+    version always lives at <a href="/privacy/">akibh.dev/privacy/</a>.
+  </p>
+</LegalPage>
