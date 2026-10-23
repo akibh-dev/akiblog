@@ -1,0 +1,109 @@
+---
+/**
+ * @file pages/security.astro
+ * @description Security / vulnerability-disclosure policy for akibh.dev and
+ *              blog.akibh.dev — the `Policy:` target of both sites'
+ *              /.well-known/security.txt (RFC 9116, plan32).
+ *
+ * WHY THIS CONTENT (POC): a personal site needs only the essentials of a
+ * disclosure policy — where to report (email first, socials as a fallback
+ * to ask for another channel), what helps, what I promise back, a
+ * good-faith safe harbour, what's out of scope (third-party platforms
+ * report to their owners), and an honest "no bounty". Scope lists the real
+ * moving parts: two static Cloudflare Pages sites, the /api/contact
+ * function + the private mailer Worker, the blog's featured-posts API.
+ */
+import LegalPage from "../layouts/LegalPage.astro";
+import { portfolioData } from "../data/portfolio";
+
+const { meta, socials } = portfolioData;
+const updated = "2026-10-23";
+const channels = socials.filter((s) => ["GitHub", "LinkedIn", "X"].includes(s.name));
+---
+
+<LegalPage
+  title="Security"
+  description="How to report a security vulnerability in akibh.dev or blog.akibh.dev, what's in scope, and what to expect."
+  updated={updated}
+>
+  <p class="summary">
+    <strong>Found a vulnerability?</strong> Thank you — please email{" "}
+    <a href={`mailto:${meta.email}?subject=Security%20report`}>{meta.email}</a> and keep it private until it's fixed.
+    I'll reply within 7 days.
+  </p>
+
+  <h2>How to report</h2>
+  <ul>
+    <li>
+      <strong>Email (preferred):</strong>{" "}
+      <a href={`mailto:${meta.email}?subject=Security%20report`}>{meta.email}</a>, with a subject starting with
+      "Security".
+    </li>
+    <li>
+      <strong>Can't use email, or no reply after 7 days?</strong> Message me on{" "}
+      {
+        channels.map((s, i) => (
+          <>
+            <a href={s.url}>{s.name}</a>
+            {i < channels.length - 2 ? ", " : i === channels.length - 2 ? " or " : ""}
+          </>
+        ))
+      }. Just say you have a security report and we'll agree on a private way to share it — please don't post the
+      details there.
+    </li>
+    <li>
+      Please <strong>don't</strong> report vulnerabilities in blog comments, GitHub issues or discussions — they're
+      public.
+    </li>
+  </ul>
+
+  <h3>What helps</h3>
+  <ul>
+    <li>The affected URL or component, and what an attacker could do.</li>
+    <li>Steps to reproduce (a request, a payload, or a short video), plus browser/tool versions if relevant.</li>
+    <li>How you'd like to be credited, if at all.</li>
+  </ul>
+
+  <h2>Scope</h2>
+  <ul>
+    <li><a href="https://akibh.dev">akibh.dev</a> — the portfolio, including the contact form (<code>/api/contact</code>) and the mail service behind it.</li>
+    <li><a href={meta.blogUrl}>blog.akibh.dev</a> — the blog, including <code>/api/featured</code>.</li>
+  </ul>
+  <h3>Out of scope</h3>
+  <ul>
+    <li>
+      Third-party services these sites use — Cloudflare (hosting, Turnstile), GitHub and giscus (comments), Google
+      (email). Please report those to their owners.
+    </li>
+    <li>Denial-of-service, load or spam testing, including flooding the contact form.</li>
+    <li>Social engineering or phishing, and physical attacks.</li>
+    <li>
+      Reports from automated scanners without a demonstrated impact (for example a missing header or a TLS cipher
+      note on its own).
+    </li>
+    <li>My other projects on GitHub — open a private security advisory on that repository instead, or email me.</li>
+  </ul>
+
+  <h2>What you can expect</h2>
+  <ul>
+    <li>A reply within <strong>7 days</strong>, and updates while I work on it.</li>
+    <li>A fix as fast as I can manage, depending on severity — usually within 30 days.</li>
+    <li>
+      Credit by name or handle once it's fixed, if you'd like it. This is a personal site, so there's
+      <strong>no bug bounty</strong>.
+    </li>
+  </ul>
+
+  <h2>Good-faith research</h2>
+  <p>
+    If you act in good faith — test only against these two sites, avoid harming them or their visitors, don't access
+    or keep more data than needed to show the problem, stop and tell me if you reach someone else's data, and give me
+    a reasonable time to fix it before you publish — I won't take legal action or complain to your provider about
+    it.
+  </p>
+
+  <p>
+    Machine-readable version: <a href="/.well-known/security.txt">/.well-known/security.txt</a>. See also the{" "}
+    <a href="/privacy/">privacy policy</a> and <a href="/terms/">terms of use</a>.
+  </p>
+</LegalPage>

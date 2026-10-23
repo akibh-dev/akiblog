@@ -62,7 +62,7 @@ export const site = {
   url: "https://blog.akibh.dev",
   portfolioUrl: "https://akibh.dev",
   /** one privacy policy + terms for both sites, hosted on the portfolio (plan31) */
-  legal: { privacy: "https://akibh.dev/privacy/", terms: "https://akibh.dev/terms/" },
+  legal: { privacy: "https://akibh.dev/privacy/", terms: "https://akibh.dev/terms/", security: "https://akibh.dev/security/" },
   /** the notes repo posts are sourced from (plan19/20) */
   notesRepo: "https://github.com/akibh-dev/notes",
   socials: [

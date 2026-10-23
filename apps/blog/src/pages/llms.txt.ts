@@ -38,6 +38,7 @@ export const GET: APIRoute = async ({ site: origin }) => {
     `- [RSS feed](${base}/rss.xml): every post with its summary`,
     `- [All posts as JSON](${base}/posts.json): title, summary, date, tags, URL`,
     `- [Author's portfolio](${site.portfolioUrl}/llms.txt): who writes this blog`,
+    `- [Privacy policy](${site.legal.privacy}) · [Terms of use](${site.legal.terms}) · [Security](${site.legal.security}): shared with the portfolio`,
     "",
   ].join("\n");
 

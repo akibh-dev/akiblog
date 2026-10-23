@@ -1,7 +1,7 @@
 ---
 /**
  * @file layouts/LegalPage.astro
- * @description Shell for the plain-text policy pages (/privacy/, /terms/) —
+ * @description Shell for the plain-text policy pages (/privacy/, /terms/, /security/) —
  *              one readable column inside the portfolio's panel language:
  *              brand rail on top, bordered surface, display-serif H1, Lilex
  *              mono meta line, theme tokens only (plan31).
@@ -39,6 +39,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/privacy/", label: "Privacy" },
   { href: "/terms/", label: "Terms" },
+  { href: "/security/", label: "Security" },
   { href: meta.blogUrl, label: "Blog" },
 ];
 const updatedText = new Date(updated).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
