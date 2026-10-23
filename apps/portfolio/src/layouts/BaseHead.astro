@@ -76,6 +76,10 @@ const canonical = new URL(Astro.url.pathname, site).href;
 const ogImage = new URL("/og.png", site).href;
 const headshot = await getImage({ src: portrait, width: 600, format: "jpg" });
 const headshotUrl = new URL(headshot.src, site).href;
+/* only "/" is ABOUT the Person (ProfilePage, og:type profile); the policy
+   pages (plan31/32) are plain WebPages of the same site — a ProfilePage
+   there would tell Google /privacy/ is a second profile of the same person */
+const isHome = Astro.url.pathname === "/";
 const xHandle = socials.find((s) => s.name === "X")?.handle;
 
 const jsonLd = {
@@ -110,15 +114,26 @@ const jsonLd = {
       author: { "@id": `${site.origin}/#person` },
       inLanguage: "en",
     },
-    {
-      "@type": "ProfilePage",
-      "@id": `${canonical}#profilepage`,
-      url: canonical,
-      name: title,
-      isPartOf: { "@id": `${site.origin}/#website` },
-      mainEntity: { "@id": `${site.origin}/#person` },
-      inLanguage: "en",
-    },
+    isHome
+      ? {
+          "@type": "ProfilePage",
+          "@id": `${canonical}#profilepage`,
+          url: canonical,
+          name: title,
+          isPartOf: { "@id": `${site.origin}/#website` },
+          mainEntity: { "@id": `${site.origin}/#person` },
+          inLanguage: "en",
+        }
+      : {
+          "@type": "WebPage",
+          "@id": `${canonical}#webpage`,
+          url: canonical,
+          name: title,
+          description,
+          isPartOf: { "@id": `${site.origin}/#website` },
+          publisher: { "@id": `${site.origin}/#person` },
+          inLanguage: "en",
+        },
   ],
 };
 ---
@@ -138,7 +153,7 @@ const jsonLd = {
 <meta name="theme-color" content="#1c1f23" media="(prefers-color-scheme: dark)" />
 
 {/* Open Graph + Twitter */}
-<meta property="og:type" content={noindex ? "website" : "profile"} />
+<meta property="og:type" content={isHome ? "profile" : "website"} />
 <meta property="og:site_name" content={`${meta.handle}.dev`} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
