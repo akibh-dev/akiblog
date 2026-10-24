@@ -21,6 +21,16 @@
  *   Network Access); previews and production use the blog's files.
  * Config rides in data-* attributes (no define:vars → CSP-safe).
  *
+ * FAILURE FALLBACK (giscus.app outage, blocked by network/extension):
+ * the panel used to stay an empty min-h-40 box forever. Now a small note
+ * replaces "Loading comments…" with a link to the GitHub Discussions, when
+ * EITHER client.js fails to load (script `error`) OR no message from the
+ * giscus iframe arrives within LOAD_TIMEOUT. A hung TCP connect (the
+ * 2026-10 outage: giscus.app timed out instead of refusing) never fires
+ * `error`, hence the timer. Proof of life = any postMessage from
+ * https://giscus.app (the iframe always sends `resizeHeight` once
+ * rendered) — that also removes a note shown too early on a slow link.
+ *
  * Example: <Comments term={post.id} />
  */
 import { giscus } from "../../config/giscus";
@@ -48,7 +58,7 @@ const cfg = giscus;
       data-input-position={cfg.inputPosition ?? "top"}
       data-lang={cfg.lang ?? "en"}
     >
-      <p class="font-mono text-2xs uppercase tracking-wider text-muted">Loading comments…</p>
+      <p data-giscus-status class="font-mono text-2xs uppercase tracking-wider text-muted">Loading comments…</p>
     </giscus-comments>
   )
 }
@@ -64,6 +74,11 @@ const cfg = giscus;
     const mode = document.documentElement.classList.contains("dark") ? "dark" : "light";
     return local ? mode : new URL(`/giscus/${mode}.css`, location.origin).href;
   };
+
+  const GISCUS_ORIGIN = "https://giscus.app";
+  // client.js + iframe normally render in 1–3s; 15s leaves room for slow
+  // mobile links before calling it an outage
+  const LOAD_TIMEOUT = 15_000;
 
   class GiscusComments extends HTMLElement {
     connectedCallback() {
@@ -100,7 +115,35 @@ const cfg = giscus;
         "data-loading": "lazy",
       };
       for (const [k, v] of Object.entries(attrs)) if (v) s.setAttribute(k, v);
-      this.replaceChildren(s);
+      // keep the status line beside the script: client.js inserts the
+      // iframe next to its own <script>, so the line can sit above it
+      const status = this.querySelector<HTMLElement>("[data-giscus-status]");
+      this.append(s);
+
+      const fail = () => {
+        if (!status?.isConnected) return;
+        const link = document.createElement("a");
+        link.href = `https://github.com/${d.repo}/discussions`;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.className = "text-accent underline-offset-2 hover:underline";
+        link.textContent = "GitHub Discussions ↗";
+        status.className = "font-mono text-2xs text-muted"; // sentence case, not the loading label's caps
+        status.replaceChildren("Comments couldn't load — giscus may be down. Try later or join on ", link);
+      };
+      const timer = setTimeout(fail, LOAD_TIMEOUT);
+      s.addEventListener("error", () => {
+        clearTimeout(timer);
+        fail();
+      });
+      // first message from the iframe = it rendered → drop the status line
+      const alive = (e: MessageEvent) => {
+        if (e.origin !== GISCUS_ORIGIN) return;
+        clearTimeout(timer);
+        status?.remove();
+        window.removeEventListener("message", alive);
+      };
+      window.addEventListener("message", alive);
 
       // follow the site theme toggle
       new MutationObserver(() => {
