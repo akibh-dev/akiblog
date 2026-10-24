@@ -81,6 +81,7 @@ export { default as MicroservicesIcon } from "./concept/Microservices.astro";
 export { default as FolderIcon } from "./ui/Folder.astro";
 export { default as ChevronRightIcon } from "./ui/ChevronRight.astro";
 export { default as FileTextIcon } from "./ui/FileText.astro";
+export { default as ResumeIcon } from "./ui/Resume.astro";
 export { default as CloseIcon } from "./ui/Close.astro";
 export { default as GitBranchIcon } from "./ui/GitBranch.astro";
 export { default as CheckIcon } from "./ui/Check.astro";

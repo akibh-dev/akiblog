@@ -1,0 +1,29 @@
+---
+/**
+ * Icon: Resume (ui) — CV sheet: folded-corner page (FileText's outline)
+ * with a portrait (head + shoulders) on the left and two text lines on
+ * the right.
+ *
+ * WHY A DEDICATED GLYPH (not FileText + an inline down-arrow):
+ * - FileText reads as "any document"; the portrait is what says "CV" at
+ *   size-4, the same way résumé templates put a photo beside the header.
+ * - The resume rows (SiteSidebar, MobileMenu, MobileHeader) used a
+ *   hand-inlined arrow <svg> outside the set; one canonical icon keeps
+ *   every resume affordance identical and theme-aware via currentColor.
+ *
+ * Geometry (24-grid, live area 4→20): page + fold share FileText's paths
+ * so the two read as one family; head r=2 at (10,11), shoulders a
+ * 3-radius arc 7→13 at y=17, lines x 15→17 at y=11 / y=15.
+ *
+ * POC: <ResumeIcon class="size-4 text-muted group-hover:text-accent" />
+ */
+import IconBase from "../IconBase.astro";
+---
+
+<IconBase {...Astro.props}>
+  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+  <path d="M14 2v6h6" />
+  <circle cx="10" cy="11" r="2" />
+  <path d="M7 17a3 3 0 0 1 6 0" />
+  <path d="M15 11h2 M15 15h2" />
+</IconBase>

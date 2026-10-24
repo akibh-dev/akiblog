@@ -37,7 +37,7 @@ import { sections } from "../../data/sections";
 import ThemeSwitch from "./ThemeSwitch.astro";
 import ScrollSpy from "./ScrollSpy.astro";
 import BrandLogo from "../layout/BrandLogo.astro";
-import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon, RssIcon } from "../../icons";
+import { GitHubIcon, LinkedInIcon, XIcon, ResumeIcon, RssIcon } from "../../icons";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
 const { meta, socials } = portfolioData;
@@ -109,7 +109,7 @@ const links = [
         aria-label="Download resume (PDF)"
         class="group flex min-h-11 items-center gap-2 font-mono text-2xs uppercase tracking-wider text-subtle transition-colors hover:text-accent"
       >
-        <FileTextIcon class="size-4 text-muted transition-colors group-hover:text-accent" />
+        <ResumeIcon class="size-4 text-muted transition-colors group-hover:text-accent" />
         Resume
       </a>
       <div class="flex items-center gap-1">
