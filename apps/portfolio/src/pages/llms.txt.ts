@@ -51,6 +51,9 @@ export const GET: APIRoute = async ({ site }) => {
     "",
     `- [Portfolio home](${origin}/): the human-facing version of this page`,
     `- [Sitemap](${origin}/sitemap-index.xml)`,
+    `- [Privacy policy](${origin}/privacy/): what both sites collect (contact form, analytics, comments)`,
+    `- [Terms of use](${origin}/terms/): reuse of posts (text ©, code MIT) and comment rules`,
+    `- [Security](${origin}/security/): how to report a vulnerability ([security.txt](${origin}/.well-known/security.txt))`,
     "",
   ];
 

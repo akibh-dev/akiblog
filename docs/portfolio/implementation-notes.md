@@ -1445,6 +1445,15 @@ Mobile top bar (below md); navigation lives in the
              MobileMenu island (pure Astro, native &lt;dialog&gt; — focus trap,
              Esc, backdrop dismiss come from the platform).
 
+RESUME BUTTON: the desktop sidebar keeps the résumé download always in
+view, but on phones it was only reachable after opening the menu. The
+primary recruiter CTA now sits in the bar itself, beside Menu, styled as
+the same `btn` chip so the two read as one control group. Plain <a
+download> (same-origin PDF) — zero JS. Label "CV" keeps the chip short
+next to the brand on 320px screens; the full name is in aria-label/title.
+
+POC: &lt;MobileHeader /&gt; — rendered once by the layout, hidden from md up.
+
 <a id="src-components-layout-sitesidebar-astro"></a>
 
 ## src/components/layout/SiteSidebar.astro

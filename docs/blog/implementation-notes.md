@@ -1180,6 +1180,16 @@ WHY A CUSTOM LOADER (not giscus's copy-paste &lt;script data-*&gt;):
   Network Access); previews and production use the blog's files.
 Config rides in data-* attributes (no define:vars → CSP-safe).
 
+FAILURE FALLBACK (giscus.app outage, blocked by network/extension):
+the panel used to stay an empty min-h-40 box forever. Now a small note
+replaces "Loading comments…" with a link to the GitHub Discussions, when
+EITHER client.js fails to load (script `error`) OR no message from the
+giscus iframe arrives within LOAD_TIMEOUT. A hung TCP connect (the
+2026-10 outage: giscus.app timed out instead of refusing) never fires
+`error`, hence the timer. Proof of life = any postMessage from
+https://giscus.app (the iframe always sends `resizeHeight` once
+rendered) — that also removes a note shown too early on a slow link.
+
 Example: &lt;Comments term={post.id} /&gt;
 
 <a id="src-components-islands-comments-astro-note-2"></a>

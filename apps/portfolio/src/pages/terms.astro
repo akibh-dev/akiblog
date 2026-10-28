@@ -1,0 +1,100 @@
+---
+/**
+ * @file pages/terms.astro
+ * @description Terms of use for akibh.dev AND blog.akibh.dev (plan31).
+ *
+ * WHY THIS CONTENT (POC): only the terms a personal portfolio + blog needs —
+ * there is nothing to buy, no accounts and no user uploads except GitHub
+ * comments, so no payment/refund/account clauses. Owner decisions:
+ *   - blog TEXT © Md Akib Hasan (quote with a link is fine),
+ *   - CODE SNIPPETS in posts under the MIT license,
+ *   - posts may carry an AI-assistance label (the blog's `ai` frontmatter /
+ *     AiBanner), so the no-warranty clause mentions it.
+ * The site's own source code is NOT licensed here (the repo is private).
+ */
+import LegalPage from "../layouts/LegalPage.astro";
+import { portfolioData } from "../data/portfolio";
+
+const { meta } = portfolioData;
+const updated = "2026-10-23";
+---
+
+<LegalPage
+  title="Terms of use"
+  description="The ground rules for akibh.dev and blog.akibh.dev: reusing posts and code, comments, the contact form, and no warranty."
+  updated={updated}
+>
+  <p class="summary">
+    <strong>Short version:</strong> read freely and quote with a link; copy the code snippets into your own projects
+    under the MIT license; be decent in the comments; and treat everything here as notes, not guarantees.
+  </p>
+
+  <h2>About these terms</h2>
+  <p>
+    These terms cover <a href="https://akibh.dev">akibh.dev</a> and <a href={meta.blogUrl}>blog.akibh.dev</a>, run by
+    me, {meta.name}. By using either site you agree to them. How I handle data is in the{" "}
+    <a href="/privacy/">privacy policy</a>.
+  </p>
+
+  <h2>Reusing what you find here</h2>
+  <h3>Writing</h3>
+  <p>
+    The text of blog posts and of this portfolio is © {meta.name}. You're welcome to quote short parts with a link
+    back to the original. Please don't republish whole posts or large parts of them without asking me first.
+  </p>
+  <h3>Code snippets</h3>
+  <p>
+    Code shown in blog posts is licensed under the{" "}
+    <a href="https://opensource.org/license/mit">MIT license</a>: use, change and ship it, including commercially. A
+    credit is appreciated but not required. Snippets quoted from other projects keep those projects' licenses.
+  </p>
+  <h3>Names, logos and projects</h3>
+  <p>
+    Company, product and platform names and logos shown here (GitHub, Cloudflare, LeetCode and others) belong to
+    their owners and are used only to identify them. Each project listed on the portfolio has its own license in its
+    repository.
+  </p>
+
+  <h2>Comments</h2>
+  <p>
+    Blog comments are GitHub Discussions, so <a href="https://docs.github.com/site-policy/github-terms/github-terms-of-service">GitHub's terms</a>{" "}
+    apply too. You're responsible for what you post. Keep it on topic and respectful: no spam, ads, harassment, hate,
+    illegal content, malware, or other people's private information. I may hide, edit (for example to remove
+    personal data) or delete any comment, and block accounts that repeatedly break these rules.
+  </p>
+
+  <h2>The contact form</h2>
+  <p>
+    Use it to reach me — not for spam, automated messages or anything illegal. Please don't send passwords or other
+    secrets. I read every genuine message, but I can't promise to answer all of them.
+  </p>
+
+  <h2>No warranty</h2>
+  <p>
+    Posts are my own notes and opinions, written as carefully as I can, not professional advice — and not my
+    employer's views. Software, commands and services change, so something here may be outdated or wrong. Some posts
+    are written with AI assistance; those are labelled at the top. <strong>Check before you rely on anything, and run
+    commands and code at your own risk</strong> — test them somewhere safe first. Both sites are provided "as is",
+    without warranties, and may change or go offline at any time.
+  </p>
+
+  <h2>Liability</h2>
+  <p>
+    As far as the law allows, I'm not liable for any loss or damage from using these sites, their content or their
+    code, or from sites they link to. Nothing in these terms limits rights you have that the law doesn't allow to be
+    limited.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    Links to other sites are for convenience. I don't control those sites and I'm not responsible for their content
+    or policies.
+  </p>
+
+  <h2>Changes and contact</h2>
+  <p>
+    I may update these terms; the date at the top shows the latest version, at{" "}
+    <a href="/terms/">akibh.dev/terms/</a>. Questions, corrections or takedown requests:{" "}
+    <a href={`mailto:${meta.email}`}>{meta.email}</a>.
+  </p>
+</LegalPage>

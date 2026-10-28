@@ -63,6 +63,13 @@ const labelClass =
       <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
 
       {/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-contact-astro-note-3. */}
+      {/* notice at collection (plan31): say what happens to the data
+          before it's sent, and link the full policy */}
+      <p class="font-mono text-2xs leading-relaxed text-muted">
+        Your name, email and message are emailed to me and used only to reply. Spam is filtered by Cloudflare
+        Turnstile. <a href="/privacy/" class="underline underline-offset-2 transition-colors hover:text-accent">Privacy policy</a>
+      </p>
+
       <div class="flex flex-col gap-4 pt-1 sm:items-end">
         <div class="cf-turnstile min-h-[65px]" data-sitekey="0x4AAAAAACMqP-_QKElZMAeg" data-theme="auto"></div>
         {/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-contact-astro-note-4. */}

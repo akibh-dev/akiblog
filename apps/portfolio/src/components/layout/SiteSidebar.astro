@@ -5,7 +5,7 @@ import { sections } from "../../data/sections";
 import ThemeSwitch from "../islands/ThemeSwitch.astro";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 import BrandLogo from "./BrandLogo.astro";
-import { GitHubIcon, LinkedInIcon, XIcon, FileTextIcon, RssIcon } from "../../icons";
+import { GitHubIcon, LinkedInIcon, XIcon, ResumeIcon, RssIcon } from "../../icons";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 
 /* Social rows carry their brand glyph from the canonical icon set
@@ -121,24 +121,19 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
 
     {/* For more details, see docs/portfolio/implementation-notes.md#src-components-layout-sitesidebar-astro-note-10. */}
     <div class="mt-6 border-t border-line-subtle pt-5">
-      {/* resume — `download` works same-origin (public/akib_s_resume.pdf); the
-          down-arrow is drawn inline (the icon set has no download glyph)
-          so it inherits the same muted→accent hover as FileTextIcon. */}
+      {/* resume — `download` works same-origin (public/akib_s_resume.pdf).
+          ResumeIcon (icons/ui/Resume.astro) replaces the old FileTextIcon +
+          hand-inlined down-arrow pair: one canonical CV glyph, shared with
+          MobileHeader + MobileMenu; "Download" lives in title/aria-label. */}
       <a
         href={portfolioData.meta.resumeUrl}
         download
         title="Download resume (PDF)"
         aria-label="Download resume (PDF)"
-        class="group flex items-center justify-between"
+        class="group flex items-center gap-2"
       >
-        <span class="flex items-center gap-2">
-          <FileTextIcon class="size-4 text-muted transition-colors group-hover:text-accent" />
-          <span class="font-mono text-2xs uppercase tracking-wider text-subtle transition-colors group-hover:text-accent">Resume</span>
-        </span>
-        <svg class="size-3.5 text-muted transition-all group-hover:translate-y-0.5 group-hover:text-accent" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 4v11m0 0 4-4m-4 4-4-4" />
-          <path d="M5 19h14" />
-        </svg>
+        <ResumeIcon class="size-4 text-muted transition-colors group-hover:text-accent" />
+        <span class="font-mono text-2xs uppercase tracking-wider text-subtle transition-colors group-hover:text-accent">Resume</span>
       </a>
 
       {/* For more details, see docs/portfolio/implementation-notes.md#src-components-layout-sitesidebar-astro-note-11. */}
@@ -166,7 +161,11 @@ const TREE_TOP = sections.length * ROW_H + (sections.length - 1) * ROW_GAP + 4; 
     {/* theme + copyright */}
     <div class="mt-3 pt-2">
       <ThemeSwitch />
-      <p class="mt-4 font-mono text-[9px] text-muted">&#x24B6; {new Date().getFullYear()} {portfolioData.meta.name}</p>
+      <p class="mt-4 font-mono text-[9px] text-muted">&#x24B6; {new Date().getFullYear()} {portfolioData.meta.searchName}</p>
+      {/* policy pages (plan31) — one policy covers the portfolio and the blog */}
+      <p class="mt-1 font-mono text-[9px] text-muted">
+        <a href="/privacy/" class="underline-offset-2 transition-colors hover:text-accent hover:underline">Privacy</a>{" · "}<a href="/terms/" class="underline-offset-2 transition-colors hover:text-accent hover:underline">Terms</a>{" · "}<a href="/security/" class="underline-offset-2 transition-colors hover:text-accent hover:underline">Security</a>
+      </p>
     </div>
   </div>
 </aside>

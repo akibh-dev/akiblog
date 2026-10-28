@@ -73,7 +73,7 @@ with a light/dark toggle).
 | `tech/` | AstroIcon, React, Django, NodeJs, Flutter, Tailwind, Cloudflare, Database, Bucket, Docker, PostgreSql, Linux, Git, Sqlite, Redis, Kubernetes, Graphql, Terminal, Markdown, Vim, Bun, Vercel, Aws, Gcp, MongoDb |
 | `concept/` | Api, WebSocket, Shield (Zero-Trust), Layers (Clean Arch), Tdd, Key (SSH/Auth), Lambda (Serverless), WebSecurity, Certificate, GradCap, Bug (Sec Testing/QA), DevOps (CI-CD), Network, Microservices |
 | `platform/` | LeetCode, Codeforces, HackerRank, AtCoder, Topcoder |
-| `ui/` | Folder, ChevronRight, FileText, Close, GitBranch, Check, Warning, ArrowLeft, ArrowRight, Plus, SplitPane, Maximize, Search, Sparkles, Lightbulb, Settings, PanelLeftClose, Users, Outline, Braces, MessageSquare, Bot, TerminalPrompt, Copilot |
+| `ui/` | Folder, ChevronRight, FileText, Resume, Close, GitBranch, Check, Warning, ArrowLeft, ArrowRight, Plus, SplitPane, Maximize, Search, Sparkles, Lightbulb, Settings, PanelLeftClose, Users, Outline, Braces, MessageSquare, Bot, TerminalPrompt, Copilot |
 
 **Using icons in React islands?** `.astro` components can't be imported in
 `.tsx`. The `ui/` glyphs are mirrored as React components in

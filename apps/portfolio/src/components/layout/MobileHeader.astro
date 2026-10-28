@@ -3,6 +3,7 @@
 import { portfolioData } from "../../data/portfolio";
 import MobileMenu from "../islands/MobileMenu.astro";
 import BrandLogo from "./BrandLogo.astro";
+import { ResumeIcon } from "../../icons";
 ---
 
 <header class="fixed inset-x-0 top-[var(--site-inset-top)] z-40 mx-3 flex h-[var(--site-header-height)] items-center justify-between rounded-md border border-line-subtle bg-surface px-3 md:hidden">
@@ -11,5 +12,17 @@ import BrandLogo from "./BrandLogo.astro";
     <span class="font-mono text-sm font-medium text-default">{portfolioData.meta.handle}</span>
   </a>
 
-  <MobileMenu />
+  <div class="flex items-center gap-2">
+    <a
+      href={portfolioData.meta.resumeUrl}
+      download
+      title="Download resume (PDF)"
+      aria-label="Download resume (PDF)"
+      class="btn group flex items-center gap-1.5 rounded-md px-3 py-1.5 font-mono text-2xs text-subtle"
+    >
+      <ResumeIcon class="size-3.5 text-muted transition-colors group-hover:text-accent" />
+      CV
+    </a>
+    <MobileMenu />
+  </div>
 </header>

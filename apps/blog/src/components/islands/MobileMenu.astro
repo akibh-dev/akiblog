@@ -96,8 +96,12 @@ const links = site.socials.map((s) => ({ name: s.name, url: s.url, Icon: SOCIAL_
       </div>
     </div>
 
-    <div class="border-t border-line-subtle p-3">
+    <div class="flex items-center justify-between gap-3 border-t border-line-subtle p-3">
       <ThemeSwitch />
+      {/* policy pages (plan31) */}
+      <p class="font-mono text-2xs text-muted">
+        <a href={site.legal.privacy} class="underline-offset-2 transition-colors hover:text-accent hover:underline">Privacy</a>{" · "}<a href={site.legal.terms} class="underline-offset-2 transition-colors hover:text-accent hover:underline">Terms</a>{" · "}<a href={site.legal.security} class="underline-offset-2 transition-colors hover:text-accent hover:underline">Security</a>
+      </p>
     </div>
   </dialog>
 </mobile-menu>
