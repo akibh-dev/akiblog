@@ -1,38 +1,5 @@
 ---
-/**
- * @file pages/index.astro
- * @description Blog home — a ONE-PAGER like the portfolio (plan23):
- *              its sections ARE the sidebar stations (data/site.ts),
- *              marked by ScrollSpy as you scroll.
- *
- *   #home    Panel   intro: wordmark h1, tagline, tag row (no eyebrow)
- *   Seam
- *   #search  Panel   SectionHeader + full-text search (Pagefind island)
- *   Seam
- *   #tags    Panel   SectionHeader + ruled topic list with counts
- *   Seam
- *   #posts   Panel   SectionHeader, then FEATURED grid (frontmatter
- *                    `featured: true`, newest first), then every other post
- *                    newest first: the first batch in this HTML, the rest
- *                    lazy-loaded from /feed/<n>/ as the reader scrolls
- *                    (islands/LoadMore, plan26)
- *
- * HEADERS (plan25): portfolio Writings style — serif title + one short
- * mono line (ui/SectionHeader). No "NN. Label" eyebrows: the title names
- * the section and the sidebar stations already give the page order.
- *   Seam
- *   Footer   Square Kufic band (portfolio footer)
- *
- * ORDER (plan24): search right under the intro — the fastest way to a
- * known post — then topics, then the full archive, which is the longest
- * panel and therefore last. Every panel is one station, so ScrollSpy
- * always has exactly one section to mark.
- *
- * Other pages (posts, /tags/<tag>/) are "blog pages": separate routes,
- * stations link back here (/#tags …). Old /tags/ and /search/ URLs
- * redirect to these sections (public/_redirects). The URL stays clean
- * (no #section) — Layout's clean-URL script, as on the portfolio.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-index-astro-note-1. */
 import Layout from "../layouts/Layout.astro";
 import SectionShell from "../components/ui/SectionShell.astro";
 import Seam from "../components/ui/Seam.astro";

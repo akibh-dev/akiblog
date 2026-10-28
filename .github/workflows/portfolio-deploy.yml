@@ -1,26 +1,4 @@
-# ==============================================================================
-# Portfolio → Cloudflare Pages deployment
-#
-# Documentation & Implementation POC:
-# - Trigger: a push to `main` that touches apps/portfolio/** (or this file),
-#   or a manual run from the Actions tab (workflow_dispatch).
-# - Builds IN CI from source with bun (the repo's package manager, workspace
-#   deps such as @repo/tsconfig included), so the deployed site always
-#   matches the pushed commit. No committed dist.tar.gz is involved.
-#   GitHub-hosted ubuntu runners have plenty of RAM, so the OOM concern
-#   behind the Alpine/tarball flow in deploy.yml doesn't apply here.
-# - Deploys with `wrangler pages deploy`, run from apps/portfolio so Wrangler
-#   picks up wrangler.toml (MAILER service binding) and compiles
-#   functions/ (/api/contact) along with the static dist/.
-#   `--branch=main` makes it a PRODUCTION deployment.
-# - First run: if the Pages project doesn't exist yet, it is created with
-#   production branch `main`. After that the step is a no-op.
-# - `concurrency` stops two pushes from racing; the newer deploy wins.
-#
-# Required GitHub repository secrets:
-#   CLOUDFLARE_API_TOKEN   token with "Cloudflare Pages: Edit" permission
-#   CLOUDFLARE_ACCOUNT_ID  the account that owns the Pages project and `mailer`
-# ==============================================================================
+# For more details, see docs/portfolio/implementation-notes.md#github-workflows-portfolio-deploy-yml-note-1.
 
 name: Deploy Portfolio (Cloudflare Pages)
 

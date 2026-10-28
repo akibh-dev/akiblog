@@ -1,25 +1,5 @@
 ---
-/**
- * @file sections/Footer.astro
- * @description Site footer — the Square Kufic panel of Qur'an 2:269 as a
- *              pure full-bleed band: no frame, no border, no margin, no
- *              padding. The calligraphy starts at the topmost corner of
- *              the content div and spans it edge to edge.
- *
- * SAME CONTRACT AS THE PROJECTS IDE: headerless SectionShell (no
- * index/label) + pad="p-0" — the content IS the section, touching the
- * channel side lines and the seams above/below.
- *
- * WHY OUTSIDE THE NAV REGISTRY (data/sections.ts): the registry drives
- * the sidebar stations / mobile menu — a footer is not a nav target.
- * index.astro renders it after the sections map with a <Seam/> above.
- * ScrollSpy only observes sections with sidebar anchors, so an
- * untracked footer is safe.
- *
- * FONT CREDIT: Square Kufic by Nedaa Naim Elias (CC BY 4.0,
- * squarekufic.org) — attribution kept in source per owner's request to
- * drop the visible credit line.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-sections-footer-astro-note-1. */
 import SectionShell from "../ui/SectionShell.astro";
 import VerseCalligraphy from "../ui/VerseCalligraphy.astro";
 ---

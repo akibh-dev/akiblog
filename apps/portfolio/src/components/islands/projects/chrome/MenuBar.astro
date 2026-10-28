@@ -1,33 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/MenuBar.astro
- * @description Application menu bar — "Zed File Edit Selection Go Run
- *              Window Help" + user avatar with a working dropdown
- *              (Settings / Keymap / Themes / Icon Themes / Extensions /
- *              Sign Out). Astro port of EditorMenuBar.tsx.
- *
- * POC / WHY ONLY THE AVATAR MENU WORKS: per user direction, the text
- * menus are hover-only chrome; ONLY the avatar opens a real menu, and
- * its items are actionless (functionality decided later). The React
- * version used Base UI's Menu + Portal; here controller.ts implements
- * the WAI-ARIA menu-button pattern (↓/↑ cycle, Home/End, typeahead,
- * Esc + focus return, outside-pointerdown close).
- *
- * WHY NO PORTAL: Base UI's Portal only existed to escape the frame's
- * overflow-hidden — but the popup opens DOWNWARD into the frame's
- * interior, so absolute positioning inside a `relative` wrapper in the
- * bar is never clipped. z-50 keeps it above the preview pane.
- *
- * AVATAR: real photo (src/assets/my-pic.png via astro:assets <Image>,
- * resized to 48px WebP at build — a 24px circle at 2× DPR — instead of
- * shipping the full portrait) layered over the "AH" initials —
- * alt="" because the button's aria-label already names it — a non-empty
- * alt became visible text missing from the name (label-content-name-
- * mismatch). controller.ts hides the img on error (with a pre-check for errors that
- * fired before the module ran), leaving the initials as the fallback.
- *
- * RESPONSIVE: menus from "selection" onward hide below sm.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-menubar-astro-note-1. */
 import { Image } from "astro:assets";
 import myPic from "../../../../assets/my-pic.png";
 

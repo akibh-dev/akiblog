@@ -1,22 +1,5 @@
 ---
-/**
- * @file islands/TableOfContents.astro
- * @description Inline "On this page" block above the article, BELOW lg —
- *              where the sidebar git-tree TOC (layout/TocTree.astro) is not
- *              shown (phones have no sidebar; the md rail is too narrow
- *              for nested labels). plan22.
- *
- * WHY <details>: closed by default, so the article starts right under the
- * header on a phone; one tap opens the outline. Works without JS — the
- * scroll-spy (islands/TocSpy) only adds the active-heading highlight.
- * Indentation follows the same lane model as the tree (lib/toc.ts), so a
- * skipped heading level never indents twice.
- *
- * Re-themed from the Delta reference (docs/ui-guide §6): canvas inset
- * panel, mono labels, accent tick on the active item.
- *
- * Example: <TableOfContents headings={headings} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-islands-tableofcontents-astro-note-1. */
 import type { MarkdownHeading } from "astro";
 import TocSpy from "./TocSpy.astro";
 import { tocRows } from "../../lib/toc";

@@ -1,26 +1,4 @@
-/**
- * @file data/site.ts
- * @description Single source of truth for blog identity + navigation —
- *              the blog's counterpart of the portfolio's data/portfolio.ts
- *              (identity) and data/sections.ts (nav registry).
- *
- * WHY ONE FILE (not a copy of portfolio.ts): the copied shell components
- * (SiteSidebar, MobileMenu, MobileHeader, BaseHead, 404) only read a small
- * identity subset (name, handle, socials, urls). Copying the whole
- * portfolio model (projects, skills, dummy posts) would ship dead data
- * and drift. Every copied component now imports `site` / `stations` from
- * here instead — one edit re-brands the whole blog.
- *
- * STATIONS = SECTIONS OF THE HOME PAGE (plan23): the home page is a
- * one-pager like the portfolio — #home, #search, #tags, #posts (plan24 order) —
- * so on "/" stations are in-page anchors marked by ScrollSpy. On every
- * other page (posts, /tags/<tag>/) `stationHref` points them back to
- * "/#<id>" and `isActive` marks the matching one at build time.
- *
- * POC:
- *   import { stations, stationHref, isActive } from "../data/site";
- *   <a href={stationHref(s, onHome)} aria-current={!onHome && isActive(s, path) ? "true" : undefined}>
- */
+/* For more details, see docs/blog/implementation-notes.md#src-data-site-ts-note-1. */
 
 export interface Social {
   name: "GitHub" | "LinkedIn" | "X";

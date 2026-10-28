@@ -1,25 +1,4 @@
-/**
- * @file apps/blog/astro.config.mjs
- * @description Astro configuration for akiblog (blog.akibh.dev).
- *
- * POC / Implementation Architecture (plan19–21):
- * - `output: 'static'` — every page is pre-rendered; Cloudflare Pages serves
- *   dist/ from its CDN. No adapter, no Worker, no runtime (the old SSR blog
- *   with D1/R2/Access is gone). Search is Pagefind (a static index built
- *   after `astro build`), comments will be giscus (an iframe).
- * - Posts come from the notes repo, synced into src/content/posts/ by
- *   scripts/sync-content.ts before dev/build (see src/content.config.ts).
- * - Image service: Astro's default (sharp) — covers and inline images are
- *   resized to AVIF/WebP at BUILD time, og:image JPEGs too.
- * - Same design system as the portfolio: Tailwind v4 via @tailwindcss/vite,
- *   tokens in src/styles/global.css (copied from apps/portfolio @ 091c7cf).
- * - No UI framework integration: every island is a pure .astro component
- *   with a vanilla custom element (AGENTS.md / plan 17).
- * - postAssets (src/lib/post-assets.ts): files a note LINKS to next to its
- *   index.md (`./pic.png`) are served at /<slug>/<file>, like on GitHub.
- * - security.csp: the portfolio's hash-based Content-Security-Policy, with
- *   Turnstile + picsum removed and Pagefind added (see inline notes).
- */
+/* For more details, see docs/blog/implementation-notes.md#astro-config-mjs-note-1. */
 
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
@@ -46,11 +25,7 @@ export default defineConfig({
   // trailing slashes everywhere: /posts/<slug>/ is the URL contract (plan19 §3),
   // and Pages serves folder/index.html at exactly that path
   trailingSlash: 'always',
-  // sitemap: emits sitemap-index.xml from `site` — home + posts only. Out:
-  // the 404, the /feed/<n>/ lazy-load fragments (plan26), and /tags/<tag>/
-  // (thin listings, noindex below 2 posts — a noindex URL in the sitemap is
-  // a contradictory signal Search Console flags; tags stay crawlable via
-  // links, plan28)
+  // For more details, see docs/blog/implementation-notes.md#astro-config-mjs-note-2.
   integrations: [postAssets(), sitemap({ filter: (page) => !/\/(404|feed|tags)\//.test(new URL(page).pathname + '/') })],
   markdown: {
     // src/lib/markdown.ts (each plugin documented there), via Astro 7.4's
@@ -60,10 +35,7 @@ export default defineConfig({
       remarkPlugins: [remarkStripTitle, remarkCodeLang, remarkAlerts],
       rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks(['blog.akibh.dev'])],
     }),
-    // Shiki dual themes (light-plus / one-dark-pro, from docs/ui-guide). With
-    // defaultColor:false every token carries BOTH colors as CSS variables
-    // (--shiki-light / --shiki-dark); global.css picks one under `.dark`, so
-    // code blocks follow the theme toggle with zero JS and no flash.
+    // For more details, see docs/blog/implementation-notes.md#astro-config-mjs-note-3.
     shikiConfig: {
       themes: { light: 'light-plus', dark: 'one-dark-pro' },
       defaultColor: false,
@@ -71,20 +43,7 @@ export default defineConfig({
       transformers: [shikiCodeFrame()],
     },
   },
-  // Content-Security-Policy — Astro hashes every <script>/<style> it renders
-  // and writes a <meta http-equiv> CSP into each page. No 'unsafe-inline'
-  // for scripts. Allowed extras, and why:
-  //   'wasm-unsafe-eval'          Pagefind compiles its search core from
-  //                               WebAssembly (plan21 §2); this permits
-  //                               WASM compilation ONLY, not JS eval()
-  //   static.cloudflareinsights.com / cloudflareinsights.com
-  //                               Cloudflare Web Analytics beacon (edge-injected)
-  //   https://giscus.app          comments script + iframe + the small
-  //                               default.css its client.js injects into
-  //                               the page (iframe sizing) — only when
-  //                               src/config/giscus.ts is filled in
-  // style-src-attr 'unsafe-inline': Shiki emits per-token style="" attributes
-  // (the dual-theme CSS variables); attributes can't be hashed one by one.
+  // For more details, see docs/blog/implementation-notes.md#astro-config-mjs-note-4.
   security: {
     csp: {
       directives: [

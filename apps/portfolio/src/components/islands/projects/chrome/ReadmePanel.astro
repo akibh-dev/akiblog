@@ -1,26 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/ReadmePanel.astro
- * @description One project rendered as its README.md preview — Astro port
- *              of ReadmePreview.tsx + the Tabs.Panel wrapper.
- *
- * POC / PRE-RENDERED: ProjectsIsland renders ONE of these per file at
- * build time; controller.ts toggles `hidden` so exactly the active
- * buffer's panel shows. `data-lines` carries the fake line count the
- * status bar's position item displays (14 + highlights×2 + stack — the
- * React version's formula), so the controller needs zero project data.
- *
- * ELEMENT: a <div role="tabpanel">, not <article> — ARIA forbids the
- * tabpanel role on <article> (axe aria-allowed-role).
- *
- * HEADINGS: the page has ONE <h1> (the hero name). The README title is an
- * <h3> under Projects' sr-only <h2>, its sections <h4> — the look is the
- * same (classes, not tag, set the size); the outline stays valid.
- *
- * LAYOUT (unchanged): title (site display serif — Zed's markdown preview
- * swaps buffer font for UI font), shields-style badge row, <hr>, then
- * mono-eyebrow sections (Overview / Highlights / Stack) + links footer.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-readmepanel-astro-note-1. */
 import { getHighlights } from "../dummy";
 import { STATUS_META, type ProjectFile } from "../types";
 

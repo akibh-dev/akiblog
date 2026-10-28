@@ -1,13 +1,5 @@
 ---
-/**
- * @file ui/ScrollRow.astro
- * @description Horizontal snap-scroller for card rows (metrics, posts, skills).
- *
- * WHY: CSS scroll-snap gives native-feeling horizontal scrolling with zero
- * JavaScript. Edge fade masks signal overflow. Cards size fluidly with
- * min() so they never overflow small viewports (the responsiveness bug in
- * the previous build used fixed 320px cards).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-scrollrow-astro-note-1. */
 interface Props {
   class?: string;
   label?: string; // aria-label for the scroll region

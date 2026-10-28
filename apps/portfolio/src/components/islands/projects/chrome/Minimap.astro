@@ -1,20 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/Minimap.astro
- * @description Decorative minimap — a right-edge strip of tiny colored
- *              bars representing the README's shape, like Zed/VS Code's
- *              code minimap. Astro port of PreviewMinimap.tsx.
- *
- * POC / WHY DERIVED FROM DATA (unchanged): every bar is computed
- * deterministically from the project's real fields — each file's minimap
- * has a distinct "document fingerprint", zero runtime measurement. One
- * minimap per file is PRE-RENDERED; controller.ts toggles `hidden`.
- * Runs entirely in the frontmatter at BUILD time.
- *
- * Purely decorative: aria-hidden, pointer-events-none, hidden below lg.
- * Rendered OUTSIDE the scroll container (absolute in the preview
- * wrapper) so it stays pinned to the right edge while content scrolls.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-minimap-astro-note-1. */
 import { getHighlights } from "../dummy";
 import type { ProjectFile } from "../types";
 

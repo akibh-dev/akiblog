@@ -1,24 +1,4 @@
-/**
- * @file islands/terminal/shell.ts
- * @description The shell's stateful core — replaces Terminal.tsx's React
- *              state (scrollback, input draft, history pointer) with a
- *              vanilla mount function.
- *
- * POC / WHY DIRECT DATA IMPORT (not a JSON script island): the terminal
- * is single-purpose — Hero always passes `portfolioData`, and
- * `PortfolioData = typeof portfolioData` (types.ts) makes the import
- * type-identical to the prop. Importing here skips HTML-embedded JSON,
- * the \u003c escaping dance and the runtime parse. SSR (Terminal.astro)
- * still renders boot from the prop; both read the same module, so they
- * cannot diverge.
- *
- * KEYBOARD CONTRACT (unchanged): Enter run · ↑/↓ history (draft restore)
- * · Tab complete · Ctrl+L clear · Ctrl+C abort line.
- *
- * DOCUMENTED DEVIATION from the React version: Ctrl+C now also resets
- * the draft (the React version left draftRef stale, so ↑→Ctrl+C→↓ could
- * resurrect pre-abort text). Resetting is the saner fresh-line semantic.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-shell-ts-note-1. */
 import { portfolioData } from "../../../data/portfolio";
 import { applyTheme } from "../../../lib/theme";
 import { bootEntries } from "./boot";

@@ -1,17 +1,4 @@
-/**
- * @file islands/projects/types.ts
- * @description Shared types + pure mapping helpers for the Zed-workspace
- *              project browser.
- *
- * POC / WHY THIS FILE EXISTS:
- * The workspace renders each project as a *file* in a fake filesystem.
- * That mapping (title → slug → file name → tree group) is pure data
- * transformation, so it lives here as testable functions instead of being
- * scattered across components. `STATUS_META` is the single source of truth
- * for how a project status translates to editor signals (tab dirty dot,
- * tree git dot, README badge) — one data field, three UI signals, never
- * derived twice.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-types-ts-note-1. */
 
 export interface ProjectItem {
   title: string;

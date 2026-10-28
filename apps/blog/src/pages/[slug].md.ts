@@ -1,14 +1,4 @@
-/**
- * @file pages/[slug].md.ts
- * @description /<slug>.md — the plain-Markdown copy of each post, for LLM
- *              answer engines (linked from /llms.txt, llmstxt.org) and as
- *              <link rel="alternate" type="text/markdown"> on the post page.
- *
- * The source markdown straight from the notes repo, with a small header
- * (title, summary, canonical URL, date, tags) so the file stands alone.
- * Relative links/images (`./pic.png`) are made absolute against the post's
- * HTML URL, so they resolve outside the site. Drafts never get one.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-slug-md-ts-note-1. */
 import type { APIRoute } from "astro";
 import { formatDate, getPosts, postUrl, type Post } from "../lib/posts";
 

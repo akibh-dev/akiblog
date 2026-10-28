@@ -1,22 +1,4 @@
-/**
- * @file pages/posts.json.ts
- * @description Machine-readable post list for the portfolio's Writings
- *              section (plan20 §6 phase 8): replaces the dummy posts in
- *              apps/portfolio/src/data/portfolio.ts.
- *
- * SHAPE = the portfolio's `BlogPost` interface (title, excerpt, date,
- * readingTime, tags, slug, url, banner?), so the portfolio can map it 1:1.
- * `banner` is an absolute URL of a 960px WebP rendered from the cover at
- * build time (same size the portfolio's PostCover requests).
- *
- * Order: newest first (lib/posts getPosts). `featured` marks pinned posts.
- *
- * This static file is ALSO the data source of GET /api/featured
- * (functions/api/featured.ts), which reads it through the Pages ASSETS
- * binding — one build artifact, so the page, the feed and the API can
- * never disagree. Cross-origin reads of this file itself are allowed for
- * the portfolio by public/_headers.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-posts-json-ts-note-1. */
 import type { APIContext } from "astro";
 import { getImage } from "astro:assets";
 import { formatDate, getPosts, postUrl, readingMinutes } from "../lib/posts";

@@ -1,30 +1,4 @@
-/**
- * @file lib/og.ts
- * @description Open Graph share cards (1200×630 PNG), rendered at BUILD
- *              time with sharp — one per post without a cover
- *              (/og/<slug>.png) and the site default (/og.png).
- *
- * WHY: links shared on LinkedIn/X/Slack/Discord show this card. The old
- * /og.png was a copy of the PORTFOLIO's card, so every blog share showed
- * the wrong brand. A per-post card with the post's title is what makes a
- * shared link recognisable (posts WITH a cover keep using the cover).
- *
- * HOW (no new dependency, deterministic on any machine):
- * - Shapes (background, frame, segmented brand rail, accent dot) are a
- *   small SVG.
- * - Text is rendered by libvips/pango with an explicit `fontfile` — the
- *   blog's own fonts as TTF (src/lib/og-fonts: IBM Plex Serif, Lilex). SVG <text>
- *   would use whatever system fonts the build machine has (Liberation on
- *   Fedora, DejaVu on the Ubuntu CI runner) and look different per host.
- * - Everything is composited into one PNG with sharp (already the image
- *   service dependency).
- * Colors are the dark theme's tokens resolved to sRGB (the site default
- * theme; same values as public/giscus/dark.css).
- *
- * POC:
- *   const png = await renderOgCard({ title, eyebrow: "GUIDE / #CSS", meta: "13 min read · Oct 13, 2026" });
- *   return new Response(png, { headers: { "Content-Type": "image/png" } });
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-og-ts-note-1. */
 import sharp from "sharp";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -45,12 +19,7 @@ const C = {
   blue: "#346dae",
 };
 
-/* TTF copies of public/fonts/*.woff2 (decoded once; same OFL fonts): the
-   libvips/FreeType build inside sharp can't read WOFF2 and falls back to a
-   system font WITHOUT an error. Resolved from the project root (`astro
-   build` runs in apps/blog) — import.meta.url points into the bundled
-   chunk at build time, not at src/. A missing file must fail the build,
-   never silently degrade the cards. */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-og-ts-note-2. */
 const font = (file: string) => {
   const path = resolve(process.cwd(), "src/lib/og-fonts", file);
   if (!existsSync(path)) throw new Error(`OG card font missing: ${path}`);

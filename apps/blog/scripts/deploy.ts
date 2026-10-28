@@ -1,26 +1,5 @@
 #!/usr/bin/env bun
-/**
- * @file scripts/deploy.ts
- * @description `bun run deploy:blog` — publish the blog with the newest
- *              notes, by triggering the CI workflow (plan20 §3). Nothing
- *              is built or uploaded from this machine: one deploy path,
- *              one set of Cloudflare credentials (GitHub secrets).
- *
- * WHY TRIGGER CI (not `wrangler pages deploy` locally): CI checks out the
- * notes repo at its pushed HEAD, so what goes live is exactly what's on
- * GitHub — not whatever happens to be uncommitted in ../notes. Code
- * changes still deploy on push to main; this command covers "I pushed a
- * new note".
- *
- * WHY -R <repo>: this repo's `origin` is the Forgejo instance
- * (the self-hosted Forgejo instance); GitHub is the push mirror that runs Actions, so `gh`
- * can't infer it from the remotes. Override with GH_REPO=owner/name.
- *
- * Flow: warn if ../notes has unpushed commits → `gh workflow run` →
- * find the new run → `gh run watch` (exit code = run result).
- *
- * Requires: gh CLI logged in (`gh auth login`) with access to the repo.
- */
+/* For more details, see docs/blog/implementation-notes.md#scripts-deploy-ts-note-1. */
 import { $ } from "bun";
 
 const repo = process.env.GH_REPO ?? "akibh-dev/akiblog";

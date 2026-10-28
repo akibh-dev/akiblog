@@ -1,11 +1,4 @@
-/**
- * @file islands/terminal/dsl.ts
- * @description Tiny typed builder DSL for terminal output.
- *
- * Commands read declaratively because of these:
- *   [t("status: ", "muted"), t("online", "success")]
- *   kv("email", link("hello@akibh.dev", "mailto:…"))
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-dsl-ts-note-1. */
 
 import type { OutputLine, Segment, Tone } from "./types";
 

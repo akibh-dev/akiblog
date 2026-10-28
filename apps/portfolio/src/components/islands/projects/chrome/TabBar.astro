@@ -1,23 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/TabBar.astro
- * @description Multi-buffer tab bar — the "file name" fixed row.
- *              Astro port of EditorTabs.tsx.
- *
- * POC / LAYOUT (unchanged): [←] [→] | [tab] [tab] … | [+] [split] [full]
- * - Every open buffer gets a tab — ALL files' tabs are PRE-RENDERED at
- *   build time; controller.ts toggles `hidden` + active classes as
- *   buffers open/close (zero runtime data).
- * - History arrows are WIRED (data-back / data-forward), disabled at the
- *   deque's bounds — initially disabled (one entry).
- * - data-dirty marks tabs whose status is "uncommitted"; the controller
- *   aggregates it over OPEN tabs for the status-bar branch dot.
- * - The row itself is hidden when no buffer is open (data-tabbar).
- *
- * WHY STILL PLAIN BUTTONS (not a tablist): the tree owns the tablist
- * semantics; this bar is a second VIEW onto the same state — two
- * competing tablists controlling the same panels would confuse AT.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-tabbar-astro-note-1. */
 import {
   ArrowLeftIcon,
   ArrowRightIcon,

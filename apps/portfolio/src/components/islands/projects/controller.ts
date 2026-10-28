@@ -1,30 +1,4 @@
-/**
- * @file islands/projects/controller.ts
- * @description State machine + ARIA for the pre-rendered Zed workspace —
- *              replaces ProjectWorkspace.tsx's React state and Base UI's
- *              Tabs/Menu behaviors (plan 18).
- *
- * POC / WHY PRE-RENDER + TOGGLE: the island's state space is enumerable
- * (N files), so ProjectsIsland.astro renders EVERY state at build time;
- * this controller only toggles hidden / classes / aria-*. No runtime
- * data, no JSON island, no re-render layer — one render() pass per
- * interaction. All class names appear LITERALLY in this file or the
- * markup (never concatenated) so Tailwind v4 sees them.
- *
- * ARIA PARITY (replaces Base UI, per WAI-ARIA APG):
- * - Tree files: tablist semantics — roving tabindex, ↑/↓ (and ←/→) move
- *   focus AND activate (Base UI activateOnFocus default), Home/End jump.
- *   Keys are handled only when a FILE TAB has focus (folder buttons are
- *   not tabs — Base UI's composite skipped them too).
- * - Avatar menu: click toggle · ↓/↑ cycle · Home/End · typeahead (500ms
- *   buffer) · Enter/Space activates (actionless → close) · Esc closes +
- *   returns focus to trigger · outside pointerdown closes · Tab closes.
- *
- * BEHAVIOR PARITY with the React version: open-activate-close semantics,
- * bounded history deque (8), neighbor fallback on close, scroll-reset on
- * buffer switch, panel stays MOUNTED on sidebar toggle (folder state
- * survives), Ctrl-free actionless chrome stays actionless.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-controller-ts-note-1. */
 import { attachScrollbarReveal } from "./scrollbars";
 
 const HISTORY_LIMIT = 8; // parity with ProjectWorkspace.tsx

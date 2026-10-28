@@ -1,25 +1,4 @@
-/**
- * @file lib/posts.ts
- * @description The ONE place pages read posts from: draft filtering,
- *              ordering, reading time, tag index and prev/next.
- *
- * WHY A HELPER (not getCollection in every page): the rules "drafts never
- * ship", "newest first", "tags are counted the same way everywhere" must
- * be identical for the index, tag pages, RSS, sitemap-adjacent JSON and
- * the 404 matcher. One module = one definition.
- *
- * DRAFTS: included in `astro dev` (so you can preview them live from
- * ../notes), excluded from every production build — unless the build is
- * run with SHOW_DRAFTS=1 (local preview of unpublished posts).
- *
- * READING TIME: computed from the raw markdown body (code fences count at
- * half weight — readers skim code), 200 wpm, minimum 1 min. Pure, so it is
- * stable across builds and needs no remark plugin.
- *
- * POC:
- *   const posts = await getPosts();
- *   const { prev, next } = neighbours(posts, post.id);
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-posts-ts-note-1. */
 import { getCollection, type CollectionEntry } from "astro:content";
 
 export type Post = CollectionEntry<"posts">;
@@ -75,12 +54,7 @@ export function tagIndex(posts: Post[]): { tag: string; posts: Post[] }[] {
 /** Cards per lazy-loaded batch on the home page (2 rows of 3 on lg). */
 export const FEED_PAGE_SIZE = 6;
 
-/**
- * The home page's post list (plan26): featured posts first (newest first
- * among them), then every other post newest first — split into the batch
- * rendered in the HTML (`first`) and the batches served as /feed/<n>/
- * fragments (`pages`, n = 2, 3, …) that load as the reader scrolls.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-posts-ts-note-2. */
 export function homeFeed(posts: Post[]) {
   const featured = posts.filter((p) => p.data.featured);
   const rest = posts.filter((p) => !p.data.featured);

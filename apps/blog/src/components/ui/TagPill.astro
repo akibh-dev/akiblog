@@ -1,17 +1,5 @@
 ---
-/**
- * @file ui/TagPill.astro
- * @description Tag link pill — the portfolio's icon-pill style
- *              (apps/portfolio/src/icons/README.md "skill pill"):
- *              hairline border, mono 2xs label, brand border on hover.
- *              Optional count in text-muted.
- *
- * WHY a link (not a button/filter): every tag has a static page
- * (/tags/<tag>/), so the pill works without JS, can be opened in a new
- * tab and is crawlable. 24px+ target height (portfolio a11y contract).
- *
- * Example: <TagPill tag="cloudflare" count={3} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-tagpill-astro-note-1. */
 interface Props {
   tag: string;
   count?: number;

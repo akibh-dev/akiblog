@@ -1,12 +1,4 @@
-/**
- * @file apps/portfolio/src/data/portfolio.ts
- * @description Centralized portfolio content model derived from akibh.dev and the legacy portfolio repository.
- *
- * POC / Implementation Architecture:
- * - Structured TypeScript objects providing compile-time type safety for all profile data.
- * - Single source of truth for bio, skills, competitive coding metrics, projects, and featured blog posts.
- * - Designed to easily pull or synchronize with external APIs or D1 in future iterations.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-data-portfolio-ts-note-1. */
 
 export interface Project {
   title: string;
@@ -65,10 +57,7 @@ export const portfolioData = {
     { name: "Facebook", handle: "akib4040", url: "https://facebook.com/akib4040" },
   ],
 
-  /* `handle` is the account name ON THAT PLATFORM (shown on the About tiles,
-     terminal and llms.txt). It is deliberately NOT meta.handle: only some
-     accounts moved to akibh (LeetCode, AtCoder); the others are still `akib35`, and the
-     shown handle must always match the account the url opens. */
+  /* For more details, see docs/portfolio/implementation-notes.md#src-data-portfolio-ts-note-2. */
   competitiveMetrics: [
     { platform: "LeetCode", handle: "akibh", stats: "350+ Solved", url: "https://leetcode.com/u/akibh/" },
     { platform: "Codeforces", handle: "akib35", stats: "Pupil", url: "https://codeforces.com/profile/akib35" },
@@ -161,17 +150,7 @@ export const portfolioData = {
   blogPosts: [] as BlogPost[]
 };
 
-/**
- * Rotating epigraphs shown in the hero eyebrow slot (sections/Hero.astro).
- * One quote is picked at random in the browser on every page load.
- *
- * WHY a standalone export (not inside portfolioData): the tiny client-side
- * picker script imports ONLY this array, so the hero's JS bundle tree-shakes
- * down to a few strings instead of shipping the entire dataset to the browser.
- *
- * Edit freely — keep each quote a single line; quotation marks are rendered
- * by the component, attribution included in the string.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-data-portfolio-ts-note-3. */
 export const heroQuotes = [
   "Simplicity is prerequisite for reliability. — Edsger W. Dijkstra",
   "Make it work, make it right, make it fast. — Kent Beck",

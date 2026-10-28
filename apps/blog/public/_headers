@@ -1,17 +1,4 @@
-# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
-# Copied from apps/portfolio/public/_headers @ 091c7cf. Blog additions: /pagefind/*, /rss.xml.
-#
-# WHY:
-# - /_astro/* files are content-hashed by Astro (name changes whenever the
-#   bytes change), and /fonts/* never change → cache for a year, immutable.
-#   Fixes Lighthouse "Use efficient cache lifetimes" for same-origin assets.
-# - Everything else (HTML, robots, llms.txt, CV) keeps Pages' default
-#   revalidation so a deploy shows up immediately.
-# - Security headers (Lighthouse best practices / securityheaders.com):
-#   nosniff, strict referrer, no framing, minimal permissions. HSTS is set
-#   at the zone level by Cloudflare (SSL/TLS → Edge Certificates).
-#   No CSP yet: Turnstile + Cloudflare Web Analytics + inline theme script
-#   need a hash/nonce-based policy — see the follow-up list.
+# For more details, see docs/blog/implementation-notes.md#public-headers-note-1.
 
 /*
   X-Content-Type-Options: nosniff
@@ -19,17 +6,7 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
-# HTML pages: Pages' default caching (revalidate every time, so a deploy is
-# live at once) + `no-transform`. Why no-transform: the zone's Bot Fight
-# Mode injects Cloudflare "JavaScript detections" (an inline script that
-# differs per request) into HTML. Our CSP is a hashed <meta> (Astro static
-# build), which Cloudflare's injector can't nonce — "not supported with
-# nonce set via <meta> tags" — so the browser blocked it and logged a CSP
-# error on every page. Cloudflare skips the injection when the response
-# carries `no-transform` (developers.cloudflare.com/cloudflare-challenges/
-# challenge-types/javascript-detections). Bot Fight Mode itself stays on.
-# Placeholders match ONE path segment with a trailing slash, so assets
-# (/_astro/x.css, /fonts/x.woff2) keep their own rules below.
+# For more details, see docs/blog/implementation-notes.md#public-headers-note-2.
 /
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 /:slug/

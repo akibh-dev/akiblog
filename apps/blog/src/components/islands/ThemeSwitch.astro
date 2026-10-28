@@ -1,35 +1,5 @@
 ---
-/**
- * @file islands/ThemeSwitch.astro
- * @description Segmented Light / Dark theme control — dark is the default.
- *              PURE ASTRO port of ThemeSwitch.tsx (Base UI ToggleGroup),
- *              plan 17 §3 Phase 5. Same markup, classes and behaviour.
- *
- * BEHAVIOUR KEPT 1:1 FROM BASE UI (WAI-ARIA toolbar/toggle-group pattern):
- * - role="group" + aria-label, each option a <button aria-pressed>.
- * - ONE tab stop (roving tabindex); ArrowLeft/ArrowRight move focus and
- *   loop at the ends (Base UI `loopFocus`), Home/End jump to first/last.
- *   Arrows only MOVE focus; Enter/Space (native button click) selects.
- * - Exactly one option stays pressed: clicking the pressed one is a
- *   no-op (the React version blocked "unselect all" the same way).
- * - Nothing is pressed in the server HTML (SSR can't read localStorage,
- *   so a hardcoded state would flash the WRONG option). The anti-flash
- *   script has already set <html class>, and the element syncs as soon as
- *   its module runs — earlier than the React island, which waited for
- *   hydration — so at worst a brief neutral state, never a wrong one.
- *
- * NEW (the React version couldn't): every switch on the page (sidebar +
- * mobile menu) and the terminal's `theme` command stay in sync. The
- * pressed state is derived from <html class="dark"> via one
- * MutationObserver, so whoever calls applyTheme(), every switch follows.
- *
- * WHY A CUSTOM ELEMENT: state + listeners are scoped per instance and
- * set up in connectedCallback; the class is defined once per page no
- * matter how many switches render. Logic stays in lib/theme.ts (shared
- * with the terminal).
- *
- * POC:  <ThemeSwitch />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-islands-themeswitch-astro-note-1. */
 import { THEME_MODES } from "../../lib/theme";
 ---
 

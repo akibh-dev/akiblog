@@ -1,16 +1,4 @@
-/**
- * @file islands/terminal/boot.ts
- * @description Static boot scrollback — moved verbatim out of Terminal.tsx
- *              during the React → pure-Astro migration.
- *
- * WHY A SEPARATE MODULE: both renderers need it — Terminal.astro prints
- * the boot text on the SERVER (zero JS), and shell.ts re-runs it on the
- * client when `clear`/Ctrl+L resets the session. One function, two
- * runtimes, guaranteed identical output.
- *
- * `nextId` is vestigial (ids existed for React keys; the DOM renderer
- * never reads them) but kept so types.ts stays untouched.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-boot-ts-note-1. */
 import { kv, t } from "./dsl";
 import type { HistoryEntry, OutputLine, PortfolioData } from "./types";
 

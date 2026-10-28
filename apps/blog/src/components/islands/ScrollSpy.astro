@@ -1,30 +1,5 @@
 ---
-/**
- * @file islands/ScrollSpy.astro
- * @description Highlights the sidebar nav link matching the visible section,
- * and drives the sidebar's "hop connector".
- *
- * WHY: State is exposed via the standard `aria-current` attribute instead of
- * ad-hoc classes, so ALL styling stays in CSS ([aria-current] selectors).
- * One IntersectionObserver for the whole page; zero reflows while scrolling.
- *
- * HOP CONNECTOR ([data-station-link]): the accent line exists ONLY
- * while transitioning between stations — never a persistent fill and
- * nothing red at rest. On every activation change we span the segment
- * from the previously active node to the current one (measured live via
- * getBoundingClientRect relative to the positioned wrapper, so it stays
- * correct across font loading, zoom and resize); the CSS transition on
- * top/height makes it GROW out of the source node toward the
- * destination. Once the hop lands (one transition duration later), we
- * collapse the segment into the destination node — the tail catches up
- * and the line disappears underneath the node's opaque fill. Rapid
- * successive hops simply retarget the segment (the pending collapse is
- * cancelled), so the line stays visible while you keep scrolling and
- * vanishes ~0.5s after you settle. The first activation collapses to a
- * zero-length segment at the current node, so nothing is painted before
- * the first hop. Purely additive: usages without [data-station-link]
- * behave exactly as before.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-islands-scrollspy-astro-note-1. */
 ---
 
 <scroll-spy class="contents">

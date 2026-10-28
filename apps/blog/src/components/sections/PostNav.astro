@@ -1,19 +1,5 @@
 ---
-/**
- * @file sections/PostNav.astro
- * @description Older / newer post links at the end of an article — a
- *              two-column ruled row (replaces the Delta reference
- *              MorePosts list; docs/ui-guide §6).
- *
- * WHY two plain cells (not cards): the reader has just finished a post;
- * the next action is "keep reading", so the titles are the content —
- * same Plex Serif title + mono eyebrow language as PostCard, split by one
- * hairline. A missing side leaves an empty cell so the newer post always
- * sits on the right (direction stays meaningful). rel=prev/next helps
- * crawlers walk the archive.
- *
- * Example: <PostNav prev={olderPost} next={newerPost} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-sections-postnav-astro-note-1. */
 import { formatDate, postUrl, type Post } from "../../lib/posts";
 
 interface Props {

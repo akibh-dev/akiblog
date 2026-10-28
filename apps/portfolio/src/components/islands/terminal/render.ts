@@ -1,17 +1,4 @@
-/**
- * @file islands/terminal/render.ts
- * @description DOM renderer for terminal entries — replaces the React
- *              JSX rendering (Prompt / SegmentView / entries.map).
- *
- * POC / WHY textContent-ONLY RENDERING: command output is data, not
- * markup. Building nodes with `textContent` (never innerHTML) makes HTML
- * injection structurally impossible — the same guarantee JSX gave us,
- * kept after the migration.
- *
- * TONE_CLASS / LINK_CLASS are exported so Terminal.astro's server-side
- * boot render uses the IDENTICAL class strings (single source of truth
- * between SSR and the client renderer).
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-render-ts-note-1. */
 import type { HistoryEntry, Segment, Tone } from "./types";
 
 export const TONE_CLASS: Record<Tone, string> = {

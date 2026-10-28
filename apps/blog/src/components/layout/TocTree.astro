@@ -1,46 +1,5 @@
 ---
-/**
- * @file layout/TocTree.astro
- * @description The post's table of contents drawn AS the sidebar's git
- *              tree (plan22): h2 = commits on the trunk, h3 = commits on a
- *              branch forked from their h2, h4 = a branch off the h3.
- *              Branches fork and merge with the same 45° diagonals, 1.2px
- *              strokes and 7px hollow commit nodes as the portfolio's
- *              decorative tree, so the TOC reads as that tree come alive.
- *
- * GEOMETRY (px, SVG user units = CSS px, x measured from the nav's left):
- *   lane x     X(L) = 3.5 + 16·L        (lane 0 = the existing trunk at 3.5)
- *   node       center y = T = 15        (pt 7 + half of the 16px first line)
- *   fork       top band 0→T:   M X(L-1) 0 L X(L) T     (dx 16, dy 15 ≈ 45°)
- *   merge      bottom band 16: M X(k) 0 L X(k-1) 16    (dx 16, dy 16 = 45°)
- *   row        pt 7 + label + pb 8 → ≥ 31, so T + merge band always fit
- * Lane spacing is 16 (not the decorative tree's 25) so three lanes plus a
- * label fit the narrow lg sidebar column.
- *
- * WHY PER-ROW SEGMENTS (not one SVG for the whole tree): labels wrap, so
- * row heights are only known after layout. Each row draws just its own
- * pieces from lib/toc.ts's lane numbers — verticals are CSS boxes
- * (top/bottom insets stretch with the row), diagonals are fixed-size SVGs
- * pinned to the row's top (fork) or bottom (merge) band. Nothing is
- * measured in JS, and it survives font loading, zoom and resize.
- *
- * WHY LANE 0 IS NEVER DRAWN HERE: the sidebar's single trunk <line> already
- * paints x=3.5 top to bottom. Painting it again would double the alpha of
- * the semi-transparent --ui-border-subtle in light mode — the exact
- * double-paint bug SiteSidebar's header documents. Diagonals only TOUCH
- * the trunk at their end point.
- *
- * STATES (from islands/TocSpy): aria-current="location" → filled accent
- * node (scaled 1.4×, like the active station) + accent label;
- * data-trail on its ancestors → accent-outlined node + stronger label,
- * so the path from trunk to the commit you're reading lights up.
- *
- * HEADER: "On this page" is a fixed heading rendered by SiteSidebar ABOVE
- * the rail's scroll area (plan24), so this component starts straight
- * with the first commit — the trunk begins at its node.
- *
- * Example: <TocTree headings={headings} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-layout-toctree-astro-note-1. */
 import type { MarkdownHeading } from "astro";
 import TocSpy from "../islands/TocSpy.astro";
 import { tocRows } from "../../lib/toc";

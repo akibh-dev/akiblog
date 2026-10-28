@@ -1,31 +1,5 @@
 ---
-/**
- * @file sections/PostHeader.astro
- * @description Post hero — replaces the Delta reference BlogHeader
- *              (docs/ui-guide §6: no author avatar, single-author blog).
- *
- *   ← All posts                                   (mono back link)
- *   GUIDE / #web / #css                           (eyebrow: type + tag links)
- *   Title in IBM Plex Serif                       (the page's only h1)
- *   description in mono subtle                    (= meta description)
- *   ▮▮▮▮▯▯▯▯ 4 min read · Oct 13, 2026 · Updated Oct 20, 2026
- *   [AI disclosure banner, if ai ≠ none]
- *
- * WHY the description is shown: it is written for SEO anyway (required,
- * ≤160 chars), and showing it keeps meta description and visible lead in
- * sync — search snippets match what readers see.
- * The reading meter is the PostCard meter at a larger scale, so card and
- * page read as one system.
- *
- * SEARCH (Pagefind, plan21 §2): the header is a second data-pagefind-body
- * region (the article is the first), so title + description are indexed
- * and the h1 becomes the result title. Navigation and meta text are
- * data-pagefind-ignore. Tags/type are FILTERS (attribute form `tag:web`,
- * so the visible "#" never leaks into filter values); the ISO date is the
- * sort key, the formatted date a result meta.
- *
- * Example: <PostHeader post={post} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-sections-postheader-astro-note-1. */
 import AiBanner from "../ui/AiBanner.astro";
 import { formatDate, readingMinutes, type Post } from "../../lib/posts";
 

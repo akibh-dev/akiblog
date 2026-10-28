@@ -1,15 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/Breadcrumbs.astro
- * @description Breadcrumb fixed row — Astro port of EditorBreadcrumbs.tsx.
- *
- * POC / PRE-RENDERED PER FILE: the React version derived the path from
- * the active file at render time; here ONE nav per file is rendered at
- * build time (`data-crumbs`), and controller.ts shows exactly the active
- * one (all hidden when no buffer is open). Segments stay intentionally
- * NON-links (read-only workspace metaphor); the file segment is
- * emphasized like Zed does.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-breadcrumbs-astro-note-1. */
 import {
   ChevronRightIcon,
   LightbulbIcon,

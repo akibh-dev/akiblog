@@ -1,14 +1,5 @@
 ---
-/**
- * @file pages/tags/[tag].astro
- * @description Posts for one tag: header panel (eyebrow, `#tag` h1, count,
- *              sibling tag pills) + the ruled PostGrid.
- *
- * SEO: tag pages with a single post are thin duplicates of that post's
- * card, so they are `noindex, follow` (crawlers still follow to the post)
- * — plan19 §5. (They still appear in the sitemap; robots meta wins, and
- * they become indexable automatically once a second post uses the tag.)
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-tags-tag-astro-note-1. */
 import Layout from "../../layouts/Layout.astro";
 import SectionShell from "../../components/ui/SectionShell.astro";
 import Seam from "../../components/ui/Seam.astro";

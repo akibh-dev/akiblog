@@ -1,17 +1,4 @@
-/**
- * @file lib/theme.ts
- * @description Single typed source of truth for theme state.
- *
- * WHY: Both <ThemeSwitch> (Base UI island) and the terminal's `theme`
- * command need identical apply/read/validate logic. Extracting it here
- * keeps one implementation, and the `isThemeMode` type guard gives
- * commands compile-time + runtime safety on user input.
- *
- * MODES: dark / light ONLY (no "system"). Dark is the site default and
- * the fallback for missing or garbage stored values — including legacy
- * "system" entries written by previous versions, which now resolve to
- * dark. The choice persists in localStorage under the same "theme" key.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-theme-ts-note-1. */
 
 export type ThemeMode = "light" | "dark";
 

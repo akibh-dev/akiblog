@@ -1,99 +1,5 @@
 ---
-/**
- * @file layout/SiteSidebar.astro
- * @description Desktop sidebar — on delta.dev the sidebar IS the header.
- *
- * Copied from apps/portfolio/src/components/layout/SiteSidebar.astro @ 091c7cf.
- * Keep in sync. BLOG ADAPTATION (the only deviations):
- *  - stations come from data/site.ts. The HOME page is a one-pager
- *    (#home / #tags / #search sections), so there they are in-page anchors
- *    with ScrollSpy + the hop connector, exactly like the portfolio. On
- *    every other page they link back (/#tags …) and the active one is
- *    decided at build time (isActive → aria-current="true", zero JS).
- *  - brand wordmark: "akiblog" + "by akibh"; the resume row became the
- *    RSS row (a blog's primary CTA is subscribing).
- *  - POST PAGES (lg+): the stations are REPLACED by the post's TABLE OF
- *    CONTENTS (layout/TocTree.astro, plan22/23) — a station-styled
- *    "On this page" header, then h2 commits on the trunk, h3/h4 on forked
- *    branches. Stations ⇄ TOC share the view-transition name
- *    `sidebar-nav`, so navigating home ⇄ post animates the swap. The decorative tree moves into the spacer
- *    under the last row (its own SVG, pattern starting at the spacer top),
- *    so it continues below the TOC instead of being drawn over it.
- *    Long outlines scroll inside the rail (data-toc-scroll); the trunk SVG
- *    lives inside the scrolled content so it spans the full height.
- *
- * Nav language: Git commit graph / metro map. ONE rail SVG paints the
- * entire line system as a single unit: a continuous vertical trunk runs
- * from the first station to the bottom of the sidebar, hollow station
- * nodes sit on top of it, and below the last station the trunk grows
- * into an infinite git tree (branches forking RIGHT in the reference
- * mockup's cascading waterfall, dx=25/dy=20 diagonals, tracks 1.2px).
- * Between stations an accent HOP CONNECTOR appears ONLY while
- * transitioning: it grows out of the previously active node toward the
- * current one, then retracts into the destination node — no red line at
- * rest (positioned by ScrollSpy, animated by a CSS transition). The
- * active station's node grows ~1.4× from its center and its label
- * becomes a filled terracotta pill (all-caps mono).
- * Hovering a station DRAWS the terracotta rectangle around its label
- * as an outline only (border-accent, no fill); the active (clicked)
- * station keeps the filled pill. All stations share identical styling.
- * Active state = aria-current set by ScrollSpy, styled via
- * group-aria-[current=page]:* — the only JS is ScrollSpy itself.
- *
- * WHY ONE SVG (the double-paint bug this fixes): the line used to be
- * drawn by TWO overlapping layers — a spine <div> (bg-line-subtle,
- * absolute top-3.5→bottom-0) on top of the tree pattern's own trunk
- * path (M3.5 0 V760). In light mode --ui-border-subtle is
- * SEMI-TRANSPARENT (color-mix(..., transparent 82%)), so wherever both
- * layers painted, the alpha stacked (~18% → ~33%) and the whole tree
- * zone rendered visibly darker than the stations zone. Now the trunk is
- * a SINGLE <line> painted exactly once, and the pattern contains ONLY
- * branches + commit nodes — no trunk — so 1.2px strokes can never stack.
- * Fork/merge joints where a branch meets the trunk (x=3.5) are masked
- * by opaque canvas-filled junction circles, exactly like the reference.
- * Bonus: nothing crosses a pattern tile edge anymore (previously the
- * trunk did), so vertical tiling is seamless by construction.
- *
- * WHY STATION NODES STAY HTML (not circles inside the rail SVG):
- *  1. Their y must equal each anchor's flex-computed center — font
- *     metrics decide that, not constants we can hardcode without drift.
- *  2. The active scale-up is pure CSS via the anchor's aria-current
- *     (group-aria-[current=page]:scale-[1.4]). A detached SVG circle
- *     can't inherit that without per-index :has() rules or JS coupling.
- *  3. Their bg-canvas fill is opaque, so the trunk passes cleanly
- *     underneath — single paint, same visual as a painted SVG node.
- * They are still "rendered dynamically": one node per `sections` entry.
- *
- * GEOMETRY (derived — keep in sync with the utility classes below):
- *   label  = text-2xs line-height 16 + py-0.5 (4) + border (2) = 22px
- *   anchor = py-1.5 (12) + max(node 7, label 22)               = 34px
- *   ul     = N×34 + (N−1)×4 (space-y-1); N=6 stations           = 224px
- *   first node center = 17 → node TOP edge = 14 = top-3.5, where the
- *   trunk starts (the line emerges from the node's opaque fill). Tree
- *   starts at 224 + mt-1 (4) = 228 → TREE_TOP, applied via
- *   patternTransform so tile-internal coords keep the mockup's 0-based
- *   y values. Trunk x=3.5 = station node centers (size-[7px] from the
- *   anchor's left edge). Commits are hollow r=3 circles + 1px stroke =
- *   7px outer — EXACTLY the station nodes' size-[7px] (border-box), so
- *   SVG commits and HTML stations read as one symbol set (r=3.5
- *   rendered 8px outer — visibly bigger next to the stations).
- *
- * IMPLEMENTATION NOTES:
- * - style="stroke: var(...)" (not presentation attributes) — Firefox
- *   drops presentation attributes referencing var() in some versions.
- * - The design system has NO --ui-line token; undefined var() is
- *   invalid at computed-value time, so strokes silently became `none`
- *   and solid dots fell back to `fill: black` (a previous version
- *   rendered only black dots). Use existing tokens: --ui-border-subtle
- *   / --ui-border / --ui-canvas / --ui-accent.
- *
- * BRAND LOGO: the animated Paint-Fill "A" (light + dark variants) lives
- * in layout/BrandLogo.astro — see its header for the full source-fidelity
- * rationale. It replaces the old boxed Δ glyph: NO bordered wrapper (the
- * chrome rectangle fights the artwork), the SVG floats on the canvas
- * exactly like the source exports, and swapping variants via `dark:`
- * replays the paint animation on every theme toggle.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-1. */
 import { site, stations, isActive, stationHref } from "../../data/site";
 import ScrollSpy from "../islands/ScrollSpy.astro";
 import ThemeSwitch from "../islands/ThemeSwitch.astro";
@@ -131,41 +37,14 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
 //  its own spacer's top, wherever the stations / TOC end — see header)
 ---
 
-{/* FIXED, NOT STICKY — the scroll-vibration fix.
-    The sidebar used to be `position: sticky` inside the scrolling grid:
-    the ONLY piece of chrome that lived in the scroller while everything
-    around it (frame cells, gutters, rail) is `position: fixed`. During
-    async (compositor) scrolling the browser moves the page, then offsets
-    the sticky layer back; with fractional scroll steps (smooth wheel,
-    125%/150% display scaling) that compensation lands on sub-pixel
-    offsets and trails the fixed frame by a frame, so its 1.2px tree lines
-    and borders get re-sampled every frame → the panel visibly trembles
-    against the still frame. (Layout-level measurement shows top=16px
-    constantly; the shake is purely compositor-side.)
-    A fixed layer is never part of the scroll, so there is nothing to
-    compensate. It mirrors ViewportFrame's rail track verbatim
-    ([page-left | 1fr | page-right] × --site-columns, column 1) so it sits
-    on exactly the pixels the in-flow grid column did. The in-flow grid
-    still declares the sidebar track and <main> is explicitly placed in
-    column 2, so content layout is unchanged. Height formula unchanged. */}
+{/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-2. */}
 <div class="pointer-events-none fixed inset-0 z-30 hidden grid-cols-[var(--site-page-left)_minmax(0,1fr)_var(--site-page-right)] grid-rows-[var(--site-frame-top)_minmax(0,1fr)] md:grid">
 <div class="col-start-2 row-start-2 grid min-h-0 min-w-0 grid-cols-(--site-columns)">
 <aside class="pointer-events-auto col-start-1 row-start-1 h-[calc(100dvh-var(--site-frame-top)-var(--site-content-bottom))] self-start border-line border-x bg-surface">
 
-  {/* delta verbatim: the sidebar itself carries border-x (their sidebar is
-      a zds-bg-subtle bordered column) — its RIGHT border draws the line at
-      the START of the red rail segment (the outer line of the "|=|" at the
-      main column's left edge, plan15); the rail band's/panels' inset
-      border-x is the inner one. Chrome only — content untouched. */}
+  {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-3. */}
   <div class="flex h-full flex-col px-5 py-6">
-    {/* brand — delta.dev's sidebar head: mark + wordmark on one line, an
-        italic serif status line under it (their "Now in Beta"). Here the
-        status is AVAILABILITY (meta.availability) with a live green dot —
-        the one fact a recruiter needs before scrolling anywhere.
-        SIZE: the narrow md rail (~108px content column) can't fit a bigger
-        mark beside the wordmark, so at md the mark stacks ABOVE it; from
-        lg (rail ≥ ~200px) they sit side by side. Mark: size-14 (56px, up
-        from 44px). The dot ping is motion-safe only. */}
+    {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-4. */}
     <a href="/" class="group mb-8 block">
       <span class="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-3">
         <BrandLogo class="size-14 shrink-0 transition-transform duration-300 ease-out motion-safe:group-hover:scale-105 motion-reduce:transition-none" />
@@ -186,39 +65,22 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
       </p>
     )}
 
-    {/* scroll area — -ml-2/pl-2 (and -mr-5/pr-5) widen the CLIP box without
-        moving content: the active node is scaled 1.4× around x=3.5, so its
-        left edge sits at ≈-1.4px and overflow-y:auto (which also clips x)
-        used to slice it. */}
+    {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-5. */}
     <div data-toc-scroll class="no-scrollbar -mr-5 -ml-2 min-h-0 flex-1 overflow-y-auto pr-5 pl-2">
     <div class="relative flex min-h-full flex-col">
-        {/* rail — ONE SVG paints the whole line system as a single unit:
-            the trunk <line> is painted exactly once (no stacking), and
-            the pattern holds ONLY branches + commit nodes (no trunk).
-            No viewBox: SVG user units = CSS px, so the mockup's geometry
-            renders 1:1. pattern width="100%" → exactly ONE tile column;
-            nothing crosses tile edges → seamless vertical tiling.
-            Absolutely positioned behind the in-flow stations, whose
-            opaque node fills paint cleanly over the trunk. */}
+        {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-6. */}
         <svg aria-hidden="true" class="pointer-events-none absolute inset-0 size-full">
           {/* trunk — painted ONCE from the first station (top-3.5) to the
               sidebar bottom; y2="100%" resolves against the nav viewport. */}
           <line x1="3.5" y1={SPINE_TOP} x2="3.5" y2="100%" style="stroke: var(--ui-border-subtle); stroke-width: 1.2" />
         </svg>
 
-        {/* SITE STATIONS — home + non-post pages. On a post they're shown
-            only below lg (where the TOC tree is hidden); from lg the TOC
-            takes the rail. `sidebar-nav` is the view-transition name the
-            stations ⇄ TOC swap animates under (global.css §9). */}
+        {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-7. */}
         <div class:list={["sidebar-nav relative", hasToc && "lg:hidden"]}>
           <Spy>
             <nav aria-label="Site">
               <div class="relative">
-                {/* hop connector (home only, positioned by ScrollSpy against
-                    this relative wrapper) — accent segment that exists ONLY
-                    while hopping between stations: grows out of the
-                    previously active node toward the current one, then
-                    retracts into it. Portfolio verbatim. */}
+                {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-8. */}
                 {onHome && (
                   <div aria-hidden="true" data-station-link class="absolute left-[3px] w-[1.2px] bg-accent transition-[top,height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none" style="top: 17px; height: 0"></div>
                 )}
@@ -250,12 +112,7 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
           </Spy>
         </div>
 
-        {/* POST PAGES (lg+): the rail IS the table of contents — a
-            station-styled "On this page" header on the trunk, then the
-            outline as a commit graph (TocTree). Same view-transition name
-            as the stations, so navigating home ⇄ post morphs one into the
-            other. The md rail (~108px) is too narrow for nested labels →
-            below lg the post shows its inline TOC and the stations stay. */}
+        {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-9. */}
         {hasToc && (
           <div class="sidebar-nav hidden lg:block">
             <TocTree headings={toc} />
@@ -279,11 +136,7 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
                 <path d="M103.5 300 L128.5 320 V540 L103.5 560" />
                 <path d="M128.5 360 L153.5 380 V500 L128.5 520" />
               </g>
-              {/* commits — hollow r=3 circles: r=3 + 1px stroke = 7px
-                  outer, EXACTLY the station nodes' size-[7px] border-box
-                  (same border-line bg-canvas). Junction circles at
-                  (3.5, 60) and (3.5, 720) mask the branch/trunk joints
-                  with an opaque fill. */}
+              {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-10. */}
               <g style="stroke: var(--ui-border); stroke-width: 1; fill: var(--ui-canvas)">
                 {/* trunk (60 = branch-1 fork, 720 = branch-1 merge) */}
                 <circle cx="3.5" cy="20" r="3" /><circle cx="3.5" cy="60" r="3" /><circle cx="3.5" cy="110" r="3" /><circle cx="3.5" cy="160" r="3" /><circle cx="3.5" cy="230" r="3" /><circle cx="3.5" cy="290" r="3" /><circle cx="3.5" cy="350" r="3" /><circle cx="3.5" cy="410" r="3" /><circle cx="3.5" cy="470" r="3" /><circle cx="3.5" cy="530" r="3" /><circle cx="3.5" cy="590" r="3" /><circle cx="3.5" cy="650" r="3" /><circle cx="3.5" cy="720" r="3" />
@@ -308,10 +161,7 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
     </div>
     </div>
 
-    {/* utility zone — resume download + socials share ONE hairline-
-        separated block at the bottom of the rail (delta.dev keeps its
-        sidebar footer items grouped under a single rule the same way).
-        Resume first: it's the primary recruiter CTA, socials are ambient. */}
+    {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-11. */}
     <div class="mt-6 border-t border-line-subtle pt-5">
       {/* RSS — the blog's primary CTA (was the portfolio's resume row) */}
       <a href="/rss.xml" title="Subscribe via RSS" class="group flex items-center justify-between">
@@ -322,12 +172,7 @@ const SPINE_TOP = 14; // top-3.5 = top edge of the first station node
         <span aria-hidden="true" class="font-mono text-2xs text-muted transition-colors group-hover:text-accent">↗</span>
       </a>
 
-      {/* socials — horizontal icon-only buttons (name lives in tooltip +
-          aria-label), then the blog's RSS feed as the 4th glyph (moved here
-          from the Writings header: it's a site-wide subscription, not a
-          per-section action). 4 buttons must fit the narrow md rail
-          (~108px content column): size-6 + gap-0.5 → 4×24 + 3×2 = 102px;
-          lg relaxes to size-7 + gap-1.5 (4×28 + 3×6 = 130px, room to spare). */}
+      {/* For more details, see docs/blog/implementation-notes.md#src-components-layout-sitesidebar-astro-note-12. */}
       <div class="mt-4 flex items-center gap-0.5 lg:gap-1.5">
         {
           [

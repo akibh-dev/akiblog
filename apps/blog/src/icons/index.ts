@@ -1,15 +1,4 @@
-/**
- * @file src/icons/index.ts
- * @description Barrel exports for the portfolio icon set.
- *
- * WHY A BARREL: lets sections import several icons from one path
- * (`import { GitHubIcon, DockerIcon } from "../../icons"`) while keeping
- * one file per icon for tree-shaking. All exports carry the `Icon` suffix
- * to avoid collisions (e.g. `React` the library, `X` the HTML global).
- *
- * NOTE: `SqlIcon` is an intentional alias of Database.astro — one canonical
- * cylinder glyph, two semantic names (language pill vs infra pill).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-icons-index-ts-note-1. */
 
 // ── Social ─────────────────────────────────────────────────────────────
 export { default as GitHubIcon } from "./social/GitHub.astro";

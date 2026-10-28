@@ -1,38 +1,5 @@
 ---
-/**
- * @file layouts/BaseHead.astro
- * @description Everything inside <head>, shared by every page (index, posts,
- *              tags, search, 404): charset/viewport, SEO + social metadata,
- *              structured data, anti-flash theme init, self-hosted fonts.
- *
- * Copied from apps/portfolio/src/layouts/BaseHead.astro @ 091c7cf — fonts,
- * theme init and CSP ordering are byte-identical; keep those in sync.
- * BLOG ADAPTATION: an ARTICLE mode on top of the portfolio's WEBSITE mode.
- *
- * SEO / SOCIAL (what each tag is for):
- * - <link rel="canonical">: one URL per page; a post may override it with
- *   frontmatter `canonical` when it was first published elsewhere.
- * - Open Graph: `article` + published/modified time + one `article:tag`
- *   per tag for posts; `website` elsewhere. og:image is ABSOLUTE (crawlers
- *   don't resolve relative URLs) and 1200×630 — posts pass their cover
- *   (rendered to JPEG by the page, see pages/[slug].astro), others
- *   fall back to public/og.png.
- * - JSON-LD: WebSite on every page; BlogPosting + BreadcrumbList on posts (headline,
- *   description, image, dates, keywords, author → the portfolio's Person
- *   node `https://akibh.dev/#person`, so Google links blog + portfolio).
- * - `keywords` meta: ignored by Google, still read by Bing/aggregators —
- *   cheap, so emitted (plan19 §2.1 note).
- * - `noindex`: drafts in preview builds, the 404, thin tag pages.
- *
- * CSP NOTE (from the portfolio): Astro writes its CSP <meta> AFTER this
- * head content, so the inline anti-flash script runs before the policy
- * applies. Keep it inline and first.
- *
- * POC:
- *   <BaseHead title="…" description="…" />
- *   <BaseHead title={post.title} description={…} article={{ published, modified, tags }} image={ogUrl} />
- *   <BaseHead title="404 — Not found" noindex />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-layouts-basehead-astro-note-1. */
 import { site } from "../data/site";
 
 interface Props {

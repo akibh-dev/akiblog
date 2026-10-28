@@ -1,24 +1,5 @@
 ---
-/**
- * @file ui/PostCard.astro
- * @description One post column — the portfolio's Writings column
- *              (apps/portfolio/src/components/sections/Writings.astro
- *              @ 091c7cf), extracted as a reusable card for PostGrid.
- *
- * POC / WHY THIS SHAPE (verbatim from Writings, docs/ui-guide §9):
- * 1. LINES, NOT BOXES — the card draws no border of its own; PostGrid
- *    separates columns with hairlines, so a row reads as one ruled sheet.
- * 2. COVER — ui/PostCover in its proof-sheet frame; posts without a cover
- *    get the typographic "document" thumbnail, so mixed rows stay aligned.
- * 3. NO AUTHOR BYLINE (single-author blog) — that slot carries the topic
- *    eyebrow (type + first tags) and a reading-time meter (1 tick ≈ 1 min,
- *    8 max) + date, so length is visible before clicking.
- * 4. Whole card is one link (one tab stop, big target); title is the
- *    accessible name, the cover is decorative (alt="").
- * 5. `headingLevel` keeps the outline valid wherever the grid is placed.
- *
- * Example: <PostCard post={post} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-postcard-astro-note-1. */
 import PostCover from "./PostCover.astro";
 import { formatDate, postUrl, readingMinutes, type Post } from "../../lib/posts";
 

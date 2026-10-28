@@ -1,37 +1,5 @@
 ---
-/**
- * @file islands/LoadMore.astro
- * @description Infinite-scroll loader for the home page's post list
- *              (plan26). Appends the pre-built /feed/<n>/ fragments to the
- *              grid as the reader approaches its end.
- *
- * HOW
- * - A sentinel under the grid is watched by an IntersectionObserver with a
- *   generous rootMargin (800px), so the next batch is fetched BEFORE the
- *   reader reaches the end — no visible "loading" stall on normal scroll.
- * - The fragment (pages/feed/[page].astro) is a <template data-feed-batch>
- *   holding ready-made <li> cards + `data-next` (the following batch URL).
- *   It's parsed inertly in a <template> (scripts don't run, images don't
- *   load until adopted) and its <li>s are appended to the grid; PostGrid's
- *   global nth-child rules re-rule the lines automatically.
- * - Card images are <Image loading="lazy">, so appended covers still only
- *   download when they scroll into view — two levels of laziness.
- * - After each batch the sentinel is measured on the next frame: an
- *   IntersectionObserver only reports CHANGES, so a sentinel that is still
- *   in range (tall screens, short batches) would otherwise stall the feed.
- * - One request at a time; stops when a batch has no data-next. On a
- *   failed fetch the button stays, so the reader can retry.
- *
- * a11y: a real <button> ("Load older posts") does the same thing — the
- * keyboard / no-IntersectionObserver path, and the retry path. The count
- * of newly added posts is announced via an aria-live region. Focus is not
- * moved (auto-loading must not yank a screen-reader user around).
- *
- * NO-JS: the button is hidden by default and revealed by the script;
- * without JS a short note points to tags + RSS, where every post is listed.
- *
- * Example: <LoadMore grid="feed" next="/feed/2/" />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-islands-loadmore-astro-note-1. */
 interface Props {
   /** id of the <ul class="post-grid"> to append to */
   grid: string;
@@ -108,10 +76,7 @@ const { grid, next } = Astro.props;
         this.next = batch.dataset.next ?? null;
         this.status.textContent = `${items.length} more ${items.length === 1 ? "post" : "posts"} loaded`;
         if (!this.next) return this.done();
-        // IntersectionObserver only fires on CHANGES: if the sentinel is
-        // still within range after this batch (tall screen, short batch),
-        // it would never fire again. So measure it ourselves once layout
-        // has settled (next frame) and keep going while it's in range.
+        // For more details, see docs/blog/implementation-notes.md#src-components-islands-loadmore-astro-note-2.
         requestAnimationFrame(() => this.inRange() && this.load());
       } catch {
         this.status.textContent = "Couldn't load more posts — try again.";

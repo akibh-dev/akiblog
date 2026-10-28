@@ -1,19 +1,4 @@
-/**
- * @file apps/portfolio/src/styles/global.css
- * @description Delta.dev-accurate design system built on Tailwind CSS v4 primitives.
- *
- * WHY THIS APPROACH (vs hardcoded hex + arbitrary values):
- * 1. `@theme` registers design tokens as first-class Tailwind utilities
- *    (bg-canvas, text-default, border-subtle…) — the same pattern delta.dev
- *    uses for its `zds-*` classes. One token change re-skins everything.
- * 2. `color-mix()` derives whole color scales from 3 base OKLCH colors —
- *    exactly how delta.dev generates its palette (verified from their CSS).
- * 3. `@custom-variant dark` scopes dark mode to a `.dark` class so the
- *    anti-flash script + <theme-switch> element stay in full control.
- * 4. Site geometry mirrors delta.dev's real layout contract
- *    (--site-inset / --site-max-width / --site-columns / rail height),
- *    including env(safe-area-inset-*) for notched devices.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-1. */
 
 @import "tailwindcss";
 
@@ -40,16 +25,7 @@
   --delta-neutral-950: color-mix(in oklch, var(--delta-neutral), black 55%);
 }
 
-/* ---------------------------------------------------------------------------
- * 2. Semantic layer (light) — overridden in .dark
- *
- * CONTRAST CONTRACT (WCAG AA 4.5:1 for the site's 9–12px mono text; values
- * found by sweeping each mix % in-browser and taking the smallest that
- * passes, so the palette moves as little as possible):
- *   text-muted  ≥4.6 on surface, canvas and surface-strong (both themes)
- *   text-accent ≥4.6 on surface, canvas and the accent-subtle wash
- *   white       ≥4.6 on accent-fill (btn-primary)
- * ------------------------------------------------------------------------- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-2. */
 :root {
   --ui-canvas: var(--delta-cream-100);
   --ui-surface: var(--delta-cream-50);
@@ -69,23 +45,12 @@
   --ui-accent-subtle: color-mix(in oklch, var(--delta-brand), transparent 90%);
   --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 86%);
 
-  /* SOLID brand faces that carry white text (btn-primary). Separate from
-     --ui-accent because text-red and fill-red pull opposite ways: dark
-     mode needs a LIGHTER red for text on dark surfaces but a DARKER red
-     behind white text. Same in both themes (≥4.6:1 vs white). */
+  /* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-3. */
   --ui-accent-fill: var(--delta-brand-600);
   --ui-accent-fill-hover: color-mix(in oklch, var(--delta-brand), black 16%);
 }
 
-/* DARK LADDER — one cool-neutral lightness ramp, no brand tint:
- *   canvas (~L19) < surface (~L24) < surface-strong (~L31) < control-hover
- *   < border-subtle (~L34) < border (~L40).
- * Why: the old canvas (brand + 88% black ≈ L7, reddish) turned every
- * inset (Zed editor pane, active tab, commit nodes, theme pill) into a
- * near-black hole, and border/border-subtle sat within ~3-10 L of the
- * surface, so the sidebar git tree, section hairlines and IDE splits
- * vanished. Light mode keeps the same ORDER (canvas a step below
- * surface, hairlines clearly above), so components need no dark: rules. */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-4. */
 .dark {
   --ui-canvas: color-mix(in oklch, var(--delta-neutral-950), black 22%);
   --ui-surface: var(--delta-neutral-950);
@@ -106,20 +71,7 @@
   --ui-hatch: color-mix(in oklch, var(--delta-brand), transparent 90%);
 }
 
-/* ---------------------------------------------------------------------------
- * 3. Site geometry — delta.dev's REAL chrome contract (plan13.md, verbatim
- *    from their live CSS; the old --site-column-gap/--site-accent-line
- *    "channel" tokens were inventions and are gone).
- *
- *    ONE full background (--site-frame-background) carries independent chrome:
- *      • 2-track grid: [sidebar 1fr | content 4fr] — no gap track.
- *      • --site-section-inset → panels are inset from the column edge; the
- *        margin strips stay raw frame background and the "=" Seams hatch
- *        across them.
- *      • --site-rail-height → the 6px SEGMENTED rail ([3/8 brand, 2/8 gray,
- *        3/8 --delta-blue]) fixed atop the content track in the chrome
- *        layer; sections scroll beneath it (main pt-rail + md:border-r).
- * ------------------------------------------------------------------------- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-5. */
 :root {
   --delta-blue: #346dae;  /* delta's rail tail color, verbatim */
 
@@ -226,16 +178,7 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* ONE unified brand background (public/bg-pattern*.svg — circled-A +
-     name micro-tile, rotated -45°): body and the fixed chrome cells
-     (ViewportFrame's top/bottom rails + side gutters) share the SAME
-     viewport-anchored layer via background-attachment: fixed, so the
-     watermark is pixel-continuous across every chrome area — the old
-     per-cell 45° hatch is gone. The SVG's internal <pattern> tiles at
-     absolute units (identical scale everywhere); attachment:fixed aligns
-     the origin and keeps the watermark still while content scrolls.
-     Sections stay opaque bg-surface on top. iOS Safari degrades to
-     element-local attachment — same scale, possible phase shift. */
+  /* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-6. */
   body,
   .chrome-bg {
     background-color: var(--site-frame-background);
@@ -258,13 +201,7 @@
     color: var(--ui-accent);
   }
 
-  /* Page scrollbar in the brand red (--ui-accent, theme-aware). Two
-     mechanisms because browsers split: the standard `scrollbar-color`
-     on the root covers Firefox; the ::-webkit-* rules keep the slim
-     6px rounded thumb in Chromium/Safari. Only the ROOT gets
-     scrollbar-color — in Chromium it overrides ::-webkit-* on the same
-     element, which would drop the 6px width elsewhere. Inner scrollers
-     (Zed IDE) keep their own `zed-scroll` neutral thumb. */
+  /* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-7. */
   html {
     scrollbar-color: var(--ui-accent) transparent;
   }
@@ -309,11 +246,7 @@
   &::-webkit-scrollbar { display: none; }
 }
 
-/* IDE-frame scrollbar (projects Zed workspace): thicker (10px) and
-   rectangular — the rounded 6px site scrollbar stays for the rest of the
-   page. The thumb is TRANSPARENT until the container scrolls: the
-   useScrollbarVisibility hook sets `data-scrolling` during scroll, and
-   only then does the thumb paint (mirrors Zed/macOS overlay scrollbars). */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-8. */
 @utility zed-scroll {
   scrollbar-width: thin; /* Firefox ≈ 11px; colors below */
   scrollbar-color: transparent transparent;
@@ -327,21 +260,7 @@
   &[data-scrolling]::-webkit-scrollbar-thumb:hover { background: var(--ui-text-muted); }
 }
 
-/* ---------------------------------------------------------------------------
- * DEFAULT BUTTON BEHAVIOUR — one look for every secondary button
- * (sidebar stations, "View all posts", Copy…).
- *
- *   static : hairline border on a light face + 1px bottom "lip" shadow
- *   hover  : border turns brand, face gets a LOW-OPACITY brand wash
- *            (--ui-accent-subtle) and a soft 3px brand halo ring outside
- *            the border — the "drawn rectangle" now also glows faintly.
- *
- * WHY @utility (not a component class): variants compose, so the hover
- * look can be triggered from a parent too — `group-hover:btn-hover` on
- * the sidebar label, plain `btn` on standalone buttons. Colors come only
- * from theme tokens, so dark mode needs no extra rules. Box-shadow ring
- * (not outline/border) so the halo never shifts layout.
- * ------------------------------------------------------------------------- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-9. */
 @utility btn-hover {
   border-color: color-mix(in oklch, var(--ui-accent), transparent 25%);
   background-color: var(--ui-accent-subtle);
@@ -349,10 +268,7 @@
   color: var(--ui-text);
 }
 
-/* SECONDARY button (Copy, View all posts…).
-   cursor: pointer is explicit because Tailwind v4's preflight resets
-   <button> to `cursor: default` — links got the hand cursor from the UA,
-   real <button>s didn't (the "hover feels dead" bug on Copy/Send). */
+/* For more details, see docs/portfolio/implementation-notes.md#src-styles-global-css-note-10. */
 @utility btn {
   cursor: pointer;
   border: 1px solid var(--ui-border);

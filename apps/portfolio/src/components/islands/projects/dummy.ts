@@ -1,14 +1,4 @@
-/**
- * @file islands/projects/dummy.ts
- * @description TODO(data): placeholder README "Highlights" bullets, keyed
- *              by project title.
- *
- * WHY A SEPARATE FILE (and not inline in the renderer): dummy content
- * should be trivially deletable. Once real `highlights` land on the
- * project objects in data/portfolio.ts, delete this file and collapse
- * `getHighlights` to `p.highlights ?? []` at its two call sites
- * (ReadmePreview, EditorStatusBar). Nothing else changes.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-dummy-ts-note-1. */
 import type { ProjectItem } from "./types";
 
 export const DUMMY_HIGHLIGHTS: Record<string, string[]> = {
