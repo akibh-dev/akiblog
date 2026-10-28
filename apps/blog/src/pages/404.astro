@@ -1,54 +1,5 @@
 ---
-/**
- * @file pages/404.astro
- * @description Not-found page — the missing URL reported as a compiler
- *              diagnostic (rustc style), set inside the portfolio's own panel
- *              language: one bordered surface, the segmented brand rail on
- *              top, IBM Plex Serif display + Lilex mono, theme tokens only.
- *
- * WHY A COMPILER ERROR (POC / concept):
- * A developer's site should fail the way developers' tools fail. rustc's
- * diagnostics are the best-loved error format in the industry: an error
- * code, a `-->` location, the offending line with `^^^` carets under the
- * exact span, then `= help:` suggestions. Here:
- *   error[E0404]: no route matches `/the-path-you-typed`
- *    --> akibh.dev/the-path-you-typed
- *     | GET /the-path-you-typed
- *     |     ^^^^^^^^^^^^^^^^^^^ not found in this workspace
- *     = help: did you mean `/#projects`?
- * The carets are sized to the real path, and "did you mean" is a real
- * suggestion: a Levenshtein match of the path against the site's section
- * ids and files (data/sections.ts + known files), exactly like rustc's
- * "a similarly named item exists". /projcts → /#projects (edit distance),
- * /cv → the résumé (substring hit).
- * Gutter blue: brand blue tuned per theme for ≥4.5:1 on canvas — #2c5f9e
- * in light (#346dae itself is 4.45:1), #6f9fdc in
- * dark where the brand blue reads at only ~3.7:1.
- *
- * WHY STANDALONE (not Layout.astro): Layout's sidebar uses `#section`
- * anchors, which would resolve against the broken URL. This page uses
- * BaseHead (same fonts/theme/meta) and links with absolute `/#…` hrefs.
- *
- * HOW IT'S SERVED: Cloudflare Pages returns dist/404.html with HTTP 404
- * for any unknown path. Without this file Pages assumed a single-page app
- * and answered EVERY unknown URL (even /llms.txt) with the homepage and
- * 200 — a soft-404 that search engines penalise.
- *
- * SEO: noindex (BaseHead) and excluded from the sitemap (astro.config).
- * CSP: the script is a normal bundled module (hashed by Astro's CSP);
- * data comes from data-routes, never define:vars (see the script).
- * NO JS REQUIRED: the static HTML shows a generic path; the tiny script
- * only personalises it (path, carets, suggestion).
- *
- * Copied from apps/portfolio/src/pages/404.astro @ 091c7cf. Keep the
- * markup/script in sync. BLOG ADAPTATION (data only, plan20 §4):
- * - routes = blog stations + every post slug + every tag, so a typo in a
- *   post URL (/playwrite-setup) suggests the real post. The matcher
- *   compares the LAST path segment with each key — the slug for posts.
- * - "Available routes" lists the site sections (stations) only; listing
- *   every post would turn the diagnostic into an archive page.
- * - Buttons: Home + Portfolio ↗ (the portfolio's 404 points at the blog).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-404-astro-note-1. */
 import "../styles/global.css";
 import BaseHead from "../layouts/BaseHead.astro";
 import { site, stations, stationHref } from "../data/site";
@@ -144,10 +95,7 @@ const routes = [
     </main>
 
     <script>
-      // Personalise the diagnostic: real path, caret span, nearest route.
-      // Routes arrive as JSON in data-routes (not define:vars): define:vars
-      // emits an inline script whose body changes per build, which Astro's
-      // CSP can't hash, so the browser would refuse to run it.
+      // For more details, see docs/blog/implementation-notes.md#src-pages-404-astro-note-2.
       type Route = { key: string; href: string; label: string };
       const routes: Route[] = JSON.parse(document.querySelector("main")?.dataset.routes ?? "[]");
       const path = decodeURIComponent(location.pathname) || "/";

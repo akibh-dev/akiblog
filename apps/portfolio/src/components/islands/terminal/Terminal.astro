@@ -1,25 +1,5 @@
 ---
-/**
- * @file islands/terminal/Terminal.astro
- * @description Interactive portfolio shell — pure Astro edition.
- *
- * POC / ARCHITECTURE (React → Astro migration, plan 17 Phase 1):
- * - The frame, boot scrollback and input row render on the SERVER — the
- *   initial HTML is identical to what the React version SSR'd, with zero
- *   hydration. The processed <script> below (TS, bundled, deduped per
- *   Astro's script rules) mounts shell.ts for interactivity.
- * - Boot segments mirror render.ts's href branch (not just plain spans)
- *   so a future link in boot text survives SSR; TONE_CLASS/LINK_CLASS are
- *   imported from render.ts so SSR and client output can never drift.
- * - The input keeps autocorrect="off" (mobile Safari would otherwise
- *   "fix" commands) — parity with the React version.
- * - No client:* directive, no framework runtime, no JSON data island —
- *   shell.ts imports portfolioData directly (same module as the prop).
- * - `flush` prop: drops the floating-window frame (border, radius, shadow)
- *   so the terminal can BE a panel's full content, framed only by the
- *   section's own hairlines — the Projects-IDE contract (sections/About).
- *   Default stays the standalone window, so other usages are unchanged.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-terminal-astro-note-1. */
 import { bootEntries } from "./boot";
 import { LINK_CLASS, TONE_CLASS } from "./render";
 import type { PortfolioData } from "./types";

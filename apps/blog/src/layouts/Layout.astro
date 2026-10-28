@@ -1,37 +1,5 @@
 ---
-/**
- * @file layouts/Layout.astro
- * @description Root shell — delta.dev's two-layer layout, identical to the
- *              portfolio (plan13.md):
- *
- *   1. ONE-PAINT BACKGROUND — <body> paints --site-frame-background
- *      everywhere (+ the fixed brand watermark from global.css).
- *   2. FIXED CHROME — ViewportFrame (z-20): frame cells + the 6px
- *      SEGMENTED rail ([3/8 brand | 2/8 gray | 3/8 --delta-blue]).
- *   3. SCROLLING LAYER — z-0 grid mirroring the chrome grid: sidebar
- *      column + main column; main carries pt-rail + md:border-r so panels
- *      and seams scroll BENEATH the fixed rail.
- *   4. "=" SEAMS — pages compose <SectionShell/> panels joined by <Seam/>.
- *
- * Copied from apps/portfolio/src/layouts/Layout.astro @ 091c7cf. Keep the
- * markup in sync. BLOG ADAPTATIONS:
- * - Props are forwarded to BaseHead (article SEO: image, dates, tags…);
- *   `toc` goes to SiteSidebar, which draws it as the git tree (plan22).
- * - Clean-URL in-page navigation, ported from the portfolio (plan24):
- *   `#home/#search/#tags/#posts` and TOC `#heading` clicks scroll without
- *   writing the hash into the address bar; arriving WITH a hash
- *   (/#tags from a post page, a shared /x/#setup) jumps there, then strips
- *   it. The arrival hash is kept on <html data-arrived-hash> for islands
- *   that care where the visitor was headed (search focus, TOC spy).
- * - SearchShortcut: `/` or ⌘K/Ctrl+K → /search/ from every page.
- * - A visually-hidden skip link to #main-content (a11y; posts are long
- *   and the sidebar comes first in DOM order).
- *
- * POC:
- *   <Layout title={post.data.title} description={post.data.description} article={{ … }}>
- *     <SectionShell id="intro">…</SectionShell>
- *   </Layout>
- */
+/* For more details, see docs/blog/implementation-notes.md#src-layouts-layout-astro-note-1. */
 import "../styles/global.css";
 import ViewportFrame from "../components/layout/ViewportFrame.astro";
 import SiteSidebar from "../components/layout/SiteSidebar.astro";
@@ -82,26 +50,7 @@ const { toc, ...head } = Astro.props;
     <SearchShortcut />
 
     <script>
-      /**
-       * Clean-URL in-page navigation — the portfolio's Layout script
-       * (apps/portfolio/src/layouts/Layout.astro @ 091c7cf), verbatim
-       * except for `data-arrived-hash`.
-       *
-       * WHY: anchors keep real `#id` hrefs (no-JS fallback, middle-click,
-       * copy link, crawlers), but clicks scroll without writing `#tags`,
-       * `#setup`, … into the address bar or piling up history entries.
-       * - ONE delegated listener covers every in-page link (stations, TOC,
-       *   heading anchors, mobile menu).
-       * - Native scrollIntoView, so global.css `scroll-behavior: smooth`
-       *   (auto under reduced motion) and `scroll-padding-block` (land
-       *   below the fixed frame) still apply.
-       * - Links inside the open mobile <dialog> wait until it has closed
-       *   (its scroll lock would undo the scroll).
-       * - Focus moves to the target (preventScroll), like native hash nav.
-       * - Arriving WITH a hash still deep-links: read → stripped with
-       *   replaceState (cancels the browser's own jump) → jump instantly
-       *   once loaded. Recorded on <html data-arrived-hash> first.
-       */
+      /* For more details, see docs/blog/implementation-notes.md#src-layouts-layout-astro-note-2. */
       const cleanUrl = () => {
         if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
       };

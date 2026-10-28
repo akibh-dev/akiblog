@@ -1,24 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/ChromeButton.astro
- * @description Shared icon button for the editor chrome — Astro port of
- *              ChromeButton.tsx, markup byte-for-byte.
- *
- * POC / STATES: actionless BY DEFAULT; two real states exist for wired
- * buttons — `disabled` (history arrows: dimmed, non-interactive) and
- * `pressed` (sidebar toggle: aria-pressed + persistent active fill).
- * BOX: `size-6` (24px — WCAG 2.2 minimum target size; was 20px and
- * failed Lighthouse target-size) + leading-none — identical to the
- * status bar's text-item height, so icons and text sit on one center line in every chrome row.
- *
- * RESPONSIVE HIDING: a caller may pass `hidden md:inline-flex`. The base
- * `inline-flex` is then DROPPED — two display utilities on one node
- * resolve by stylesheet order, not class order, and `inline-flex` won,
- * so "desktop-only" icons leaked into the 390px status bar.
- *
- * WIRING: no on* props in Astro — interactivity comes from controller.ts
- * via data-* hooks passed through `{...rest}`.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-chromebutton-astro-note-1. */
 interface Props {
   label: string; // tooltip + accessible name
   class?: string;

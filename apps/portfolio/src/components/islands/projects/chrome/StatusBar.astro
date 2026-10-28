@@ -1,24 +1,5 @@
 ---
-/**
- * @file islands/projects/chrome/StatusBar.astro
- * @description Bottom status bar — full Zed chrome. Astro port of
- *              EditorStatusBar.tsx, layout unchanged:
- *   LEFT:  toggle sidebar (WIRED) · git branch icon(+dirty dot) · collab ·
- *          outline · project search · language servers · diagnostics
- *   RIGHT: position (25:1) · LF · Markdown · UTF-8 · copilot · debug ·
- *          terminal · agent · threads
- *
- * POC / PRE-RENDERED DYNAMICS: the file-dependent group (data-status-file)
- * is hidden by controller.ts when no buffer is open; the line count
- * (data-status-lines) is seeded with the FIRST file's count at build time
- * and updated from each panel's data-lines on buffer switch; the branch
- * dirty dot (data-branch-dirty) reflects open tabs' data-dirty.
- *
- * POC / TEXT SIZING (the browser min-font saga — UNCHANGED): ALL text
- * sizing is INLINE (font-size: 9px) — no CSS pipeline can drop it and it
- * always wins over class rules. NOTE: no CSS can beat a browser-level
- * minimum font size — 9px + tracking-tight is the chosen floor.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-statusbar-astro-note-1. */
 import {
   BotIcon,
   BracesIcon,
@@ -48,11 +29,7 @@ const lines = 14 + getHighlights(file).length * 2 + file.techStack.length;
 /** Initial dirty state = the initially open file's status. */
 const initialDirty = STATUS_META[file.status].dirty;
 
-/** Shared base for all text buttons — same box as ChromeButton (h-6, the
- *  24px WCAG 2.2 minimum target).
- *  Carries NO display utility: always-visible items add `inline-flex`,
- *  responsive ones add `hidden sm:inline-flex` (one display class per
- *  breakpoint, so `hidden` actually hides on mobile). */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-chrome-statusbar-astro-note-2. */
 const ITEM =
   "h-6 items-center gap-1 rounded-sm px-1.5 leading-none tracking-tight outline-none " +
   "transition-colors hover:bg-control-hover hover:text-subtle focus-visible:bg-control-hover";

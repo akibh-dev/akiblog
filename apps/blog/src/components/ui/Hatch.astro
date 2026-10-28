@@ -1,14 +1,5 @@
 ---
-/**
- * @file ui/Hatch.astro
- * @description Delta.dev's signature 45° diagonal hatch pattern band.
- *
- * WHY: This SVG pattern appeared 6× duplicated in the previous build.
- * As a component it's defined once and themed via the `--color-hatch`
- * token (currentColor inherits, so dark mode needs zero extra code).
- *
- * @prop height - band height (Tailwind class), default h-3
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-hatch-astro-note-1. */
 interface Props {
   height?: string;
   class?: string;

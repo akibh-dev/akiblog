@@ -1,13 +1,4 @@
-/**
- * @file islands/terminal/commands.ts
- * @description The shell's command set — pure functions over CommandContext.
- *
- * Every command is data-driven (nothing hardcoded that lives in
- * portfolio.ts), and user input is validated with type guards before use
- * (see `theme`). `clear` is registered here so `help` + completion know
- * it exists, but its execution is intercepted by Terminal.tsx — the shell
- * owns scrollback state, commands stay pure.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-commands-ts-note-1. */
 
 import { isThemeMode, THEME_MODES } from "../../../lib/theme";
 import { blank, kv, link, shortUrl, t } from "./dsl";

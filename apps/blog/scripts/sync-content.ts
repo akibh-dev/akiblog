@@ -1,34 +1,5 @@
 #!/usr/bin/env bun
-/**
- * @file scripts/sync-content.ts
- * @description Copies posts from the notes repo into the blog's content
- *              collection: <NOTES_DIR>/content/** → src/content/posts/**.
- *
- * WHY COPY (not point Astro at ../notes directly) — plan19 §1:
- * - Vite's fs.allow + the image pipeline expect files inside the project
- *   root; relative images (`./github-up-time.png`) next to an index.md
- *   outside it break.
- * - Reproducible builds: the log line names the exact notes commit that
- *   was copied (CI also puts it in the Pages deploy message).
- * - One place that decides what is content: only `content/` is copied;
- *   Jekyll files (_layouts, _includes, index.md, _config.yml) never reach
- *   the blog.
- *
- * The notes repo is READ-ONLY here (plan20 §2) — this script never writes
- * to NOTES_DIR.
- *
- * USAGE
- *   bun scripts/sync-content.ts            one-shot sync (build, CI)
- *   bun scripts/sync-content.ts --watch    sync, then re-sync on every change
- *                                          (used by `bun run dev:blog`)
- *   NOTES_DIR=.notes bun scripts/…         CI checkout location
- *   --require                              fail if NOTES_DIR is missing (CI)
- *
- * WATCH MODE: a full re-sync per change (debounced). The notes tree is
- * small (a few MB), so mirroring it whole is simpler and can't drift,
- * unlike incremental copying (renames/deletes). Astro's dev server watches
- * src/content/ and hot-reloads the affected pages.
- */
+/* For more details, see docs/blog/implementation-notes.md#scripts-sync-content-ts-note-1. */
 import { cpSync, existsSync, mkdirSync, rmSync, watch } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";

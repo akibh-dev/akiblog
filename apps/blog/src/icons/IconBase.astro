@@ -1,19 +1,5 @@
 ---
-/**
- * @file src/icons/IconBase.astro
- * @description Shared SVG shell for the entire portfolio icon set.
- *
- * POC / WHY THIS APPROACH:
- * - Single source of truth for the icon contract: 24×24 grid, stroke-only,
- *   `currentColor` — so every icon inherits text color and therefore works in
- *   light AND dark mode automatically (theme tokens flip via the `.dark` class).
- * - `title` prop gives accessible labeling when an icon is used standalone
- *   (renders <title> + role="img"); otherwise the icon is aria-hidden.
- * - Any extra attribute (stroke-width, width, height, data-*, on*) is forwarded
- *   AFTER the defaults, so callers can override per-instance.
- *
- * Usage: see any sibling icon — they only supply <path>/<circle> children.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-icons-iconbase-astro-note-1. */
 export interface Props {
   /** Tailwind classes, e.g. "size-4 text-subtle group-hover:text-accent" */
   class?: string;

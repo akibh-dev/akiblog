@@ -1,40 +1,4 @@
-/**
- * @file lib/markdown.ts
- * @description The blog's markdown pipeline extensions, wired in
- *              astro.config.mjs. Small, dependency-free tree walkers —
- *              each one is a few lines, so pulling in unist-util-visit /
- *              rehype-autolink-headings / remark-github-alerts would add
- *              more surface than it saves.
- *
- *  remarkStripTitle     drop a leading `# H1` from the body — the page
- *                       renders frontmatter `title` as the only h1 (the
- *                       existing notes start with `# Title`; plan20 §1 #9:
- *                       fixed here, not by editing the notes repo)
- *  remarkCodeLang       lowercase fence languages (```Bash → bash) — GitHub
- *                       accepts any case, Shiki only lowercase ids
- *  remarkAlerts         GitHub alerts `> [!NOTE]` … → <div class="callout
- *                       callout-note" role="note"> with a title row. Same
- *                       syntax renders on GitHub, Jekyll (plain quote) and
- *                       here (docs/ui-guide §7)
- *  rehypeHeadingAnchors h2–h4 get a trailing <a class="heading-anchor"> to
- *                       their own id. The link has NO text (the "#" is CSS
- *                       ::before), so heading text — and therefore TOC
- *                       labels + Pagefind titles — stay clean
- *  rehypeExternalLinks  http(s) links to other hosts → rel="noopener
- *                       noreferrer" + target=_blank + .external (CSS ↗)
- *  shikiCodeFrame       Shiki transformer: wraps each code block in the
- *                       Zed-style frame — tab strip (language + optional
- *                       `title="file.ts"` meta) and a Copy button wired by
- *                       islands/CopyCode.astro. The button is static HTML,
- *                       so the hash-based CSP needs no inline script.
- *
- * POC (astro.config.mjs):
- *   markdown: {
- *     processor: unified({ remarkPlugins: [remarkStripTitle, remarkCodeLang, remarkAlerts],
- *       rehypePlugins: [rehypeHeadingIds, rehypeHeadingAnchors, rehypeExternalLinks()] }),
- *     shikiConfig: { transformers: [shikiCodeFrame()] },
- *   }
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-markdown-ts-note-1. */
 
 /* Minimal structural node type — enough for walking mdast + hast. */
 interface Node {

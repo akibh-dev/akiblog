@@ -1,25 +1,4 @@
-/**
- * @file public/giscus/light.css
- * @description giscus comments theme (light) matching akiblog's tokens.
- *              Loaded INSIDE the giscus iframe: islands/Comments.astro passes
- *              this file's absolute URL as the giscus `theme`, and swaps
- *              light.css ⇄ dark.css when the site's theme toggle flips.
- *
- * WHY THIS SHAPE
- * - @import giscus's own "light" theme first, then override only the
- *   variables that define surfaces, text, borders, accent and buttons —
- *   every other primer variable (syntax colors, states) stays coherent.
- * - Values are the blog's tokens (src/styles/global.css) RESOLVED to rgb in
- *   a real browser — the iframe can't read our CSS variables, and the
- *   tokens are oklch()/color-mix() chains. Re-resolve if the palette changes.
- *   --primary-default / --bg-default are "r, g, b" triplets (giscus uses
- *   them inside rgba()).
- * - Fonts: relative URLs resolve against THIS stylesheet, so the same file
- *   works from localhost and from blog.akibh.dev. /fonts/* is served with
- *   Access-Control-Allow-Origin: * (public/_headers), required for
- *   cross-origin font loads.
- * - Square-ish corners (2px) like the rest of the site.
- */
+/* For more details, see docs/blog/implementation-notes.md#public-giscus-light-css-note-1. */
 @import url("https://giscus.app/themes/light.css");
 
 @font-face {
@@ -116,12 +95,7 @@ main a:hover {
   color: rgb(163 50 31);
 }
 
-/* Keep borders off the iframe's last pixel column. giscus draws the
-   comment box edge-to-edge (right edge = iframe width), so under some
-   engines/zoom levels (Safari, Firefox, fractional display scaling) the
-   1px right border rounds out of the viewport and looks clipped. body is
-   auto-width, so this padding shrinks its content instead of overflowing:
-   the box ends 2px inside the frame everywhere. */
+/* For more details, see docs/blog/implementation-notes.md#public-giscus-light-css-note-2. */
 body {
   padding-inline: 2px;
 }

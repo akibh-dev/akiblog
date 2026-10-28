@@ -1,25 +1,5 @@
 ---
-/**
- * @file sections/Skills.astro
- * @description Skills as a ruled table — one full-bleed row per category,
- *              bare icons only (no cards, no keycaps, no captions).
- *
- * POC / WHY THIS APPROACH:
- * 1. NO CARDS — like Contact/Projects, structure is hairlines on one
- *    surface: headerless SectionShell (pad="p-0"), rows split by divide-y,
- *    the category column split from the icons by a single border-l. Reads
- *    as a spec sheet, the way delta lays out its pricing table.
- * 2. ICONS ONLY — glyphs from src/icons (stroke, currentColor) sit
- *    directly on the surface with no caption. The name still exists as a
- *    native tooltip (title) and as sr-only text, so screen readers and
- *    hover both identify each glyph. Hover tints the glyph with
- *    the brand colour and lifts it 2px — transform/color only, GPU-cheap,
- *    disabled under prefers-reduced-motion.
- * 3. COMPACT — no captions + tight row padding keep each row ~70px.
- * 4. The skill → icon map lives here, so data/portfolio.ts stays
- *    .astro-free; unmapped skills fall back to Braces instead of breaking
- *    the build. Pure static Astro, zero JS (AGENTS.md rule 5).
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-skills-astro-note-1. */
 import SectionShell from "../ui/SectionShell.astro";
 import { portfolioData } from "../../data/portfolio";
 import {

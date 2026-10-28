@@ -1,16 +1,4 @@
-# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
-#
-# WHY:
-# - /_astro/* files are content-hashed by Astro (name changes whenever the
-#   bytes change), and /fonts/* never change → cache for a year, immutable.
-#   Fixes Lighthouse "Use efficient cache lifetimes" for same-origin assets.
-# - Everything else (HTML, robots, llms.txt, CV) keeps Pages' default
-#   revalidation so a deploy shows up immediately.
-# - Security headers (Lighthouse best practices / securityheaders.com):
-#   nosniff, strict referrer, no framing, minimal permissions. HSTS is set
-#   at the zone level by Cloudflare (SSL/TLS → Edge Certificates).
-#   No CSP yet: Turnstile + Cloudflare Web Analytics + inline theme script
-#   need a hash/nonce-based policy — see the follow-up list.
+# For more details, see docs/portfolio/implementation-notes.md#public-headers-note-1.
 
 /*
   X-Content-Type-Options: nosniff
@@ -18,11 +6,7 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
 
-# The page (HTML): Pages' default caching + `no-transform`, so the zone's
-# Bot Fight Mode doesn't inject Cloudflare "JavaScript detections" — an
-# inline per-request script our hashed <meta> CSP must block (Cloudflare
-# only nonces CSP *headers*), which logged a CSP error on every visit.
-# Same fix as apps/blog/public/_headers. Bot Fight Mode stays on.
+# For more details, see docs/portfolio/implementation-notes.md#public-headers-note-2.
 /
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 

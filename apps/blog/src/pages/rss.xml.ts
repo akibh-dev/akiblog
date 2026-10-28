@@ -1,14 +1,4 @@
-/**
- * @file pages/rss.xml.ts
- * @description RSS 2.0 feed of all published posts (@astrojs/rss).
- *
- * WHY description-only items (no full HTML body): feed readers then show
- * the same summary search engines and social cards use, and readers click
- * through to the real page — where code frames, callouts and the TOC
- * actually work (a feed reader strips our CSS + scripts anyway).
- * Categories = tags, so readers can filter; drafts never appear
- * (lib/posts getPosts). Absolute links come from `site` in astro.config.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-rss-xml-ts-note-1. */
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { getPosts, postUrl } from "../lib/posts";

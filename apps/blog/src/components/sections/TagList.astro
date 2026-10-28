@@ -1,20 +1,5 @@
 ---
-/**
- * @file sections/TagList.astro
- * @description Ruled list of all tags with counts — the home page's #tags
- *              section (plan23; was the standalone /tags/ page).
- *
- * WHY A LIST (not a cloud): font-size clouds are hard to scan and fail
- * contrast at the small end. A ruled, count-sorted list reads like the
- * rest of the site (hairlines, mono meta, serif names) and doubles as an
- * index of the whole blog — each row shows the newest post under the tag.
- *
- * Lines: border-t on the list, border-b per row, border-l on the right
- * column (md). The last row(s) drop border-b so they don't double the
- * seam line below the panel.
- *
- * Example: <TagList tags={tagIndex(posts)} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-sections-taglist-astro-note-1. */
 import { formatDate, type Post } from "../../lib/posts";
 
 interface Props {

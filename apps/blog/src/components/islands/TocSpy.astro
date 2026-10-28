@@ -1,32 +1,5 @@
 ---
-/**
- * @file islands/TocSpy.astro
- * @description Scroll-spy for any "on this page" list: wraps its slot in a
- *              <toc-spy> element that marks the heading being read with
- *              aria-current="location" on its `a[data-toc-link]`.
- *              Used by the sidebar git-tree TOC (layout/TocTree.astro) and
- *              the inline mobile TOC (islands/TableOfContents.astro).
- *
- * LOGIC — from docs/ui-guide/TableOfContents.astro (Delta reference):
- * rAF-throttled scroll tracking against each heading's document offset
- * minus its scroll-margin-top; a click-settle window so a clicked jump
- * isn't overridden mid-scroll; the last heading wins at page bottom
- * (short final sections never reach the top).
- *
- * ADDED for the sidebar tree:
- * - The active link is kept visible inside its own scroll container (a
- *   long outline scrolls in the fixed sidebar) by adjusting that
- *   container's scrollTop directly — NOT scrollIntoView, which would
- *   also try to scroll the window and fight the reader.
- * - Rows also get data-trail on the active heading's ancestors (the h2
- *   above an active h3, …) so the tree can tint the path to the commit,
- *   like a checked-out branch.
- *
- * WHY a wrapper element: several spies can coexist (sidebar + inline);
- * each instance tracks only its own links. Bundled module (CSP-hashed).
- *
- * Example: <TocSpy><nav>…<a href="#x" data-toc-link data-lane="1">…</a></nav></TocSpy>
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-islands-tocspy-astro-note-1. */
 ---
 
 <toc-spy class="contents"><slot /></toc-spy>

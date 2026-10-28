@@ -1,10 +1,4 @@
-/**
- * @file islands/terminal/registry.ts
- * @description Command lookup + completion over the command list.
- *
- * A Map keyed by every name AND alias gives O(1) lookup; completion
- * operates over the de-duplicated key set.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-registry-ts-note-1. */
 
 import type { Command } from "./types";
 

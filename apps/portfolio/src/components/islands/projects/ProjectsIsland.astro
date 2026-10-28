@@ -1,37 +1,5 @@
 ---
-/**
- * @file islands/projects/ProjectsIsland.astro
- * @description Zed-editor workspace — full chrome, PURE ASTRO edition.
- *              Replaces ProjectWorkspace.tsx (plan 18).
- *
- * POC / FRAME STRUCTURE (user-directed, top to bottom — unchanged):
- *   TitleBar   — traffic lights + window title
- *   MenuBar    — zed file edit … help + user avatar menu
- *   Grid       — left sidebar (project panel) | right section
- *     Right rows (hidden when no buffer is open): TabBar, Breadcrumbs,
- *     Preview (README pane or the "no editor" empty state)
- *   StatusBar  — panel/git/diagnostics left · agent/term/encoding right
- *
- * POC / WHY PRE-RENDER + CONTROLLER (the migration's core decision):
- * the state space is enumerable (N files), so EVERY dynamic surface is
- * rendered at build time — all tabs, all README panels, all breadcrumb
- * navs, all minimaps, the empty state — and controller.ts only toggles
- * hidden / classes / aria-* via the data-* contract (plan 18). No
- * framework runtime, no hydration, no runtime data, and SSR output is
- * the exact initial editor state (first file open + focused).
- *
- * POC / FULL-BLEED FRAME: the section (Projects.astro) supplies zero
- * padding and no header, so the editor chrome spans the entire panel —
- * the island itself carries NO outer padding and NO window border of
- * its own (a rounded border here would double up against the channel's
- * border-x side lines). The section's own panel lines + the Seam bands
- * become the IDE window's outer frame.
- *
- * STATE MODEL (mirrors a real editor — controller.ts):
- * openTabs (open buffers, append on open, × removes) · activeTab ·
- * bounded history deque (8) · sidebar visibility (panel stays MOUNTED) ·
- * folder collapse cascade · tree tablist + avatar menu ARIA.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-projects-projectsisland-astro-note-1. */
 import { FileTextIcon } from "../../../icons";
 import { toProjectFile, type ProjectItem } from "./types";
 import TitleBar from "./chrome/TitleBar.astro";

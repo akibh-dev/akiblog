@@ -1,36 +1,4 @@
-# ==============================================================================
-# Blog (akiblog) → Cloudflare Pages deployment
-#
-# Documentation & Implementation POC (plan20 §3, plan21):
-# - Same shape as portfolio-deploy.yml: build IN CI from source with bun,
-#   ensure the Pages project exists, `wrangler pages deploy --branch=main`
-#   (a PRODUCTION deployment), concurrency so the newest run wins.
-# - Triggers:
-#     push to main touching apps/blog/** (or this file)  → code changes
-#     workflow_dispatch                                 → "publish new notes":
-#        `bun run deploy:blog` locally runs `gh workflow run` on this file
-#     repository_dispatch: notes-updated                 → optional hook the
-#        notes repo can send later (push a note → it publishes itself)
-# - CONTENT: posts are NOT in this repo. The notes repo
-#   (github.com/akibh-dev/notes, public) is checked out to .notes and
-#   apps/blog/scripts/sync-content.ts copies notes/content/** into the
-#   content collection (`--require`: a missing checkout fails the run
-#   instead of deploying an empty blog).
-# - The build runs the content schema (bad frontmatter fails here, before
-#   anything is deployed) and Pagefind (search index into dist/pagefind).
-# - Commit message on Pages shows both revisions: blog@<sha> · notes@<sha>.
-# - After a successful deploy it re-runs portfolio-deploy.yml: the
-#   portfolio's Writings section fetches /api/featured AT ITS BUILD
-#   (apps/portfolio/src/lib/blog.ts), so it must rebuild to show new or
-#   newly featured posts. Dispatch via the job's GITHUB_TOKEN is allowed
-#   for workflow_dispatch (needs `actions: write` below).
-#
-# Required GitHub repository secrets (the SAME two as the portfolio):
-#   CLOUDFLARE_API_TOKEN   token with "Cloudflare Pages: Edit"
-#   CLOUDFLARE_ACCOUNT_ID  the account that owns the Pages project
-# Optional: NOTES_TOKEN (fine-grained PAT, Contents: read on akibh-dev/notes)
-#   only if the notes repo ever becomes private (giscus needs it public).
-# ==============================================================================
+# For more details, see docs/blog/implementation-notes.md#github-workflows-blog-deploy-yml-note-1.
 
 name: Deploy Blog (Cloudflare Pages)
 

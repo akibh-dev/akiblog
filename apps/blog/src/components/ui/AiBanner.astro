@@ -1,19 +1,5 @@
 ---
-/**
- * @file ui/AiBanner.astro
- * @description AI-disclosure note under the post header, shown when the
- *              post's frontmatter says `ai: assisted | generated`
- *              (legacy `author: gemini` is mapped to `generated` by the
- *              content schema).
- *
- * WHY: readers deserve to know when a text was machine-written or
- * machine-assisted — stated plainly, once, at the top, without alarm
- * colors. Brand wash + left rule (docs/ui-guide §9), Sparkles glyph from
- * the portfolio icon set, role="note" so screen readers announce it as
- * an aside rather than part of the article.
- *
- * Example: <AiBanner level="generated" />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-aibanner-astro-note-1. */
 import { SparklesIcon } from "../../icons";
 
 interface Props {

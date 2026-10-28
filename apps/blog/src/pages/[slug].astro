@@ -1,29 +1,5 @@
 ---
-/**
- * @file pages/[slug].astro
- * @description One post — composition (docs/ui-guide §5 "Post page"):
- *
- *   Panel        PostHeader (eyebrow · h1 · description · meta) + AiBanner
- *   Panel (p-0)  cover in the PostCover proof frame
- *   Seam
- *   Panel        article.prose  (TOC = the sidebar's git tree on lg+,
- *                                an inline <details> above the article below lg)
- *   Seam
- *   Panel (p-0)  PostNav (older / newer)
- *   Seam
- *   Panel        Comments (giscus) — only once src/config/giscus.ts is set
- *   Seam         and the post doesn't say `comments: false`
- *   Footer
- *
- * URL CONTRACT (plan24): /<id>/ — the slug right after the domain, since
- * the blog has no other content pages. id = frontmatter slug ?? folder name
- * (content.config.ts generateId) — the year folder is not in the URL.
- *
- * OG IMAGE: the cover is rendered to a 1200×630 JPEG via getImage() at
- * build — social scrapers don't reliably accept AVIF/WebP (plan19 §2.1).
- * Posts without a cover get their own generated card, /og/<slug>.png
- * (lib/og.ts, plan28).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-slug-astro-note-1. */
 import { getImage } from "astro:assets";
 import { render } from "astro:content";
 import Layout from "../layouts/Layout.astro";

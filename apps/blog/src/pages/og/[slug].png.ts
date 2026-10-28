@@ -1,11 +1,4 @@
-/**
- * @file pages/og/[slug].png.ts
- * @description Per-post Open Graph card, /og/<slug>.png (1200×630), built
- *              at build time by lib/og.ts — for posts WITHOUT a cover
- *              (posts with one use the cover, rendered to JPEG by
- *              pages/[slug].astro). Title, type/tags eyebrow, reading
- *              time + date, in the blog's own fonts and colors.
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-og-slug-png-ts-note-1. */
 import type { APIRoute } from "astro";
 import { renderOgCard } from "../../lib/og";
 import { formatDate, getPosts, readingMinutes, type Post } from "../../lib/posts";

@@ -1,28 +1,5 @@
 ---
-/**
- * @file pages/index.astro
- * @description One-page portfolio — composition ONLY (plan12 contract).
- *
- * data/sections.ts is the SINGLE nav registry (id / label / number). This
- * file binds ids → panel components with one static imports block + one
- * id-keyed record, then maps the registry — so sidebar stations, the
- * mobile menu and the page itself can never drift apart.
- *
- * The "=" SEAMS (ui/Seam.astro — hatched band, border-y) are auto-inserted
- * BETWEEN panels: none at the top/bottom edge, where the fixed frame's
- * border-b/t draw the edge lines (delta.dev's own pattern).
- *
- * WHY the binding lives here (not in data/sections.ts): Astro's Vite
- * pipeline compiles `.astro` imports only through a component frontmatter
- * — a plain .ts module importing ".astro/*.astro" fails the build
- * ([builtin:vite-transform] Unexpected token, see plan12.md).
- *
- * EXTENSIBILITY — adding a section is three additive lines:
- *   1. src/components/sections/YourThing.astro wrapped in <SectionShell>
- *   2. one entry appended in data/sections.ts
- *   3. one import + one record line below
- * No existing content is edited.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-pages-index-astro-note-1. */
 import Layout from "../layouts/Layout.astro";
 import Seam from "../components/ui/Seam.astro";
 import Hero from "../components/sections/Hero.astro";

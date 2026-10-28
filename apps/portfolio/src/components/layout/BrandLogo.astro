@@ -1,60 +1,5 @@
 ---
-/**
- * @file layout/BrandLogo.astro
- * @description Animated Paint-Fill "A" brand logo — light + dark variants.
- *
- * SOURCE (reproduced 1:1):
- *   - assets/Paint-Fill A-html--white/Main.dc.html  → light variant
- *   - assets/Paint-Fill A — Dark-html/Dark.dc.html  → dark variant
- * The SVG and its pure-CSS keyframe choreography are lifted EXACTLY from
- * those exports: same viewBox="0 0 600 600", same path data, same colors,
- * same stroke-width="4" outline, same timings — a 1s pop intro, then five
- * rainbow paint layers sweep left→right across the clipped glyph,
- * staggered 140ms apart starting at t=1s; the final layer (BLACK in the
- * light variant, WHITE in the dark one) lands at t=1.7s; the rainbow
- * group fades at t=3.35s, leaving the monochrome A. The dark variant's
- * outline additionally cross-fades #737373 → #FFFFFF in sync with the
- * final layer. The exports' react.js/support.js are only the design
- * tool's preview-page boilerplate — the animation needs no JavaScript,
- * so this component ships zero JS and plays on first paint.
- *
- * WHY TWO SVGs (not one recolored): the variants are NOT recolors of
- * each other — light starts as a WHITE A and fills BLACK under a
- * constant black outline; dark starts as a zinc-900 (#18181B) A, fills
- * WHITE, and its outline animates gray→white. Both variants are inlined
- * and swapped with Tailwind's `dark:` variant (.dark is set on <html>
- * before first paint → no flash of the wrong logo). Deliberate side
- * effect: display:none pauses CSS animations, so every theme toggle
- * REPLAYS the full intro + paint sweep on the newly shown variant.
- *
- * WHY NO WRAPPER BOX: an earlier iteration sat the logo inside the
- * sidebar's bordered rounded-md chip, but the chrome rectangle fights
- * the artwork — the source A is designed to float directly on the page
- * (its preview stages are plain #E7E4DD / #09090B fields). Here it
- * floats on the site's own canvas the same way.
- *
- * NECESSARY DEVIATIONS FROM SOURCE (invisible — required for embedding):
- *  1. Class names, keyframe names and clipPath ids are prefixed
- *     (logo-a-*): both variants live in ONE document, so the source's
- *     bare names (.pop, .l0–.l5, .colors, .ol, #aClip, intro/sweep/gone/ol)
- *     would collide with each other and could collide with site CSS.
- *  2. The fixed width="560" height="560" attributes become class-driven
- *     sizing via the `class` prop — the viewBox is unchanged, so the
- *     artwork scales losslessly to any size.
- *  3. The preview background divs (#E7E4DD / #09090B) are dropped — see
- *     WHY NO WRAPPER BOX above.
- *  4. role="img" + aria-label become aria-hidden — the logo renders
- *     inside a link whose adjacent text already names the site.
- *  5. clipPath ids also carry a per-INSTANCE suffix (logo-a-clip-dark-x7k2q9).
- *     With one shared id, url(#…) resolves to the FIRST match in the
- *     document; once the mobile header (display:none on desktop) rendered
- *     a logo before the sidebar's, every logo pointed at that hidden
- *     clipPath, the clip failed and the desktop A became a white square.
- *
- * Reduced motion: jumps straight to the final filled A (rainbow hidden,
- * last layer parked at its end position, dark outline already white) —
- * the same end state the source's own reduced-motion block produces.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-layout-brandlogo-astro-note-1. */
 
 interface Props {
   /** Size utilities applied to both variant SVGs, e.g. "size-9". */
@@ -156,11 +101,7 @@ const VARIANTS = [
 }
 
 <style>
-  /* Choreography timings lifted 1:1 from the source exports; names are
-     prefixed logo-a-* because both variants share one document (Astro
-     additionally hash-scopes the keyframes, so collisions are impossible).
-     Sequence: pop (0–1s) → five staggered rainbow sweeps (1–3.3s) → final
-     monochrome layer (from 1.7s) → rainbow fades at 3.35s. */
+  /* For more details, see docs/portfolio/implementation-notes.md#src-components-layout-brandlogo-astro-note-2. */
   .logo-a-pop {
     transform-box: view-box;
     transform-origin: 300px 300px;

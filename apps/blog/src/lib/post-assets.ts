@@ -1,26 +1,4 @@
-/**
- * @file lib/post-assets.ts
- * @description Astro integration: serves every post's CO-LOCATED FILES
- *              (screenshots, PDFs, archives — anything next to its
- *              index.md except markdown) at /<slug>/<file>.
- *
- * WHY: a note can LINK to a file beside it — `[this](./github-up-time.png)`.
- * GitHub and Jekyll serve the whole folder, so the link works there; Astro
- * only ships files it processes (EMBEDDED images `![](./x.png)`), so on the
- * blog a linked file was a 404. With this, `./file` resolves on the blog
- * exactly like it does on GitHub: post page /<slug>/ + relative file =
- * /<slug>/<file>.
- *
- * HOW
- * - Slug per folder = frontmatter `slug:` if set, else the folder name —
- *   the same rule as content.config.ts generateId.
- * - `astro dev`: a dev-server middleware streams the file from
- *   src/content/posts (so links work while writing, with live sync).
- * - `astro build`: astro:build:done copies the files into dist/<slug>/.
- * Nothing is written to public/, so there's nothing to gitignore.
- *
- * Registered in astro.config.mjs: integrations: [postAssets(), …]
- */
+/* For more details, see docs/blog/implementation-notes.md#src-lib-post-assets-ts-note-1. */
 import type { AstroIntegration } from "astro";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, createReadStream } from "node:fs";
 import { extname, join, resolve } from "node:path";

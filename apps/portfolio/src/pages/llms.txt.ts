@@ -1,21 +1,4 @@
-/**
- * @file pages/llms.txt.ts
- * @description /llms.txt — the site in plain Markdown for LLMs and AI
- *              agents, following the llms.txt proposal (https://llmstxt.org):
- *              H1 name, a > summary, short context, then H2 sections of links.
- *
- * WHY GENERATED (not a hand-written public/llms.txt): every fact comes from
- * data/portfolio.ts — the same source the page renders — so the summary
- * can't drift from the site. `prerender` makes it a static file at build
- * time (dist/llms.txt); no runtime code.
- *
- * WHAT IT IS NOT: llms.txt doesn't control crawling. It's a map for agents
- * that are ALLOWED in (AI search / answer bots) so they read one small file
- * instead of parsing the full HTML. Crawl permissions live in
- * public/robots.txt (AI training crawlers are disallowed there).
- *
- * POC: `curl https://akibh.dev/llms.txt`
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-pages-llms-txt-ts-note-1. */
 import type { APIRoute } from "astro";
 import { portfolioData } from "../data/portfolio";
 import { getBlogPosts } from "../lib/blog";

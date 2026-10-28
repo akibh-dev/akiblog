@@ -1,12 +1,4 @@
-/**
- * @file islands/terminal/types.ts
- * @description The terminal's typed contract.
- *
- * Model: a terminal renders a history of entries. Each entry is one line
- * of styled segments (or an empty segment list = blank line). Commands
- * are pure functions: context in, lines out. No command touches React
- * state directly — the shell owns all side effects except theme.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-terminal-types-ts-note-1. */
 
 import type { portfolioData } from "../../../data/portfolio";
 import type { ThemeMode } from "../../../lib/theme";

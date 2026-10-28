@@ -1,20 +1,4 @@
-# ==============================================================================
-# Portfolio — Cloudflare Pages configuration (wrangler.toml)
-#
-# POC / Implementation Architecture:
-# - Cloudflare Pages project "portfolio". `pages_build_output_dir` marks this
-#   as a Pages config, which makes this file the source of truth for the
-#   project's settings. `wrangler pages deploy` (see
-#   .github/workflows/portfolio-deploy.yml) uploads `dist` plus `functions/`.
-# - Static Astro build served from Pages' edge. Only functions/api/contact.ts
-#   runs code, and it forwards the contact form to the private `mailer` Worker
-#   over the MAILER service binding below. The mailer has no public URL, so
-#   the binding is the only way in.
-# - Top-level bindings apply to BOTH production and preview deployments.
-# - The custom domain (akibh.dev) is attached in the dashboard:
-#   Pages → portfolio → Custom domains. Pages configs have no `routes`.
-# - No secrets here; Turnstile's secret lives in the mailer only.
-# ==============================================================================
+# For more details, see docs/portfolio/implementation-notes.md#wrangler-toml-note-1.
 
 name = "portfolio"
 compatibility_date = "2026-03-13"

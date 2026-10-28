@@ -1,40 +1,5 @@
 ---
-/**
- * @file sections/About.astro
- * @description About — the interactive terminal framed by ruled lines, then
- *              an auto-scrolling strip of fact tiles (delta.dev's
- *              "Words from early adopters" marquee).
- *
- *   ═══════════════════   ← <Seam/> above this panel (index.astro) = the
- *   │░░│ terminal │░░│      double top rule
- *   │░░│          │░░│   ← centre column between full-height hairlines,
- *   ───────────────────      hatched gutters; terminal fills the column
- *   ‹ tile  tile  tile ›  ← marquee, edge-faded
- *
- * POC / WHY THIS APPROACH:
- * 1. LINES, NOT BOXES — headerless SectionShell (pad="p-0"). The terminal
- *    row is a 3-column grid: hatched gutters (--color-hatch, the brand
- *    hatch, so empty space reads as intentional) around a centre column
- *    with border-x. The terminal runs in `flush` mode (no own border,
- *    radius, shadow) with NO padding, so it fills that column exactly and
- *    its edges ARE the column lines — framed, not floating.
- * 2. MARQUEE IN PURE CSS — the tile list is rendered TWICE in one flex
- *    track and the track animates translateX(0 → −50%): at −50% copy #2 is
- *    exactly where copy #1 started, so the loop is seamless. Spacing is a
- *    per-tile margin (not `gap`) so −50% lands on an exact tile boundary.
- *    Transform-only → composited, no layout per frame, zero JS.
- *    - hover/focus-within pauses it (readable on demand);
- *    - copy #2 is aria-hidden + inert, so screen readers / keyboard see
- *      each tile once;
- *    - prefers-reduced-motion: no animation, the strip becomes a normal
- *      horizontal scroller (copy #2 hidden).
- * 3. TILE CONTENT IS REAL DATA — no testimonials exist, so tiles are built
- *    from portfolioData (competitive metrics, education, location) in
- *    delta's tile anatomy: statement on top, round "avatar" (platform
- *    glyph) + italic serif name + mono handle at the bottom. Every tile
- *    links out: metrics → the platform profile, CUET → cuet.ac.bd,
- *    location → Google Maps.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-about-astro-note-1. */
 import SectionShell from "../ui/SectionShell.astro";
 import Terminal from "../islands/terminal/Terminal.astro";
 import { portfolioData } from "../../data/portfolio";

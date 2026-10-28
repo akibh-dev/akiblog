@@ -1,31 +1,5 @@
 ---
-/**
- * @file sections/Writings.astro
- * @description "From the blog" — delta.dev's blog teaser, adapted to a
- *              single-author blog. Full-bleed panel: header row, then a
- *              column grid split by hairlines (no cards).
- *
- * POC / WHY THIS APPROACH:
- * 1. FULL BLEED, LINES NOT BOXES — headerless SectionShell with pad="p-0"
- *    (the Projects/Contact contract). Columns are separated by border-l and
- *    the grid by one border-t, so the posts read as one ruled sheet that
- *    runs edge-to-edge between the channel lines, exactly like delta.
- * 2. COVERS — ui/PostCover.astro shows the post's banner (from the blog)
- *    inside delta's proof-sheet frame; posts WITHOUT a banner get the
- *    default typographic "document" thumbnail, so mixed rows stay aligned.
- * 3. NO AUTHOR BYLINE — every post is mine, so a name/avatar on each column
- *    is noise. That slot carries information instead:
- *      • topic eyebrow (tags) above the title — what it's about at a glance
- *      • reading-time meter (filled ticks, 1 tick ≈ 1 min) + date below —
- *        how long it'll take, visible before clicking.
- * 4. "View all posts" uses the site-wide default button (global.css
- *    `btn`). The RSS feed link lives in the sidebar's social row.
- * 5. Pure static Astro, zero client JS (AGENTS.md rule 5).
- * 6. POSTS COME FROM THE BLOG: lib/blog.ts fetches /api/featured?limit=3 at
- *    build time (featured first, filled with the newest). If the API was
- *    unreachable, the grid is replaced by a one-line pointer to the blog —
- *    no placeholder posts.
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-writings-astro-note-1. */
 import SectionShell from "../ui/SectionShell.astro";
 import PostCover from "../ui/PostCover.astro";
 import { portfolioData } from "../../data/portfolio";

@@ -1,37 +1,5 @@
 ---
-/**
- * @file ui/PostCover.astro
- * @description Thumbnail for a blog teaser, inside delta.dev's framed
- *              "print proof" (crop lines + colour registration squares).
- *              Two modes:
- *   1. BANNER  — post.banner set (comes from blog.akibh.dev): the image,
- *                object-cover, fills the frame.
- *   2. DEFAULT — no banner: a typographic "document" thumbnail — the
- *                post rendered as a page: file path tab, a large serif
- *                drop cap of the title, and faux text lines.
- *
- * POC / WHY THIS APPROACH:
- * - Banners are authored on the blog, so the portfolio must look finished
- *   both WITH and WITHOUT one. The default isn't a grey placeholder: it
- *   reads unmistakably as "an article" and is unique per post.
- * - Faux lines are derived from a hash of the slug (deterministic) — every
- *   post gets its own paragraph rhythm, identical across builds/SSR, with
- *   no randomness that could change between renders.
- * - Same frame + same 2:1 aspect in both modes, so a row mixing bannered
- *   and banner-less posts stays aligned column to column.
- * - Banner <img> is lazy + async-decoded with explicit size (no CLS), and
- *   alt="" because the card's title already names the post (decorative).
- * - Zero JS; hover zoom is CSS on the parent .group, off under
- *   prefers-reduced-motion.
- *
- * Copied from apps/portfolio/src/components/ui/PostCover.astro @ 091c7cf.
- * Keep in sync. BLOG ADAPTATION: `banner` is the post's `cover` as
- * ImageMetadata (validated by the content schema) rendered through
- * astro:assets <Image> → resized + AVIF/WebP at build, real width/height
- * (no CLS). `eager` for the above-the-fold cover on a post page.
- *
- * Example: <PostCover title={post.data.title} slug={post.id} banner={post.data.cover} />
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-postcover-astro-note-1. */
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 

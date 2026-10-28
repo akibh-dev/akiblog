@@ -1,20 +1,4 @@
-# robots.txt — https://akibh.dev
-#
-# POLICY (why it looks like this):
-# - Search engines: fully allowed. A portfolio exists to be found.
-# - AI *search / answer* agents (fetch a page when a person asks about it):
-#   allowed, so "who is Akib Hasan?" in ChatGPT / Claude / Perplexity can cite
-#   this site.
-# - AI *training* crawlers (bulk-collect content for model training):
-#   disallowed. They gain nothing for the visitor and can't link back.
-# - Content-Signal (Cloudflare's Content Signals Policy) is NOT used as a
-#   directive: Lighthouse/Google flag it as an unknown robots.txt rule
-#   (SEO audit fails). Our preference, for reference:
-#   Content-Signal: search=yes, ai-input=yes, ai-train=no
-# - LLM-friendly summary of the site: /llms.txt (https://llmstxt.org).
-#
-# robots.txt is a request, not an enforcement. Hard blocking lives in the
-# Cloudflare dashboard (Security → Bots → "Block AI bots").
+# For more details, see docs/portfolio/implementation-notes.md#public-robots-txt-note-1.
 
 # ── AI training crawlers: no ───────────────────────────────────────────
 User-agent: GPTBot

@@ -1,32 +1,5 @@
 ---
-/**
- * @file ui/Seam.astro
- * @description The "=" separator between section panels — delta.dev's
- *              exact markup (plan10.md point 4):
- *
- *   <div class="relative h-4 flex-none overflow-clip border-y">
- *     <div class="px-(--site-section-inset) size-full">
- *       <div class="border-x relative z-1 size-full"></div>
- *     </div>
- *     <svg …45° hatch, full-bleed, stroke-brand-100/80, dark:opacity-5>
- *   </div>
- *
- * WHY THIS SHAPE (what the recording shows):
- * 1. h-4 (16px) with border-y: two hairlines top and bottom SEPARATE the
- *    flush panels — the only horizontal lines in the column.
- * 2. The inner inset border-x box continues the panels' side-lines through
- *    the seam, so the column reads as one instrument channel with a hatched
- *    "danger stripe" across it rather than separate boxes.
- * 3. PATTERN: the band is TRANSPARENT now — the unified brand watermark
- *    (body's .chrome-bg layer) shows through, replacing the old 45°
- *    hatch. The "danger stripe" texture is the watermark itself.
- * 4. flex-none on the stack child: the section stack is a flex column, and
- *    the seam must never stretch (delta verbatim).
- *
- * Where: index.astro renders <Seam /> once after every section except the
- * last (delta's own pattern: seams BETWEEN panels, none at the top/bottom
- * edge — the fixed frame's border-b/t do the edge lines).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-components-ui-seam-astro-note-1. */
 ---
 
 <div aria-hidden="true" class="relative h-4 flex-none overflow-clip border-y border-line">

@@ -1,23 +1,5 @@
 ---
-/**
- * @file islands/CopyButton.astro
- * @description Clipboard button with transient feedback — PURE ASTRO port
- *              of CopyButton.tsx (plan 17 §3 Phase 5). Same markup,
- *              classes, labels and timing.
- *
- * BEHAVIOUR (unchanged): click → navigator.clipboard.writeText(text).
- * Success shows "Copied!" with the hover look held (`data-ok=true` →
- * btn-hover + accent text); failure shows "Failed". Either way it reverts
- * to "Copy" 2s after the LAST click (a new click restarts the timer).
- *
- * WHY A CUSTOM ELEMENT: no framework runtime for one button (the React
- * version pulled in react + react-dom + the island hydrator, ~200KB,
- * and only became interactive after `client:visible` hydration). The
- * button now works the moment the page is parsed. Text to copy rides in
- * a data attribute, so several instances can coexist.
- *
- * POC:  <CopyButton text="hello@akibh.dev" />
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-islands-copybutton-astro-note-1. */
 interface Props {
   text: string;
 }

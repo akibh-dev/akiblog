@@ -1,17 +1,4 @@
-/**
- * @file pages/llms.txt.ts
- * @description /llms.txt — the blog's summary for LLM answer engines, in
- *              the llmstxt.org format (H1, blockquote summary, H2 link
- *              lists). The portfolio has the same file (akibh.dev/llms.txt)
- *              and links here.
- *
- * WHY: AI search/answer agents (ChatGPT search, Claude, Perplexity) fetch a
- * page when a person asks about it; llms.txt gives them a clean map of the
- * site, and every post links to its plain-Markdown copy (/<slug>.md,
- * pages/[slug].md.ts) instead of HTML full of navigation. robots.txt still
- * disallows AI *training* crawlers — this is for answering, not training.
- * Posts are listed featured-first, then newest (same order as the home).
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-llms-txt-ts-note-1. */
 import type { APIRoute } from "astro";
 import { getPosts, homeFeed } from "../lib/posts";
 import { site } from "../data/site";

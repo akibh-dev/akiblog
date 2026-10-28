@@ -1,10 +1,5 @@
 ---
-/**
- * @file sections/Projects.astro
- * @description Projects section — Astro owns the section shell + data,
- *              the interactive browser is a pure-Astro island
- *              (pre-rendered states + vanilla controller, plan 18).
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-projects-astro-note-1. */
 import SectionShell from "../ui/SectionShell.astro";
 import ProjectsIsland from "../islands/projects/ProjectsIsland.astro";
 import { portfolioData } from "../../data/portfolio";
@@ -13,12 +8,7 @@ const { projects, socials } = portfolioData;
 const repoUrl = socials.find((s) => s.name === "GitHub")?.url;
 ---
 
-{/* FULL-BLEED: the IDE window IS the section content — no eyebrow
-    header (index/label omitted) and zero padding (pad="p-0"), so the
-    editor chrome spans the whole panel between the channel side lines.
-    The sr-only <h2> keeps the outline intact (h1 name → h2 per section →
-    h3 per project README) for screen readers and crawlers — Bing flagged
-    the old per-README <h1>s as "more than one h1". */}
+{/* For more details, see docs/portfolio/implementation-notes.md#src-components-sections-projects-astro-note-2. */}
 <SectionShell id="projects" pad="p-0">
   <h2 class="sr-only">Projects</h2>
   <ProjectsIsland projects={projects} repoUrl={repoUrl} />

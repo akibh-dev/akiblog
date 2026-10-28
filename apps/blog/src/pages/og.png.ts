@@ -1,10 +1,4 @@
-/**
- * @file pages/og.png.ts
- * @description The site's default Open Graph card, /og.png (1200×630) —
- *              home, tag pages, 404. Rendered at build by lib/og.ts.
- *              (Replaces the copy of the PORTFOLIO's og.png that used to
- *              sit in public/, which branded every blog share wrongly.)
- */
+/* For more details, see docs/blog/implementation-notes.md#src-pages-og-png-ts-note-1. */
 import type { APIRoute } from "astro";
 import { renderOgCard } from "../lib/og";
 import { site } from "../data/site";

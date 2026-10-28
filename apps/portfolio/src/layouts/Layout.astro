@@ -1,32 +1,5 @@
 ---
-/**
- * @file layouts/Layout.astro
- * @description Root shell — delta.dev's REAL two-layer layout (plan13.md,
- *              verified against their live DOM):
- *
- *   1. ONE-PAINT BACKGROUND — <body> paints --site-frame-background
- *      everywhere; the chrome cells use the SAME color, so there is a
- *      single canvas with independent fixed chrome on top.
- *   2. FIXED CHROME — ViewportFrame (z-20) holds the four opaque corners
- *      cells (noise + hatch + border) and the 6px SEGMENTED rail
- *      ([3/8 brand | 2/8 gray | 3/8 --delta-blue]) fixed atop the content
- *      track. No 8px accent line — that token was an invention; delta's
- *      line IS this rail.
- *   3. SCROLLING LAYER — the z-0 grid mirrors the chrome grid exactly
- *      ([page-left | 1fr | page-right] margins): sidebar column + main
- *      column, main carries pt-rail + md:border-r so panels and seams
- *      scroll BENEATH the fixed rail (the z-0 wrapper creates a stacking
- *      context, so dropdowns/scrollers inside content cannot escape above
- *      the chrome).
- *   4. "=" SEAMS — <Seam /> bands between panels (composed by
- *      pages/index.astro from the data/sections.ts registry).
- *
- * <head> (metadata, SEO, fonts, the anti-flash theme init) lives in
- * BaseHead.astro so the standalone 404 page shares it.
- * All other behavior lives in bundled custom elements, plus one bundled
- * script at the end of <body>: clean-URL in-page navigation (no `#id` in
- * the address bar; see its header).
- */
+/* For more details, see docs/portfolio/implementation-notes.md#src-layouts-layout-astro-note-1. */
 import "../styles/global.css";
 import ViewportFrame from "../components/layout/ViewportFrame.astro";
 import SiteSidebar from "../components/layout/SiteSidebar.astro";
@@ -62,44 +35,13 @@ const { title } = Astro.props;
           above; the first paint of the rail's right edge continues into
           main's own border-r (delta verbatim) */}
       <main id="main-content" tabindex="-1" class="relative col-(--site-main-column) min-w-0 pt-(--site-rail-height) border-line md:border-r focus-visible:outline-none">
-        {/* The 1rem inset strips show the unified body watermark directly.
-            NO local texture layer here: a noise/hatch layer in the SCROLLING
-            content slides over the viewport-FIXED watermark and the two
-            high-frequency textures moiré — the visible "vibration" on
-            scroll/zoom. (The frame cells keep their noise: it's static
-            relative to the fixed pattern, so no relative motion.) */}
+        {/* For more details, see docs/portfolio/implementation-notes.md#src-layouts-layout-astro-note-2. */}
         <slot />
       </main>
     </div>
 
     <script>
-      /**
-       * Clean-URL in-page navigation: anchors keep their real `#id` hrefs
-       * (no-JS fallback, middle-click, copy link, crawlers), but clicks
-       * scroll without writing `#top`, `#projects`, … into the address bar
-       * or piling up history entries.
-       *
-       * WHY THIS APPROACH:
-       * - ONE delegated listener on document covers every in-page link
-       *   (sidebar, mobile header, the mobile menu, future ones) with
-       *   no per-component wiring.
-       * - Scrolling uses the browser's own scrollIntoView/scrollTo with the
-       *   default behavior, so the CSS already in global.css still applies:
-       *   `scroll-behavior: smooth` (auto under reduced motion) and
-       *   `scroll-padding-block` (sections land below the fixed frame).
-       * - The mobile menu is a modal with a scroll lock that restores the
-       *   old scroll position when it closes. Scrolling while it's open
-       *   would be undone, so links inside a dialog wait (rAF poll, max
-       *   ~1s) until the dialog is gone, then scroll.
-       * - Focus moves to the target (preventScroll), matching what native
-       *   hash navigation does for keyboard and screen-reader users.
-       * - A URL that arrives WITH a hash (a shared link like /#contact)
-       *   still deep-links: the hash is read, stripped with replaceState
-       *   (no reload, no extra history entry), and the page jumps to the
-       *   section itself once loaded. Stripping first cancels the
-       *   browser's own fragment jump, so the script does it instead,
-       *   instantly, like a native deep link.
-       */
+      /* For more details, see docs/portfolio/implementation-notes.md#src-layouts-layout-astro-note-3. */
       const cleanUrl = () => {
         if (location.hash) history.replaceState(history.state, "", location.pathname + location.search);
       };
