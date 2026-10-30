@@ -13,14 +13,14 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.4",
+    "astro": "^7.4.4",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260911.1",
+    "@cloudflare/workers-types": "^5.20261030.1",
     "@repo/tsconfig": "workspace:*",
     "sharp": "^0.35.5",
     "typescript": "^7.0.2",
-    "wrangler": "^4.131.1"
+    "wrangler": "^4.156.0"
   }
 }
