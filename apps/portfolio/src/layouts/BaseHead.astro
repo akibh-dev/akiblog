@@ -93,8 +93,10 @@ const jsonLd = {
 <meta name="author" content={meta.name} />
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
 
-<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+{/* Icons share assets/Paint-Fill A@1x.png artwork so browsers, Search, and iOS use the same brand. */}
+<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title={`${meta.name} — blog`} href={`${meta.blogUrl}/rss.xml`} />
 <meta name="theme-color" content="#fcf7f7" media="(prefers-color-scheme: light)" />
