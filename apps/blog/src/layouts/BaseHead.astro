@@ -98,8 +98,10 @@ const jsonLd = { "@context": "https://schema.org", "@graph": graph };
 {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.join(", ")} />}
 {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
 
-<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+{/* Icons share assets/Paint-Fill A@1x.png artwork so browsers, Search, and iOS use the same brand. */}
+<link rel="icon" type="image/x-icon" sizes="16x16 32x32 48x48" href="/favicon.ico" />
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link rel="alternate" type="application/rss+xml" title={`${site.name} — RSS`} href="/rss.xml" />
 {/* posts: plain-Markdown copy for LLM agents (pages/[slug].md.ts, llmstxt.org) */}
